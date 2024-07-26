@@ -1,6 +1,6 @@
 #include "Vtop.h"
 #include "verilated.h"
-#include "verilated_fst_c.h"
+#include "verilated_vcd_c.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -14,10 +14,10 @@ int main(int argc, char** argv) {
   contextp->commandArgs(argc, argv);
   Vtop* top = new Vtop{contextp};
 
-  VerilatedFstC* tfp = new VerilatedFstC;
+  VerilatedVcdC* tfp = new VerilatedVcdC;
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
-  tfp->open("./build/simx.fst");
+  tfp->open("./build/simx.vcd");
   
   nvboard_bind_all_pins(top);
   nvboard_init();
