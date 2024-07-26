@@ -17,14 +17,16 @@ int main(int argc, char** argv) {
   VerilatedFstC* tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
-  tfp->open("simx.fst");
+  tfp->open("./build/simx.fst");
   
   nvboard_bind_all_pins(top);
   nvboard_init();
 
   while(1){
+    contextp->timeInc(1);
     top->eval();
     nvboard_update();
+    tfp->dump(contextp->time());
   }
 
   nvboard_quit();
