@@ -30,6 +30,8 @@ int main(int argc, char** argv) {
   }
 
   nvboard_quit();
+  tfp->close();
+  delete top;
 
   return 0;
 }
