@@ -1,6 +1,37 @@
+#include "Vtop.h"
+#include "verilated.h"
+#include "verilated_vcd_c.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <nvboard.h>
 
-int main() {
-  printf("Hello, ysyx!\n");
+void nvboard_bind_all_pins(TOP_NAME* top);
+
+int main(int argc, char** argv) {
+
+  VerilatedContext* contextp = new VerilatedContext;
+  contextp->commandArgs(argc, argv);
+  Vtop* top = new Vtop{contextp};
+
+  VerilatedVcdC* tfp = new VerilatedVcdC;
+  Verilated::traceEverOn(true);
+  top->trace(tfp, 99);
+  tfp->open("./build/simx.vcd");
+  
+  nvboard_bind_all_pins(top);
+  nvboard_init();
+
+  while(1){
+    contextp->timeInc(1);
+    top->eval();
+    nvboard_update();
+    tfp->dump(contextp->time());
+  }
+
+  nvboard_quit();
+  tfp->close();
+  delete top;
+
   return 0;
 }
