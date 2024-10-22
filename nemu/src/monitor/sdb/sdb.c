@@ -58,6 +58,8 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args); 
+
 static struct {
   const char *name;
   const char *description;
@@ -68,6 +70,7 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
+  { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
 
 };
 
@@ -93,6 +96,28 @@ static int cmd_help(char *args) {
     }
     printf("Unknown command '%s'\n", arg);
   }
+  return 0;
+}
+
+static int cmd_si(char *args) {
+
+  if(args==NULL){
+    cpu_exec(1);
+    return 0;
+  }
+
+  char *endptr;
+  uint64_t n;
+
+  unsigned long result = strtoul(args, &endptr, 10);
+
+  if (*endptr != '\0') {
+      printf("Invalid input si parameter!\n");
+  } else {
+      n = result;
+      cpu_exec(n);
+  }
+
   return 0;
 }
 
