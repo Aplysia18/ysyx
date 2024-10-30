@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 // #ifdef CONFIG_TARGET_AM
 //   am_init_monitor();
 // #else
-//   init_monitor(argc, argv);
+  init_monitor(argc, argv);
 // #endif
 
 //   /* Start engine. */
@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
 //   return is_exit_status_bad();
 
   /*---test expr---*/
+
   FILE *fp = fopen("/home/lty/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
   assert(fp != NULL);
   
