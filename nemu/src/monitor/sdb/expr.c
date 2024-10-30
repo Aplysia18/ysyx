@@ -168,7 +168,7 @@ uint32_t eval(int begin, int end, bool *success) {
 
   if(*success == false) return 0;
 
-  if(end > begin){
+  if(end < begin){
     printf("Error: Wrong Expression!\n");
     *success = false;
 
