@@ -60,9 +60,9 @@ int main(int argc, char *argv[]) {
       continue; 
     }
     real_result = 0;
-    for(i=0; i<strlen(real_result_str); i++){
+    for(int j=0; j<strlen(real_result_str); j++){
       real_result *= 10;
-      real_result += real_result_str[i] - '0';
+      real_result += real_result_str[j] - '0';
     }
 
     /* treat the remaining string as the expression */
