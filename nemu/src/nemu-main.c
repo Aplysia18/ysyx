@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
 
     /* treat the remaining string as the expression */
     expression = line + strlen(real_result_str) + 1;
+    expression = strtok(expression, "\n");
     
     eval_result = expr(expression, &success);
     if(success == false){
