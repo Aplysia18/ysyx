@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <common.h>
+#include "monitor/sdb/sdb.h"
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -22,14 +23,64 @@ int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
   /* Initialize the monitor. */
-#ifdef CONFIG_TARGET_AM
-  am_init_monitor();
-#else
-  init_monitor(argc, argv);
-#endif
+// #ifdef CONFIG_TARGET_AM
+//   am_init_monitor();
+// #else
+//   init_monitor(argc, argv);
+// #endif
 
-  /* Start engine. */
-  engine_start();
+//   /* Start engine. */
+//   engine_start();
 
-  return is_exit_status_bad();
+//   return is_exit_status_bad();
+
+  /*---test expr---*/
+  FILE *fp = fopen("input", "r");
+  assert(fp != NULL);
+  
+  char *line = NULL;
+  size_t len = 0;
+
+  bool success;
+  uint32_t real_result, eval_result;
+
+  int i = 1;
+  char *real_result_str; 
+  char *expression;
+
+  while(getline(&line, &len, fp) != -1){
+    printf("%d: ",i);
+    i++;
+
+    /* extract the first token as the result */
+    real_result_str = strtok(line, " ");
+    if (real_result_str == NULL) { 
+      printf("Wrong Input!\n");
+      continue; 
+    }
+    real_result = 0;
+    for(i=0; i<strlen(real_result_str); i++){
+      real_result *= 10;
+      real_result += real_result_str[i] - '0';
+    }
+
+    /* treat the remaining string as the expression */
+    expression = line + strlen(real_result_str) + 1;
+    
+    eval_result = expr(expression, &success);
+    if(success == false){
+      printf("Fail!\n");
+      continue;
+    }
+
+    if(real_result != eval_result) {
+      printf("Not Equal! real_result = %d, eval_result = %d.\n", real_result, eval_result);
+    }else{
+      printf("Equal! result = %d.\n", eval_result);
+    }
+    
+  }
+
+  free(line);
+  fclose(fp);
 }

@@ -24,7 +24,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-
+  TK_DEC, 
 };
 
 static struct rule {
@@ -38,7 +38,13 @@ static struct rule {
 
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
+  {"-", '-'},           // sub
+  {"\\*", '*'},         // mul
+  {"/", '/'},           // div
   {"==", TK_EQ},        // equal
+  {"\\(", '('},
+  {"\\)", ')'},
+  {"d+", TK_DEC},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -67,7 +73,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[65535] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -95,7 +101,30 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          case '+': 
+          case '-': 
+          case '*': 
+          case '/':
+            tokens[nr_token].type = rules[i].token_type;
+            nr_token ++;
+          break;
+          case TK_NOTYPE:
+            break;
+          case TK_EQ:
+            break;
+          case TK_DEC:
+            tokens[nr_token].type = TK_DEC;
+            if(substr_len>=sizeof(tokens[nr_token].str)){
+              strncpy(tokens[nr_token].str, substr_start, sizeof(tokens[nr_token].str)-1);
+              tokens[nr_token].str[sizeof(tokens[nr_token].str)-1] = '\0';
+              printf("Warning: Token truncated: %s\n", tokens[nr_token].str);
+            }else{
+              strncpy(tokens[nr_token].str, substr_start, substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+            }
+            nr_token ++;
+          default: 
+            break;
         }
 
         break;
@@ -111,6 +140,102 @@ static bool make_token(char *e) {
   return true;
 }
 
+bool check_parentheses(int begin, int end, bool *success) {
+  int diff = 0;
+  int i;
+  if(tokens[begin].type == '(' && tokens[end].type == ')') {
+    for(i = begin; i<=end; i++){
+      if(tokens[i].type == '(') diff ++;
+      else if(tokens[i].type == ')') diff --;
+    }
+    if(diff == 0) {
+      return true;
+    } 
+    else {
+      printf("Error: Parentheses Mismatch!\n");
+      *success = false;
+      return false;
+    }
+  } else {
+    return false;
+  }
+}
+
+uint32_t eval(int begin, int end, bool *success) {
+
+  uint32_t result = 0;
+  int i;
+
+  if(*success == false) return 0;
+
+  if(end > begin){
+    printf("Error: Wrong Expression!\n");
+    *success = false;
+
+  }else if (begin == end){
+    if(tokens[begin].type == TK_DEC){
+      for(i=0; i<strlen(tokens[begin].str); i++){
+        result *= 10;
+        result += tokens[begin].str[i] - '0';
+      }
+    }else{
+      printf("Error: Wrong Expression!\n");
+      *success = false;
+    }
+
+  }else if(check_parentheses(begin, end, success) == true){
+    result = eval(begin + 1, end - 1, success);
+
+  }else{
+    int op = begin; // main operator position
+    int parentheses = 0;
+    for(i = begin; i <= end ; i++ ) {
+      if(tokens[i].type == '(') {
+        parentheses += 1;
+      } else if(tokens[i].type == ')') {
+        parentheses -= 1;
+        if( parentheses < 0 ) {
+          printf("Error: Parentheses Mismatch!");
+          *success = false;
+          break;
+        }
+      } else if(parentheses == 0){  // not in parentheses
+        if(tokens[i].type == TK_DEC) {
+          continue;
+        }else if(tokens[i].type == '+' || tokens[i].type == '-') {
+          op = i;
+        }else if(tokens[i].type == '*' || tokens[i].type == '/') {
+          if(tokens[op].type == '+' || tokens[op].type == '-'){
+            continue;
+          }else{
+            op = i;
+          }
+        }else{
+          assert(0);
+        }
+      }
+    }
+    uint32_t val1 = eval(begin, op-1, success);
+    uint32_t val2 = eval(op + 1, end, success);
+
+    switch (tokens[op].type){
+      case '+': result = val1 + val2; break;
+      case '-': result = val1 - val2; break;
+      case '*': result = val1 * val2; break;
+      case '/':
+        if(val2 == 0) {
+          printf("Error: Divided By Zero!");
+          *success = false;
+        }else{
+          result = val1 / val2;
+        }
+        break;
+    }
+  }
+
+  return result;
+}
+
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -119,7 +244,8 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  *success = true;
+  uint32_t result = eval(0, nr_token-1, success);
 
-  return 0;
+  return result;
 }
