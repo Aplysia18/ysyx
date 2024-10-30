@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 //   return is_exit_status_bad();
 
   /*---test expr---*/
-  FILE *fp = fopen("input", "r");
+  FILE *fp = fopen("/home/lty/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
   assert(fp != NULL);
   
   char *line = NULL;
