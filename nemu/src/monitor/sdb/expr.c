@@ -92,8 +92,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -222,7 +222,9 @@ uint32_t eval(int begin, int end, bool *success) {
 
     switch (tokens[op].type){
       case '+': result = val1 + val2; break;
-      case '-': result = val1 - val2; break;
+      case '-': result = val1 - val2; 
+      printf("val1 = %u, val2 = %u, result = %u", val1, val2, result);
+      break;
       case '*': result = val1 * val2; break;
       case '/':
         if(val2 == 0) {
