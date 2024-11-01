@@ -217,6 +217,7 @@ uint32_t eval(int begin, int end, bool *success) {
         }
       }
     }
+    printf("op = %d\n", op);
     uint32_t val1 = eval(begin, op-1, success);
     uint32_t val2 = eval(op + 1, end, success);
 
