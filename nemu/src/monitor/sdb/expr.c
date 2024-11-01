@@ -199,7 +199,7 @@ uint32_t eval(int begin, int end, bool *success) {
       } else if(tokens[i].type == ')') {
         parentheses -= 1;
         if( parentheses < 0 ) {
-          printf("Error: Parentheses Mismatch!");
+          printf("Error: Parentheses Mismatch!\n");
           *success = false;
           break;
         }
