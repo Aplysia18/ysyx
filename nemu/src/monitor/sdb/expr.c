@@ -194,6 +194,7 @@ uint32_t eval(int begin, int end, bool *success) {
     for(i = begin; i <= end ; i++ ) {
       if(tokens[i].type == '(') {
         parentheses += 1;
+        printf("(:%d", i);
       } else if(tokens[i].type == ')') {
         parentheses -= 1;
         if( parentheses < 0 ) {
