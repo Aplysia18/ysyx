@@ -195,8 +195,10 @@ uint32_t eval(int begin, int end, bool *success) {
     int parentheses = 0;
     for(i = begin; i <= end ; i++ ) {
       if(tokens[i].type == '(') {
+        printf("( : %d\n", i);
         parentheses += 1;
       } else if(tokens[i].type == ')') {
+        printf(") : %d\n", i);
         parentheses -= 1;
         if( parentheses < 0 ) {
           printf("Error: Parentheses Mismatch!\n");
