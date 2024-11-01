@@ -107,6 +107,8 @@ static bool make_token(char *e) {
           case '-': 
           case '*': 
           case '/':
+          case '(':
+          case ')':
             tokens[nr_token].type = rules[i].token_type;
             nr_token ++;
           break;
