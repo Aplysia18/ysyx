@@ -202,6 +202,7 @@ uint32_t eval(int begin, int end, bool *success) {
           break;
         }
       } else if(parentheses == 0){  // not in parentheses
+        printf("%d\n", i);
         if(tokens[i].type == TK_DEC) {
           continue;
         }else if(tokens[i].type == '+' || tokens[i].type == '-') {
