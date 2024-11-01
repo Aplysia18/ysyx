@@ -204,7 +204,6 @@ uint32_t eval(int begin, int end, bool *success) {
           break;
         }
       } else if(parentheses == 0){  // not in parentheses
-        printf("%d\n", i);
         if(tokens[i].type == TK_DEC) {
           continue;
         }else if(tokens[i].type == '+' || tokens[i].type == '-') {
@@ -220,15 +219,12 @@ uint32_t eval(int begin, int end, bool *success) {
         }
       }
     }
-    printf("op = %d\n", op);
     uint32_t val1 = eval(begin, op-1, success);
     uint32_t val2 = eval(op + 1, end, success);
 
     switch (tokens[op].type){
       case '+': result = val1 + val2; break;
-      case '-': result = val1 - val2; 
-      printf("val1 = %u, val2 = %u, result = %u\n", val1, val2, result);
-      break;
+      case '-': result = val1 - val2; break;
       case '*': result = val1 * val2; break;
       case '/':
         if(val2 == 0) {
