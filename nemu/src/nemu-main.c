@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
 //   return is_exit_status_bad();
 
   /*---test expr---*/
-  uint32_t test = 30 *9768+(3163865898*14834/54629722 )+ 91;
-  printf("%u\n", test);
 
   FILE *fp = fopen("/home/lty/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
   assert(fp != NULL);
@@ -82,7 +80,7 @@ int main(int argc, char *argv[]) {
       printf("%d: \n",i);
       printf("Not Equal! real_result = %u, eval_result = %u.\n", real_result, eval_result);
     }else{
-      // printf("Equal! result = %u.\n", eval_result);
+      printf("Equal! result = %u.\n", eval_result);
     }
     
   }
