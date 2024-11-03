@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
   char *expression;
 
   while(getline(&line, &len, fp) != -1){
-    printf("%d: \n",i);
     i++;
 
     /* extract the first token as the result */
