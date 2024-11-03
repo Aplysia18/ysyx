@@ -50,12 +50,12 @@ int main(int argc, char *argv[]) {
   char *expression;
 
   while(getline(&line, &len, fp) != -1){
-    printf("%d: \n",i);
     i++;
 
     /* extract the first token as the result */
     real_result_str = strtok(line, " ");
     if (real_result_str == NULL) { 
+      printf("%d: \n",i);
       printf("Wrong Input!\n");
       continue; 
     }
@@ -71,11 +71,13 @@ int main(int argc, char *argv[]) {
     
     eval_result = expr(expression, &success);
     if(success == false){
+      printf("%d: \n",i);
       printf("Fail!\n");
       continue;
     }
 
     if(real_result != eval_result) {
+      printf("%d: \n",i);
       printf("Not Equal! real_result = %u, eval_result = %u.\n", real_result, eval_result);
     }else{
       // printf("Equal! result = %u.\n", eval_result);
