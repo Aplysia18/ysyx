@@ -153,7 +153,7 @@ bool check_parentheses(int begin, int end, bool *success) {
       else if(tokens[i].type == ')') diff --;
       if(diff == 0) break;
     }
-    if(i <= end) {
+    if(i < end) {
       return false;
     }else if(diff == 0){
       return true;
