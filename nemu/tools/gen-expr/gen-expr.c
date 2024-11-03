@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc -Wall -Werror -Wno-error=overflow -Wno-overflow /tmp/.code.c -o /tmp/.expr"); // 将警告视为错误，发生divide by 0时返回非0值
+    int ret = system("gcc -Wall -Werror /tmp/.code.c -o /tmp/.expr"); // 将警告视为错误，发生divide by 0时返回非0值
     if (ret != 0) {
       i --;
       continue;
