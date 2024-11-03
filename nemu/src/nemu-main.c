@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   bool success;
   uint32_t real_result, eval_result;
 
-  int i = 1;
+  int i = 0;
   char *real_result_str; 
   char *expression;
 
