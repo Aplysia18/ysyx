@@ -21,8 +21,9 @@
 #include <string.h>
 
 // this should be enough
-static char buf[65536] = {};
-static char code_buf[65536 + 128] = {}; // a little larger than `buf`
+static char out[65536] = {};
+static char buf[131072] = {};
+static char code_buf[131072 + 128] = {}; // a little larger than `buf`
 static char *code_format =
 "#include <stdio.h>\n"
 "int main() { "
@@ -36,7 +37,7 @@ uint32_t choose(uint32_t n) {
   return rand()%n;
 }
 
-int gen_num(int maxlen, int start) {
+int gen_num(int maxlen, int* start, int* start_u) {
 
   int len;
   if(maxlen<=10){
@@ -47,14 +48,23 @@ int gen_num(int maxlen, int start) {
    
   int i = 0;
   if(len==10){
-    buf[start] = '0' + choose(3) + 1;
+    buf[*start_u] = '0' + choose(3) + 1;
+    out[*start] = buf[*start_u];
   }else{
-    buf[start] = '0' + choose(9) + 1;
+    buf[*start_u] = '0' + choose(9) + 1;
+    out[*start] = buf[*start_u];
   }
+  *start += 1;
+  *start_u += 1;
   
   for(i = 1; i < len; i++) {
-    buf[start+i] = '0' + choose(10);
+    buf[*start_u] = '0' + choose(10);
+    out[*start] = buf[*start_u];
+    *start += 1;
+    *start_u += 1;
   }
+  buf[*start_u] = 'u';
+  *start_u += 1;
   return len;
 }
 
@@ -67,25 +77,31 @@ char gen_rand_op() {
   }
 }
 
-static int gen_rand_expr(int maxlen, int start) {
+static int gen_rand_expr(int maxlen, int* start, int* start_u) {
   int len = 0, len1, len2, i = 0;
 
-  if(maxlen<3) return gen_num(maxlen, start);
+  if(maxlen<3) return gen_num(maxlen, start, start_u);
 
   switch(choose(3)){
     case 0: 
       for(i=0; i<maxlen-1; i++){  // 随机在数字前插入空格
         if(choose(2)){
-          buf[start+len] = ' ';
+          buf[*start_u] = ' ';
+          *start_u += 1;
+          out[*start] = ' ';
+          *start += 1;
           len += 1;
         }else{
           break;
         }
       }
-      len += gen_num(maxlen-len, start+len);
+      len += gen_num(maxlen-len, start, start_u);
       for(i=0; i<maxlen-len; i++){  // 随机在数字后插入空格
         if(choose(2)){
-          buf[start+len] = ' ';
+          buf[*start_u] = ' ';
+          *start_u += 1;
+          out[*start] = ' ';
+          *start += 1;
           len += 1;
         }else{
           break;
@@ -93,15 +109,24 @@ static int gen_rand_expr(int maxlen, int start) {
       }
       break;
     case 1: 
-      buf[start] = '('; 
-      len = gen_rand_expr(maxlen - 2, start + 1); 
-      buf[start + len + 1] = ')';
+      buf[*start_u] = '('; 
+      *start_u += 1;
+      out[*start] = '(';
+      *start += 1;
+      len = gen_rand_expr(maxlen - 2, start, start_u); 
+      buf[*start_u] = ')';
+      *start_u += 1;
+      out[*start] = ')';
+      *start += 1;
       len += 2;
       break;
     default: 
-      len1 = gen_rand_expr(maxlen-2, start);
-      buf[start + len1] = gen_rand_op();
-      len2 = gen_rand_expr(maxlen-len1-1, start+len1+1);
+      len1 = gen_rand_expr(maxlen-2, start, start_u);
+      buf[*start_u] = gen_rand_op();
+      out[*start] = buf[*start_u];
+      *start_u += 1;
+      *start += 1;
+      len2 = gen_rand_expr(maxlen-len1-1, start, start_u);
       len = len1 + 1 + len2;
       
   }
@@ -116,11 +141,15 @@ int main(int argc, char *argv[]) {
     sscanf(argv[1], "%d", &loop);
   }
   int i;
-  int len;
+  // int len;
+  int start = 0;
+  int start_u = 0;
   for (i = 0; i < loop; i ++) {
+    start = start_u = 0;
     
-    len = gen_rand_expr(65535, 0);
-    buf[len] = '\0';
+    gen_rand_expr(65535, &start, &start_u);
+    buf[start_u] = '\0';
+    out[start] = '\0';
     // printf("iteration %d: length of expression is %d\n", i, len);
 
     sprintf(code_buf, code_format, buf);
@@ -142,8 +171,8 @@ int main(int argc, char *argv[]) {
     int result;
     ret = fscanf(fp, "%d", &result);
     pclose(fp);
-
-    printf("%u %s\n", result, buf);
+    // printf("%u %s\n", result, buf);
+    printf("%u %s\n", result, out);
   }
   return 0;
 }
