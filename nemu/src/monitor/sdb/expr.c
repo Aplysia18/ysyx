@@ -225,7 +225,6 @@ uint32_t eval(int begin, int end, bool *success) {
     }
     uint32_t val1 = eval(begin, op-1, success);
     uint32_t val2 = eval(op + 1, end, success);
-    printf("val1 = %u, val2 = %u, op_index = %d, op = %c\n", val1, val2, op, tokens[op].type);
 
     switch (tokens[op].type){
       case '+': result = val1 + val2; break;
