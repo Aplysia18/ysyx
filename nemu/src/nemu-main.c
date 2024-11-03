@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 //   return is_exit_status_bad();
 
   /*---test expr---*/
-  uint32_t test = 30 *9768+(3163865898*14834/54629722 )+ 91;
+  uint32_t test = 30u *9768u+(3163865898u*14834u/54629722u )+ 91u;
   printf("%u", test);
 
   FILE *fp = fopen("/home/lty/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
