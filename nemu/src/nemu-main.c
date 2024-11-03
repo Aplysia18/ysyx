@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     if(real_result != eval_result) {
       printf("Not Equal! real_result = %u, eval_result = %u.\n", real_result, eval_result);
     }else{
-      printf("Equal! result = %u.\n", eval_result);
+      // printf("Equal! result = %u.\n", eval_result);
     }
     
   }
