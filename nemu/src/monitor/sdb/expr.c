@@ -111,7 +111,7 @@ static bool make_token(char *e) {
           case ')':
             tokens[nr_token].type = rules[i].token_type;
             nr_token ++;
-          break;
+            break;
           case TK_NOTYPE:
             break;
           case TK_EQ:
@@ -151,10 +151,13 @@ bool check_parentheses(int begin, int end, bool *success) {
     for(i = begin; i<=end; i++){
       if(tokens[i].type == '(') diff ++;
       else if(tokens[i].type == ')') diff --;
+      if(diff == 0) break;
     }
-    if(diff == 0) {
+    if(i <= end) {
+      return false;
+    }else if(diff == 0){
       return true;
-    } 
+    }
     else {
       printf("Error: Parentheses Mismatch!\n");
       *success = false;
