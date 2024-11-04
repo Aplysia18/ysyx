@@ -60,6 +60,8 @@ static int cmd_help(char *args);
 
 static int cmd_si(char *args); 
 
+static int cmd_info(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -71,6 +73,7 @@ static struct {
 
   /* TODO: Add more commands */
   { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
+  { "info", "Print program states", cmd_info},
 
 };
 
@@ -118,6 +121,21 @@ static int cmd_si(char *args) {
       cpu_exec(n);
   }
 
+  return 0;
+}
+
+static int cmd_info(char *args) {
+
+  if (args == NULL) {
+    printf("info r: Print registers\n");
+    printf("info w: Print watchpoints\n");
+  } else if (strcmp(args, "r") == 0) {
+    isa_reg_display();
+  } else if (strcmp(args, "w") == 0) {
+    // print_wp();
+  } else {
+    printf("Unknown info command '%s'\n", args);
+  }
   return 0;
 }
 
