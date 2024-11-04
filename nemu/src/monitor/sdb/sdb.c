@@ -181,6 +181,8 @@ static int cmd_test(char *args) {
   char *real_result_str; 
   char *expression;
 
+  bool flag = true;
+
   while(getline(&line, &len, fp) != -1){
     i++;
 
@@ -189,6 +191,7 @@ static int cmd_test(char *args) {
     if (real_result_str == NULL) { 
       printf("%d: \n",i);
       printf("Wrong Input!\n");
+      flag = false;
       continue; 
     }
     real_result = 0;
@@ -205,16 +208,21 @@ static int cmd_test(char *args) {
     if(success == false){
       printf("%d: \n",i);
       printf("Fail!\n");
+      flag = false;
       continue;
     }
 
     if(real_result != eval_result) {
       printf("%d: \n",i);
       printf("Not Equal! real_result = %u, eval_result = %u.\n", real_result, eval_result);
+      flag = false;
     }else{
-      printf("Equal! result = %u.\n", eval_result);
+      // printf("Equal! result = %u.\n", eval_result);
     }
     
+  }
+  if(flag){
+    printf("All Pass!\n");
   }
 
   free(line);
