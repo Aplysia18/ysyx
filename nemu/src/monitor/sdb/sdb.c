@@ -64,6 +64,8 @@ static int cmd_info(char *args);
 
 static int cmd_p(char *args);
 
+static int cmd_test(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -78,6 +80,9 @@ static struct {
   { "info", "Print program states", cmd_info},
   { "x", "Examine memory", NULL},
   { "p", "Print value of expression", cmd_p},
+
+  /*---test---*/
+  {"test", "test expr", cmd_test},
 
 };
 
@@ -156,6 +161,64 @@ static int cmd_p(char *args) {
   } else {
     printf("Invalid expression!\n");
   }
+
+  return 0;
+}
+
+static int cmd_test(char *args) {
+  /*---test expr---*/
+
+  FILE *fp = fopen("/home/lty/ysyx/ysyx-workbench/nemu/tools/gen-expr/input", "r");
+  assert(fp != NULL);
+  
+  char *line = NULL;
+  size_t len = 0;
+
+  bool success;
+  uint32_t real_result, eval_result;
+
+  int i = 0;
+  char *real_result_str; 
+  char *expression;
+
+  while(getline(&line, &len, fp) != -1){
+    i++;
+
+    /* extract the first token as the result */
+    real_result_str = strtok(line, " ");
+    if (real_result_str == NULL) { 
+      printf("%d: \n",i);
+      printf("Wrong Input!\n");
+      continue; 
+    }
+    real_result = 0;
+    for(int j=0; j<strlen(real_result_str); j++){
+      real_result *= 10;
+      real_result += real_result_str[j] - '0';
+    }
+
+    /* treat the remaining string as the expression */
+    expression = line + strlen(real_result_str) + 1;
+    expression = strtok(expression, "\n");
+    
+    eval_result = expr(expression, &success);
+    if(success == false){
+      printf("%d: \n",i);
+      printf("Fail!\n");
+      continue;
+    }
+
+    if(real_result != eval_result) {
+      printf("%d: \n",i);
+      printf("Not Equal! real_result = %u, eval_result = %u.\n", real_result, eval_result);
+    }else{
+      // printf("Equal! result = %u.\n", eval_result);
+    }
+    
+  }
+
+  free(line);
+  fclose(fp);
 
   return 0;
 }
