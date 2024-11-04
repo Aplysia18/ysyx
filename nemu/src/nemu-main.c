@@ -22,6 +22,11 @@ void engine_start();
 int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
+  uint32_t test1 = 0x10000000+0xf0000000;
+  uint32_t test2 = 0x10000000u+0xf0000000u;
+  printf("test1 = %u, test2 = %u\n", test1, test2);
+
+
   /* Initialize the monitor. */
 #ifdef CONFIG_TARGET_AM
   am_init_monitor();
