@@ -212,7 +212,7 @@ static int cmd_test(char *args) {
       printf("%d: \n",i);
       printf("Not Equal! real_result = %u, eval_result = %u.\n", real_result, eval_result);
     }else{
-      printf("Equal! result = %u.\n", eval_result);
+      // printf("Equal! result = %u.\n", eval_result);
     }
     
   }
