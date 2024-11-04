@@ -233,18 +233,24 @@ uint32_t eval(int begin, int end, bool *success) {
           break;
         }
       } else if(parentheses == 0){  // not in parentheses
-        if(tokens[i].type == TK_DEC) {
-          continue;
-        }else if(tokens[i].type == '+' || tokens[i].type == '-') {
-          op = i;
-        }else if(tokens[i].type == '*' || tokens[i].type == '/') {
-          if(tokens[op].type == '+' || tokens[op].type == '-'){
+        switch(tokens[i].type){
+          case TK_DEC:
+          case TK_HEX:
             continue;
-          }else{
+          case '+':
+          case '-':
             op = i;
-          }
-        }else{
-          assert(0);
+            break;
+          case '*':
+          case '/':
+            if(tokens[op].type == '+' || tokens[op].type == '-'){
+              continue;
+            }else{
+              op = i;
+            }
+          break;
+          default:
+            assert(0);
         }
       }
     }
