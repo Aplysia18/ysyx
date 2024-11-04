@@ -68,6 +68,43 @@ int gen_num(int maxlen, int* start, int* start_u) {
   return len;
 }
 
+int gen_num_hex(int maxlen, int* start, int* start_u) {
+
+  int len;
+  if(maxlen<=10){
+    len = choose(maxlen-2) + 1;
+  }else{
+    len = choose(8) + 1;
+  }
+
+  buf[*start_u] = '0';
+  *start_u += 1;
+  out[*start] = '0';
+  *start += 1;
+  buf[*start_u] = 'x';
+  *start_u += 1;
+  out[*start] = 'x';
+  *start += 1;
+   
+  for(int i = 0; i < len; i++) {
+    if(choose(16)<10){
+      buf[*start_u] = '0' + choose(10);
+      out[*start] = buf[*start_u];
+      *start += 1;
+      *start_u += 1;
+    }else{
+      buf[*start_u] = 'a' + choose(6);
+      out[*start] = buf[*start_u];
+      *start += 1;
+      *start_u += 1;
+    }
+    
+  }
+  buf[*start_u] = 'u';
+  *start_u += 1;
+  return len+2;
+}
+
 char gen_rand_op() {
   switch(choose(4)){
     case 0: return '+';
@@ -95,7 +132,19 @@ static int gen_rand_expr(int maxlen, int* start, int* start_u) {
           break;
         }
       }
-      len += gen_num(maxlen-len, start, start_u);
+      switch(choose(2)){
+        case 0: 
+          len += gen_num(maxlen-len, start, start_u);
+          break;
+        default: 
+          if(maxlen-len>=3){
+            len += gen_num_hex(maxlen-len, start, start_u);
+          }else{
+            len += gen_num(maxlen-len, start, start_u);
+          }
+          break;
+      }
+      
       for(i=0; i<maxlen-len; i++){  // 随机在数字后插入空格
         if(choose(2)){
           buf[*start_u] = ' ';
