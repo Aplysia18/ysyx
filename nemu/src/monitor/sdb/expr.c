@@ -125,7 +125,7 @@ static bool make_token(char *e) {
               printf("Warning: Token truncated: %s\n", tokens[nr_token].str);
             }else{
               strncpy(tokens[nr_token].str, substr_start+2, substr_len-2);
-              tokens[nr_token].str[substr_len] = '\0';
+              tokens[nr_token].str[substr_len-2] = '\0';
             }
             nr_token ++;
             break;
