@@ -26,7 +26,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-  TK_DEC, 
+  TK_DEC, TK_HEX,
 };
 
 static struct rule {
@@ -47,6 +47,7 @@ static struct rule {
   {"\\(", '('},
   {"\\)", ')'},
   {"[0-9]+", TK_DEC},
+  {"0x[0-9a-fA-F]+", TK_HEX},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -127,6 +128,19 @@ static bool make_token(char *e) {
               tokens[nr_token].str[substr_len] = '\0';
             }
             nr_token ++;
+            break;
+          case TK_HEX:
+            tokens[nr_token].type = TK_HEX;
+            if(substr_len-2>=sizeof(tokens[nr_token].str)){
+              strncpy(tokens[nr_token].str, substr_start+2, sizeof(tokens[nr_token].str)-1);
+              tokens[nr_token].str[sizeof(tokens[nr_token].str)-1] = '\0';
+              printf("Warning: Token truncated: %s\n", tokens[nr_token].str);
+            }else{
+              strncpy(tokens[nr_token].str, substr_start+2, substr_len-2);
+              tokens[nr_token].str[substr_len] = '\0';
+            }
+            nr_token ++;
+            break;
           default: 
             break;
         }
@@ -184,6 +198,17 @@ uint32_t eval(int begin, int end, bool *success) {
       for(i=0; i<strlen(tokens[begin].str); i++){
         result *= 10;
         result += tokens[begin].str[i] - '0';
+      }
+    }else if(tokens[begin].type == TK_HEX){
+      for(i=0; i<strlen(tokens[begin].str); i++){
+        result *= 16;
+        if(tokens[begin].str[i]>='0'&&tokens[begin].str[i]<='9'){
+          result += tokens[begin].str[i] - '0';
+        }else if(tokens[begin].str[i]>='a'&&tokens[begin].str[i]<='f'){
+          result += tokens[begin].str[i] - 'a' + 10;
+        }else if(tokens[begin].str[i]>='A'&&tokens[begin].str[i]<='F'){
+          result += tokens[begin].str[i] - 'A' + 10;
+        }
       }
     }else{
       printf("Error: Wrong Expression!\n");

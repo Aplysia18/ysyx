@@ -62,6 +62,8 @@ static int cmd_si(char *args);
 
 static int cmd_info(char *args);
 
+static int cmd_p(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -74,6 +76,8 @@ static struct {
   /* TODO: Add more commands */
   { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
   { "info", "Print program states", cmd_info},
+  { "x", "Examine memory", NULL},
+  { "p", "Print value of expression", cmd_p},
 
 };
 
@@ -136,6 +140,23 @@ static int cmd_info(char *args) {
   } else {
     printf("Unknown info command '%s'\n", args);
   }
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  if (args == NULL) {
+    printf("No expression given!\n");
+    return 0;
+  }
+
+  bool success = true;
+  uint32_t result = expr(args, &success);
+  if (success) {
+    printf("Result = %u\n", result);
+  } else {
+    printf("Invalid expression!\n");
+  }
+
   return 0;
 }
 

@@ -23,16 +23,16 @@ int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
   /* Initialize the monitor. */
-#ifdef CONFIG_TARGET_AM
-  am_init_monitor();
-#else
+// #ifdef CONFIG_TARGET_AM
+//   am_init_monitor();
+// #else
   init_monitor(argc, argv);
-#endif
+// #endif
 
-  /* Start engine. */
-  engine_start();
+//   /* Start engine. */
+//   engine_start();
 
-  return is_exit_status_bad();
+//   return is_exit_status_bad();
 
   /*---test expr---*/
 
