@@ -282,7 +282,7 @@ uint32_t eval(int begin, int end, bool *success) {
       case '*': result = val1 * val2; break;
       case '/':
         if(val2 == 0) {
-          printf("Error: Divided By Zero!");
+          printf("Error: Divided By Zero!\n");
           *success = false;
         }else{
           result = val1 / val2;
