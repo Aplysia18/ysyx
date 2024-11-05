@@ -23,7 +23,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ, TK_NEQ, TK_AND,
 
   /* TODO: Add more token types */
   TK_HEX, TK_DEC, 
@@ -44,6 +44,8 @@ static struct rule {
   {"\\*", '*'},         // mul
   {"/", '/'},           // div
   {"==", TK_EQ},        // equal
+  {"!=", TK_NEQ},       // not equal
+  {"&&", TK_AND},       // and
   {"\\(", '('},
   {"\\)", ')'},
   {"0x[0-9a-fA-F]+", TK_HEX},
@@ -110,12 +112,13 @@ static bool make_token(char *e) {
           case '/':
           case '(':
           case ')':
+          case TK_EQ:
+          case TK_NEQ:
+          case TK_AND:
             tokens[nr_token].type = rules[i].token_type;
             nr_token ++;
             break;
           case TK_NOTYPE:
-            break;
-          case TK_EQ:
             break;
           case TK_HEX:
             tokens[nr_token].type = TK_HEX;
@@ -221,6 +224,7 @@ uint32_t eval(int begin, int end, bool *success) {
   }else{
     int op = begin; // main operator position
     int parentheses = 0;
+    int priority = 0;
     for(i = begin; i <= end ; i++ ) {
       // printf("%d type: %d\n", i, tokens[i].type);
       if(tokens[i].type == '(') {
@@ -239,16 +243,31 @@ uint32_t eval(int begin, int end, bool *success) {
             continue;
           case '+':
           case '-':
-            op = i;
+            if(priority <= 4){
+              priority = 4;
+              op = i;
+            }
             break;
           case '*':
           case '/':
-            if(tokens[op].type == '+' || tokens[op].type == '-'){
-              continue;
-            }else{
+            if(priority <= 3){
+              priority = 3;
               op = i;
             }
-          break;
+            break;
+          case TK_EQ:
+          case TK_NEQ:
+            if(priority <= 7){
+              priority = 7;
+              op = i;
+            }
+            break;
+          case TK_AND:
+            if(priority <= 11){
+              priority = 11;
+              op = i;
+            }
+            break;
           default:
             assert(0);
         }
@@ -269,6 +288,10 @@ uint32_t eval(int begin, int end, bool *success) {
           result = val1 / val2;
         }
         break;
+      case TK_EQ: result = val1 == val2; break;
+      case TK_NEQ: result = val1 != val2; break;
+      case TK_AND: result = val1 && val2; break;
+      default: assert(0);
     }
   }
 

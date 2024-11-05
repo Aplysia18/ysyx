@@ -105,17 +105,86 @@ int gen_num_hex(int maxlen, int* start, int* start_u) {
   return len+2;
 }
 
-char gen_rand_op() {
-  switch(choose(4)){
-    case 0: return '+';
-    case 1: return '-';
-    case 2: return '*';
-    default: return '/';
+int gen_rand_op(int maxlen, int* start, int* start_u) {
+  if(maxlen==1){
+    char op;
+    switch(choose(4)){
+      case 0: op = '+'; break;
+      case 1: op = '-'; break;
+      case 2: op = '*'; break;
+      default:  op = '/'; break;
+    }
+    buf[*start_u] = op;
+    *start_u += 1;
+    out[*start] = op;
+    *start += 1;
+    return 1;
+  }else if(maxlen>1){
+    switch(choose(7)){
+      case 0: 
+        buf[*start_u] = '+';
+        *start_u += 1;
+        out[*start] = '+';
+        *start += 1;
+        return 1;
+      case 1:
+        buf[*start_u] = '-';
+        *start_u += 1;
+        out[*start] = '-';
+        *start += 1;
+        return 1;
+      case 2:
+        buf[*start_u] = '*';
+        *start_u += 1;
+        out[*start] = '*';
+        *start += 1;
+        return 1;
+      case 3:
+        buf[*start_u] = '/';
+        *start_u += 1;
+        out[*start] = '/';
+        *start += 1;
+        return 1;
+      case 4:
+        buf[*start_u] = '=';
+        *start_u += 1;
+        buf[*start_u] = '=';
+        *start_u += 1;
+        out[*start] = '=';
+        *start += 1;
+        out[*start] = '=';
+        *start += 1;
+        return 2;
+      case 5:
+        buf[*start_u] = '!';
+        *start_u += 1;
+        buf[*start_u] = '=';
+        *start_u += 1;
+        out[*start] = '!';
+        *start += 1;
+        out[*start] = '=';
+        *start += 1;
+        return 2;
+      case 6:
+        buf[*start_u] = '&';
+        *start_u += 1;
+        buf[*start_u] = '&';
+        *start_u += 1;
+        out[*start] = '&';
+        *start += 1;
+        out[*start] = '&';
+        *start += 1;
+        return 2;
+        default: assert(0);
+    }
+  }else{
+    assert(0);
   }
+  
 }
 
 static int gen_rand_expr(int maxlen, int* start, int* start_u) {
-  int len = 0, len1, len2, i = 0;
+  int len = 0, i = 0;
 
   if(maxlen<3) return gen_num(maxlen, start, start_u);
 
@@ -170,13 +239,10 @@ static int gen_rand_expr(int maxlen, int* start, int* start_u) {
       len += 2;
       break;
     default: 
-      len1 = gen_rand_expr(maxlen-2, start, start_u);
-      buf[*start_u] = gen_rand_op();
-      out[*start] = buf[*start_u];
-      *start_u += 1;
-      *start += 1;
-      len2 = gen_rand_expr(maxlen-len1-1, start, start_u);
-      len = len1 + 1 + len2;
+      int len1 = gen_rand_expr(maxlen-2, start, start_u);
+      int len_op = gen_rand_op(maxlen-len1-1, start, start_u);
+      int len2 = gen_rand_expr(maxlen-len1-len_op, start, start_u);
+      len = len1 + len_op + len2;
       
   }
   return len;
@@ -208,7 +274,7 @@ int main(int argc, char *argv[]) {
     fputs(code_buf, fp);
     fclose(fp);
 
-    int ret = system("gcc -Wall -Werror -Wno-error=overflow -Wno-overflow /tmp/.code.c -o /tmp/.expr"); // 将警告视为错误，发生divide by 0时返回非0值
+    int ret = system("gcc -Wall -Werror -Wno-error=overflow -Wno-error=parentheses -Wno-overflow -Wno-parentheses /tmp/.code.c -o /tmp/.expr"); // 将警告视为错误，发生divide by 0时返回非0值
     if (ret != 0) {
       i --;
       continue;
