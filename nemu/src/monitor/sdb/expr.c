@@ -273,14 +273,26 @@ uint32_t eval(int begin, int end, bool *success) {
         }
       }
     }
-    uint32_t val1 = eval(begin, op-1, success);
-    uint32_t val2 = eval(op + 1, end, success);
+    uint32_t val1, val2;
 
     switch (tokens[op].type){
-      case '+': result = val1 + val2; break;
-      case '-': result = val1 - val2; break;
-      case '*': result = val1 * val2; break;
+      case '+': 
+        val1 = eval(begin, op-1, success);
+        val2 = eval(op + 1, end, success);
+        result = val1 + val2; 
+        break;
+      case '-': 
+        val1 = eval(begin, op-1, success);
+        val2 = eval(op + 1, end, success);
+        result = val1 - val2; 
+        break;
+      case '*': 
+        val1 = eval(begin, op-1, success);
+        val2 = eval(op + 1, end, success);
+        result = val1 * val2; break;
       case '/':
+        val1 = eval(begin, op-1, success);
+        val2 = eval(op + 1, end, success);
         if(val2 == 0) {
           printf("Error: Divided By Zero!\n");
           *success = false;
@@ -288,9 +300,25 @@ uint32_t eval(int begin, int end, bool *success) {
           result = val1 / val2;
         }
         break;
-      case TK_EQ: result = val1 == val2; break;
-      case TK_NEQ: result = val1 != val2; break;
-      case TK_AND: result = val1 && val2; break;
+      case TK_EQ: 
+        val1 = eval(begin, op-1, success);
+        val2 = eval(op + 1, end, success);
+        result = val1 == val2; 
+        break;
+      case TK_NEQ: 
+        val1 = eval(begin, op-1, success);
+        val2 = eval(op + 1, end, success);
+        result = val1 != val2; 
+        break;
+      case TK_AND: 
+        val1 = eval(begin, op-1, success);
+        if(val1==0){
+          result = 0;
+          break;
+        }
+        val2 = eval(op + 1, end, success);
+        result = val1 && val2; 
+        break;
       default: assert(0);
     }
   }

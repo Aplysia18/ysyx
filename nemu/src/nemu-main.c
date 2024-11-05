@@ -22,10 +22,6 @@ void engine_start();
 int is_exit_status_bad();
 
 int main(int argc, char *argv[]) {
-
-  uint32_t test = (0x5e77b == 0xc4&&(   82    -(  59243709  )/((   1)/((970829029 )))*   2))*(  869888  );
-  printf("%u\n", test);
-  
   /* Initialize the monitor. */
 #ifdef CONFIG_TARGET_AM
   am_init_monitor();
