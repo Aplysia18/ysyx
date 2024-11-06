@@ -26,7 +26,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ, TK_NEQ, TK_AND,
 
   /* TODO: Add more token types */
-  TK_HEX, TK_DEC, 
+  TK_HEX, TK_DEC, TK_REG,
 };
 
 static struct rule {
@@ -50,6 +50,7 @@ static struct rule {
   {"\\)", ')'},
   {"0x[0-9a-fA-F]+", TK_HEX},
   {"[0-9]+", TK_DEC},
+  {"\\$[a-zA-Z0-9]+", TK_REG},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -144,6 +145,18 @@ static bool make_token(char *e) {
             }
             nr_token ++;
             break;
+          case TK_REG:
+            tokens[nr_token].type = TK_REG;
+            if(substr_len-1>=sizeof(tokens[nr_token].str)){
+              strncpy(tokens[nr_token].str, substr_start+1, sizeof(tokens[nr_token].str)-1);
+              tokens[nr_token].str[sizeof(tokens[nr_token].str)-1] = '\0';
+              printf("Warning: Token truncated: %s\n", tokens[nr_token].str);
+            }else{
+              strncpy(tokens[nr_token].str, substr_start+1, substr_len-1);
+              tokens[nr_token].str[substr_len-1] = '\0';
+            }
+            nr_token ++;
+            break;
           default: 
             break;
         }
@@ -213,6 +226,8 @@ uint32_t eval(int begin, int end, bool *success) {
           result += tokens[begin].str[i] - 'A' + 10;
         }
       }
+    }else if(tokens[begin].type == TK_REG){
+      result = isa_reg_str2val(tokens[begin].str, success);
     }else{
       printf("Error: Wrong Expression!\n");
       *success = false;
@@ -240,6 +255,7 @@ uint32_t eval(int begin, int end, bool *success) {
         switch(tokens[i].type){
           case TK_DEC:
           case TK_HEX:
+          case TK_REG:
             continue;
           case '+':
           case '-':
