@@ -90,7 +90,7 @@ void print_wp() {
 
   WP *p;
   for (p = head; p != NULL; p = p->next) {
-    printf("%4d | %12u | %s\n", p->NO, p->val, p->e);
+    printf("%-4d | %-12u | %s\n", p->NO, p->val, p->e);
   }
 }
 
