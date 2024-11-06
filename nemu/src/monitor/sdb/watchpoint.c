@@ -81,9 +81,16 @@ void create_wp(char *e, uint32_t val) {
 }
 
 void print_wp() {
+  if(head==NULL){
+    printf("No watchpoints.\n");
+    return;
+  }
+  
+  printf("Num\tValue\tWhat\n");
+
   WP *p;
   for (p = head; p != NULL; p = p->next) {
-    printf("Watchpoint %d: %s. Value = %u\n", p->NO, p->e, p->val);
+    printf("%d\t%u\t%s\n", p->NO, p->val, p->e);
   }
 }
 
