@@ -86,11 +86,11 @@ void print_wp() {
     return;
   }
   
-  printf("Num\tValue\tWhat\n");
+  printf("%-4s | %-12s | What\n", "NO", "Value");
 
   WP *p;
   for (p = head; p != NULL; p = p->next) {
-    printf("%d\t%u\t%s\n", p->NO, p->val, p->e);
+    printf("%4d | %12u | %s\n", p->NO, p->val, p->e);
   }
 }
 
