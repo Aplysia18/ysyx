@@ -106,3 +106,18 @@ void delete_wp(int n) {
   printf("No watchpoint %d.\n", n);
   return;
 }
+
+void check_watchpoints() {
+  WP *p;
+  for (p = head; p != NULL; p = p->next) {
+    bool success = true;
+    uint32_t val = expr(p->e, &success);
+    if (val != p->val) {
+      printf("Watchpoint %d: %s\n", p->NO, p->e);
+      printf("Old value = %u\n", p->val);
+      printf("New value = %u\n", val);
+      p->val = val;
+      nemu_state.state = NEMU_STOP;
+    }
+  }
+}
