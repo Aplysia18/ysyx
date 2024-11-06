@@ -14,7 +14,7 @@
 ***************************************************************************************/
 
 #include <stdint.h>
-
+#include <memory/vaddr.h>
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -26,7 +26,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ, TK_NEQ, TK_AND,
 
   /* TODO: Add more token types */
-  TK_HEX, TK_DEC, TK_REG,
+  TK_HEX, TK_DEC, TK_REG, TK_DEREF,
 };
 
 static struct rule {
@@ -171,6 +171,12 @@ static bool make_token(char *e) {
     }
   }
 
+  for(i = 0; i < nr_token; i++){
+    if(tokens[i].type == '*' && (i == 0 || (tokens[i-1].type != TK_DEC && tokens[i-1].type != TK_HEX && tokens[i-1].type != TK_REG && tokens[i-1].type != ')'))){
+      tokens[i].type = TK_DEREF;
+    }
+  }
+
   return true;
 }
 
@@ -284,6 +290,12 @@ uint32_t eval(int begin, int end, bool *success) {
               op = i;
             }
             break;
+          case TK_DEREF:
+            if(priority <= 2){
+              priority = 2;
+              op = i;
+            }
+            break;
           default:
             assert(0);
         }
@@ -334,6 +346,10 @@ uint32_t eval(int begin, int end, bool *success) {
         }
         val2 = eval(op + 1, end, success);
         result = val1 && val2; 
+        break;
+      case TK_DEREF:
+        val1 = eval(op + 1, end, success);
+        result = vaddr_read(val1, 4);
         break;
       default: assert(0);
     }
