@@ -22,7 +22,9 @@ typedef struct watchpoint {
   struct watchpoint *next;
 
   /* TODO: Add more members if necessary */
-
+  uint32_t val;
+  char *e;
+  
 } WP;
 
 static WP wp_pool[NR_WP] = {};
@@ -41,3 +43,59 @@ void init_wp_pool() {
 
 /* TODO: Implement the functionality of watchpoint */
 
+WP *new_wp() {
+  if (free_ == NULL) {
+    printf("No enough watchpoints.\n");
+    assert(0);
+  }
+  WP *wp = free_;
+  free_ = free_->next;
+  wp->next = head;
+  head = wp;
+  return wp;
+}
+
+void free_wp(WP *wp) {
+  WP *p;
+  if (head == wp) {
+    head = head->next;
+  } else {
+    for (p = head; p != NULL; p = p->next) {
+      if (p->next == wp) {
+        p->next = wp->next;
+        break;
+      }
+    }
+  }
+  wp->next = free_;
+  free_ = wp;
+}
+
+
+void create_wp(char *e, uint32_t val) {
+  WP *p = new_wp();
+  p->val = val;
+  strcpy(p->e , e);
+  printf("Create watchpoint %d: %s. Value = %u\n", p->NO, p->e, p->val);
+  return;
+}
+
+void print_wp() {
+  WP *p;
+  for (p = head; p != NULL; p = p->next) {
+    printf("Watchpoint %d: %s. Value = %u\n", p->NO, p->e, p->val);
+  }
+}
+
+void delete_wp(int n) {
+  WP *p;
+  for(p = head; p != NULL; p = p->next) {
+    if(p->NO == n) {
+      free_wp(p);
+      printf("Watchpoint %d deleted.\n", n);
+      return;
+    }
+  }
+  printf("No watchpoint %d.\n", n);
+  return;
+}

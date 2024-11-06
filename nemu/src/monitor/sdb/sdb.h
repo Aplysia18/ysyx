@@ -20,4 +20,8 @@
 
 word_t expr(char *e, bool *success);
 
+void create_wp(char *e, uint32_t val);
+void print_wp();
+void delete_wp(int n);
+
 #endif

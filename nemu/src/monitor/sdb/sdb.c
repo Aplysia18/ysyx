@@ -67,6 +67,10 @@ static int cmd_x(char *args);
 
 static int cmd_p(char *args);
 
+static int cmd_w(char *args);
+
+static int cmd_d(char *args);
+
 static int cmd_test(char *args);
 
 static struct {
@@ -83,6 +87,8 @@ static struct {
   { "info", "Print program states", cmd_info},
   { "x", "Examine memory", cmd_x},
   { "p", "Print value of expression", cmd_p},
+  { "w", "Set watchpoint", cmd_w},
+  { "d", "Delete watchpoint", cmd_d},
 
   /*---test---*/
   {"test", "test expr", cmd_test},
@@ -208,6 +214,42 @@ static int cmd_p(char *args) {
   } else {
     printf("Invalid expression!\n");
   }
+
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  if(args == NULL){
+    printf("No expression given!\n");
+    return 0;
+  }
+  char *e = strtok(NULL, " ");
+  bool success;
+  uint32_t result = expr(e, &success);
+  if(success){
+    create_wp(e, result);
+  }else{
+    printf("Invalid expression!\n");
+  }
+
+  return 0;
+}
+
+static int cmd_d(char *args){
+  if(args == NULL){
+    printf("No watchpoint number given!\n");
+    return 0;
+  }
+  
+  char *endptr;
+  uint64_t n = strtoul(args, &endptr, 10);
+
+  if(*endptr != '\0'){
+    printf("Invalid input N parameter!\n");
+    return 0;
+  }
+
+  delete_wp(n);
 
   return 0;
 }
