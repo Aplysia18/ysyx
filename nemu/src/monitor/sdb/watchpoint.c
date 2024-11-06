@@ -23,7 +23,7 @@ typedef struct watchpoint {
 
   /* TODO: Add more members if necessary */
   uint32_t val;
-  char *e;
+  char e[65535];
   
 } WP;
 
