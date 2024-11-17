@@ -117,6 +117,9 @@ void check_watchpoints() {
       printf("Old value = %u\n", p->val);
       printf("New value = %u\n", val);
       p->val = val;
+      if(nemu_state.state == NEMU_RUNNING) {
+        nemu_state.state = NEMU_STOP;
+      }
       nemu_state.state = NEMU_STOP;
     }
   }
