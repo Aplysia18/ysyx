@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include <monitor/sdb.h>
 #include <memory/vaddr.h>
+#include <common.h>
 
 static int is_batch_mode = false;
 
@@ -210,7 +211,7 @@ static int cmd_p(char *args) {
   bool success = true;
   uint32_t result = expr(args, &success);
   if (success) {
-    printf("%u\n", result);
+    printf("%u "FMT_WORD"\n", result, result);
   } else {
     printf("Invalid expression!\n");
   }
