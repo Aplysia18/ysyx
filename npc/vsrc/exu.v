@@ -33,7 +33,7 @@ module ysyx_24110015_EXU (
   assign data_out = addi ? alu_out: 32'b0;
   assign rf_wen = addi ? 1'b1 : 1'b0;
 
-  initial begin
+  always @(*) begin
     if(ebreak) begin
       npc_trap();
     end
