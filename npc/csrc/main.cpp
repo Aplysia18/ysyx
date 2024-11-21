@@ -45,9 +45,9 @@ void paddr_write(paddr_t addr, word_t data) {
 }
 
 static void single_cycle(Vysyx_24110015_top* top) {
-  top->clk = 0;
-  top->eval();
   top->clk = 1;
+  top->eval();
+  top->clk = 0;
   top->eval();
 }
 
