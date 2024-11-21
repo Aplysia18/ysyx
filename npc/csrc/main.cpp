@@ -44,16 +44,20 @@ void paddr_write(paddr_t addr, word_t data) {
   }else return pmem_write(addr, data);
 }
 
-static void single_cycle(Vysyx_24110015_top* top) {
+static void single_cycle(Vysyx_24110015_top* top, VerilatedContext* contextp, VerilatedVcdC* tfp) {
   top->clk = 1;
   top->eval();
+  tfp->dump(contextp->time());
+  contextp->timeInc(1);
   top->clk = 0;
   top->eval();
+  tfp->dump(contextp->time());
+  contextp->timeInc(1);
 }
 
-static void reset(Vysyx_24110015_top* top, int n){
+static void reset(Vysyx_24110015_top* top, VerilatedContext* contextp, VerilatedVcdC* tfp, int n){
   top->rst = 1;
-  while(n--) single_cycle(top);
+  while(n--) single_cycle(top, contextp, tfp);
   top->rst = 0;
 }
 
@@ -68,7 +72,7 @@ int main(int argc, char** argv) {
   top->trace(tfp, 99);
   tfp->open("./build/simx.vcd");
   
-  reset(top, 10);
+  reset(top, contextp, tfp, 5);
   
   // 初始化内存
   paddr_write(0x80000000, 0x00008093);  // addi x1, x1, 1
@@ -78,16 +82,9 @@ int main(int argc, char** argv) {
   paddr_write(0x80000010, 0x00508093);
 
  for(int i=0; i<5 ; i++){
-    contextp->timeInc(1);
     top->inst = paddr_read(top->pc);
     printf("pc: %x, inst: %x\n", top->pc, top->inst);
-    top->clk = 1;
-    top->eval();
-    tfp->dump(contextp->time());
-    contextp->timeInc(1);
-    top->clk = 0;
-    top->eval();
-    tfp->dump(contextp->time());
+    single_cycle(top, contextp, tfp);
   }
 
   tfp->close();
