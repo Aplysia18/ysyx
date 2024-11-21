@@ -77,9 +77,10 @@ int main(int argc, char** argv) {
   paddr_write(0x8000000c, 0x00408093);
   paddr_write(0x80000010, 0x00508093);
 
- for(int i=0; i<5 ; i++){
+ for(int i=0; i<10 ; i++){
     contextp->timeInc(1);
     top->inst = paddr_read(top->pc);
+    printf("pc: %x, inst: %x\n", top->pc, top->inst);
     if(top->clk == 0) top->clk = 1;
     else top->clk = 0;
     top->eval();
