@@ -91,11 +91,14 @@ int main(int argc, char** argv) {
   paddr_write(0x80000010, 0x00508093);
   paddr_write(0x80000014, 0x00100073);
 
- while(1){
+ for(int i=0; i<10; i++) {
     top->inst = paddr_read(top->pc);
     printf("pc: %x, inst: %x\n", top->pc, top->inst);
     single_cycle(top, contextp, tfp);
-    if(end_flag) break;
+    if(end_flag) {
+      printf("Simulation finished\n");
+      break;
+      }
   }
 
   tfp->close();
