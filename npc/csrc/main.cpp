@@ -77,17 +77,19 @@ int main(int argc, char** argv) {
   paddr_write(0x8000000c, 0x00408093);
   paddr_write(0x80000010, 0x00508093);
 
- for(int i=0; i<10 ; i++){
+ for(int i=0; i<5 ; i++){
     top->inst = paddr_read(top->pc);
     printf("pc: %x, inst: %x\n", top->pc, top->inst);
-    if(top->clk == 0) top->clk = 1;
-    else top->clk = 0;
+    top->clk = 1;
+    top->eval();
+    tfp->dump(contextp->time());
+    contextp->timeInc(1);
+    top->clk = 0;
     top->eval();
     tfp->dump(contextp->time());
     contextp->timeInc(1);
   }
 
-  // nvboard_quit();
   tfp->close();
   delete top;
 
