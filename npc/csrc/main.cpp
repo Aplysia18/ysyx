@@ -80,6 +80,8 @@ int main(int argc, char** argv) {
  for(int i=0; i<5 ; i++){
     contextp->timeInc(1);
     top->inst = paddr_read(top->pc);
+    if(top->clk == 0) top->clk = 1;
+    else top->clk = 0;
     top->eval();
     tfp->dump(contextp->time());
   }
