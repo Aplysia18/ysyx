@@ -22,12 +22,12 @@ static inline bool in_pmem(paddr_t addr) {
 }
 
 static word_t pmem_read(paddr_t addr) {
-  word_t ret = *guest_to_host(addr);
+  word_t ret = *(uint32_t*)guest_to_host(addr);
   return ret;
 }
 
 static void pmem_write(paddr_t addr, word_t data) {
-  *guest_to_host(addr) = data;
+  *(uint32_t*)guest_to_host(addr) = data;
 }
 
 word_t paddr_read(paddr_t addr) {
