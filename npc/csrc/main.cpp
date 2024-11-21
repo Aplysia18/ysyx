@@ -78,6 +78,7 @@ int main(int argc, char** argv) {
   paddr_write(0x80000010, 0x00508093);
 
  for(int i=0; i<5 ; i++){
+    contextp->timeInc(1);
     top->inst = paddr_read(top->pc);
     printf("pc: %x, inst: %x\n", top->pc, top->inst);
     top->clk = 1;
@@ -87,7 +88,6 @@ int main(int argc, char** argv) {
     top->clk = 0;
     top->eval();
     tfp->dump(contextp->time());
-    contextp->timeInc(1);
   }
 
   tfp->close();
