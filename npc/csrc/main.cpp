@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
   paddr_write(0x8000000c, 0x00408093);
   paddr_write(0x80000010, 0x00508093);
 
- for(int i=0; i<5 ; i++){
+ for(int i=0; i<6 ; i++){
     top->inst = paddr_read(top->pc);
     printf("pc: %x, inst: %x\n", top->pc, top->inst);
     single_cycle(top, contextp, tfp);
