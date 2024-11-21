@@ -10,7 +10,8 @@ module ysyx_24110015_IDU (
   output [4:0] rs1,
   output [4:0] rs2,
   output [4:0] rd,
-  output [31:0] imm
+  output [31:0] imm,
+  output ebreak
 );
   wire [31:0] immI, immS, immB, immU, immJ;
   wire R_type, I_type, S_type, B_type, U_type, J_type;
@@ -35,5 +36,7 @@ module ysyx_24110015_IDU (
   assign J_type = (opcode == `jal);
 
   assign imm = I_type ? immI : S_type ? immS : B_type ? immB : U_type ? immU : J_type ? immJ : 32'b0;
+
+  assign ebreak = (inst==32'h00100073);
 
 endmodule

@@ -10,7 +10,7 @@ module ysyx_24110015_top(
   wire [31:0] imm;
   wire [4:0] rs1, rs2, rd;
 
-  wire rf_wen;
+  wire rf_wen, ebreak;
   wire [31:0] rdata1, rdata2, wdata;
   
   ysyx_24110015_Pc pc_reg (
@@ -30,7 +30,8 @@ module ysyx_24110015_top(
     .rs1(rs1),
     .rs2(rs2),
     .rd(rd),
-    .imm(imm)
+    .imm(imm),
+    .ebreak(ebreak)
     );
 
   ysyx_24110015_RegisterFile #(5, 32) rf (
@@ -54,6 +55,7 @@ module ysyx_24110015_top(
     .imm(imm), 
     .data1(rdata1), 
     .data2(rdata2), 
+    .ebreak(ebreak),
     .data_out(wdata), 
     .pc_next(pc_next),
     .rf_wen(rf_wen)

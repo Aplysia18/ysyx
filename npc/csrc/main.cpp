@@ -1,6 +1,8 @@
 #include "Vysyx_24110015_top.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h"
+#include "svdpi.h"
+#include "Vysyx_24110015_top__Dpi.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -61,6 +63,12 @@ static void reset(Vysyx_24110015_top* top, VerilatedContext* contextp, Verilated
   top->rst = 0;
 }
 
+static bool end_flag = 0;
+
+void npc_trap(){
+  end_flag = 1;
+} 
+
 int main(int argc, char** argv) {
 
   VerilatedContext* contextp = new VerilatedContext;
@@ -80,11 +88,13 @@ int main(int argc, char** argv) {
   paddr_write(0x80000008, 0x00308093);
   paddr_write(0x8000000c, 0x00408093);
   paddr_write(0x80000010, 0x00508093);
+  paddr_write(0x80000014, 0x00100073);
 
- for(int i=0; i<6 ; i++){
+ while(1){
     top->inst = paddr_read(top->pc);
     printf("pc: %x, inst: %x\n", top->pc, top->inst);
     single_cycle(top, contextp, tfp);
+    if(end_flag) break;
   }
 
   tfp->close();
