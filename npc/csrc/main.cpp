@@ -45,9 +45,9 @@ void paddr_write(paddr_t addr, word_t data) {
 }
 
 static void single_cycle(Vysyx_24110015_top* top) {
-  top->clk = 1;
-  top->eval();
   top->clk = 0;
+  top->eval();
+  top->clk = 1;
   top->eval();
 }
 
@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
   reset(top, 10);
   
   // 初始化内存
-  paddr_write(0x80000000, 0x00108093);
+  paddr_write(0x80000000, 0x00008093);  // addi x1, x1, 1
   paddr_write(0x80000004, 0x00208093);
   paddr_write(0x80000008, 0x00308093);
   paddr_write(0x8000000c, 0x00408093);
