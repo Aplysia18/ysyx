@@ -66,6 +66,7 @@ static void reset(Vysyx_24110015_top* top, VerilatedContext* contextp, Verilated
 static bool end_flag = 0;
 
 void npc_trap(){
+  printf("npc_trap\n");
   end_flag = 1;
 } 
 
