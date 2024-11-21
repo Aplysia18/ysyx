@@ -44,6 +44,19 @@ void paddr_write(paddr_t addr, word_t data) {
   }else return pmem_write(addr, data);
 }
 
+static void single_cycle(Vysyx_24110015_top* top) {
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
+}
+
+static void reset(Vysyx_24110015_top* top, int n){
+  top->rst = 1;
+  while(n--) single_cycle(top);
+  top->rst = 0;
+}
+
 int main(int argc, char** argv) {
 
   VerilatedContext* contextp = new VerilatedContext;
@@ -54,6 +67,8 @@ int main(int argc, char** argv) {
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
   tfp->open("./build/simx.vcd");
+  
+  reset(top, 10);
   
   // 初始化内存
   paddr_write(0x80000000, 0x00108093);
