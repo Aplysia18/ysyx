@@ -44,7 +44,7 @@ int sprintf(char *out, const char *fmt, ...) {
             num2 /= 10;
             len++;
           }
-          char *num3 = (char*)malloc(len*sizeof(char));
+          char num3[11];
           for(int k = len-1; k >= 0; k--){
             num3[k] = num % 10 + '0';
             num /= 10;
@@ -52,7 +52,6 @@ int sprintf(char *out, const char *fmt, ...) {
           for(int k = 0; k < len; k++){
             out[j++] = num3[k];
           }
-          free(num3);
           break;
         case '%':
           conver = false;
