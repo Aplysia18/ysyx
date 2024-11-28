@@ -57,6 +57,6 @@ void print_ringbuf() {
         temp = temp->next;
     }
     if (temp != NULL) {
-        printf(" -->  %s\n", temp->info);
+        printf(ANSI_FMT(" -->  %s\n", ANSI_FG_RED), temp->info);
     }
 }
