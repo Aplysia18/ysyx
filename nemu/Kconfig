@@ -151,7 +151,7 @@ config ITRACE_COND
   string "Only trace instructions when the condition is true"
   default "true"
 
-config MREACE
+config MTRACE
   bool "Enable memory tracer"
 default n
 
