@@ -18,6 +18,6 @@ extern Ringbuf ringbuf;
 
 void init_ringbuf();
 void ringbuf_add(vaddr_t pc, vaddr_t snpc, uint32_t inst);
-void ringbuf_print();
+void print_ringbuf();
 
 #endif

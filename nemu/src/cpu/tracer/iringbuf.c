@@ -50,7 +50,7 @@ void ringbuf_add(vaddr_t pc, vaddr_t snpc, uint32_t inst) {
 #endif
 }
 
-void ringbuf_print() {
+void print_ringbuf() {
     RingbufNode *temp = ringbuf.head;
     while (temp != NULL) {
         printf("%s\n", temp->info);
