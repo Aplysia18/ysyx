@@ -71,8 +71,11 @@ void init_elf(const char *elf_file) {
                     Assert(fp, "Failed to realloc memory for function info");
                 }
                 functions = ret;
+                functions[function_num].start = sym.st_value;
+                functions[function_num].size = sym.st_size;
+                strcpy(functions[function_num].name, &strtab[sym.st_name]);
+                printf("num %d, function name: %s, address = 0x%08x, size = %d.\n", function_num, functions[function_num].name, functions[function_num].start, functions[function_num].size);
                 function_num ++;
-                printf("num %d, function name: %s\n", function_num, &strtab[sym.st_name]);
             }
         }
         free(strtab);

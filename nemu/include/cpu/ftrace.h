@@ -1,9 +1,11 @@
 #ifndef __CPU_FTRACE_H__
 
+#include <elf.h>
+
 typedef struct {
   char name[32];
-  uintptr_t start;
-  uintptr_t end;
+  Elf32_Addr start;
+  Elf32_Word size;
 } function_info;
 
 extern function_info *functions;
