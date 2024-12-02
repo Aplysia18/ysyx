@@ -51,6 +51,9 @@ void init_elf(const char *elf_file) {
         //  get the string table
         fseek(fp, shdr_strtab.sh_offset, SEEK_SET);
         strtab = malloc(shdr_strtab.sh_size); 
+        if(fread(strtab, 1, shdr_strtab.sh_size, fp) != shdr_strtab.sh_size) {
+            Assert(fp, "Failed to read ELF string table");
+        }
 
         fseek(fp, shdr_symtab.sh_offset, SEEK_SET);
         for (int j = 0; j < shdr_symtab.sh_size / shdr_symtab.sh_entsize; j++) {
@@ -58,7 +61,7 @@ void init_elf(const char *elf_file) {
                 Assert(fp, "Failed to read ELF symbol");
             }
             if (ELF32_ST_TYPE(sym.st_info) == STT_FUNC) {
-                printf("function name: %c\n", strtab[sym.st_name]);
+                printf("function name: %s\n", &strtab[sym.st_name]);
             }
         }
 // #endif
