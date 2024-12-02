@@ -57,7 +57,7 @@ void init_elf(const char *elf_file) {
             Assert(fp, "Failed to read ELF symbol");
         }
         if (ELF32_ST_TYPE(sym.st_info) == STT_FUNC) {
-            printf("function name: %s\n", &strtab[sym.st_name]);
+            printf("function name: %c\n", strtab[sym.st_name]);
         }
     }
 
