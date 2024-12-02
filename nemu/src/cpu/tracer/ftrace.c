@@ -13,7 +13,7 @@ void init_elf(const char *elf_file) {
         FILE *fp = fopen(elf_file, "rb");
         Assert(fp, "Can not open '%s'", elf_file);
 
-// #if defined(CONFIG_ISA_riscv) && !defined(CONFIG_RV64)
+#if defined(CONFIG_ISA_riscv) && !defined(CONFIG_RV64)
         Elf32_Ehdr ehdr;
         if(fread(&ehdr, 1, sizeof(ehdr), fp) != sizeof(ehdr)) {
         Assert(fp, "Failed to read ELF header");
@@ -73,14 +73,16 @@ void init_elf(const char *elf_file) {
                 functions = ret;
                 functions[function_num].start = sym.st_value;
                 functions[function_num].size = sym.st_size;
-                strcpy(functions[function_num].name, &strtab[sym.st_name]);
-                printf("num %d, function name: %s, address = 0x%08x, size = %d.\n", function_num, functions[function_num].name, functions[function_num].start, functions[function_num].size);
+                strncpy(functions[function_num].name, &strtab[sym.st_name], 31);
+                functions[function_num].name[31] = '\0';
+
+                // printf("num %d, function name: %s, address = 0x%08x, size = %d.\n", function_num, functions[function_num].name, functions[function_num].start, functions[function_num].size);
                 function_num ++;
             }
         }
         free(strtab);
         fclose(fp);
-// #endif
+#endif
     }
     return;
 }
