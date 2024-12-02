@@ -6,6 +6,8 @@ typedef struct {
   uintptr_t end;
 } function_info;
 
+extern function_info *functions;
+
 void init_elf(const char *elf_file);
 
 #endif

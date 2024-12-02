@@ -4,6 +4,9 @@
 #include <common.h>
 #include <cpu/ftrace.h>
 
+function_info *functions = NULL;
+int function_num = 0;
+
 void init_elf(const char *elf_file) {
     printf("elf_file = %s\n", elf_file);
     if (elf_file != NULL) {
@@ -56,12 +59,20 @@ void init_elf(const char *elf_file) {
         }
 
         fseek(fp, shdr_symtab.sh_offset, SEEK_SET);
+        function_num = 0;
         for (int j = 0; j < shdr_symtab.sh_size / shdr_symtab.sh_entsize; j++) {
             if(fread(&sym, 1, sizeof(sym), fp) != sizeof(sym)) {
                 Assert(fp, "Failed to read ELF symbol");
             }
             if (ELF32_ST_TYPE(sym.st_info) == STT_FUNC) {
-                printf("function name: %s\n", &strtab[sym.st_name]);
+                function_info *ret;
+                ret = realloc(functions, sizeof(function_info) * (function_num + 1));
+                if(ret == NULL) {
+                    Assert(fp, "Failed to realloc memory for function info");
+                }
+                functions = ret;
+                function_num ++;
+                printf("num %d, function name: %s\n", function_num, &strtab[sym.st_name]);
             }
         }
         free(strtab);
