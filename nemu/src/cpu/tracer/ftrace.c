@@ -91,7 +91,7 @@ void init_elf(const char *elf_file) {
 void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
     printf(FMT_WORD ": ", pc);
     for (int i = 0; i < function_num; i++) {
-        if (next_pc >= functions[i].start && next_pc < functions[i].start + functions[i].size) {
+        if (next_pc == functions[i].start) {
             for(int j = 0; j < ftrace_tab_size; j++) {
                 printf("  ");
             }
