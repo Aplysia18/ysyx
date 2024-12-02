@@ -24,7 +24,6 @@ void init_elf(const char *elf_file) {
 
         Elf32_Shdr shdr, shdr_symtab, shdr_strtab;
         Elf32_Sym sym;
-        char *strtab;
 
         Elf32_Half i;
         // find the symbol table
@@ -49,6 +48,7 @@ void init_elf(const char *elf_file) {
         }
 
         //  get the string table
+        char *strtab;
         fseek(fp, shdr_strtab.sh_offset, SEEK_SET);
         strtab = malloc(shdr_strtab.sh_size); 
         if(fread(strtab, 1, shdr_strtab.sh_size, fp) != shdr_strtab.sh_size) {
@@ -64,7 +64,9 @@ void init_elf(const char *elf_file) {
                 printf("function name: %s\n", &strtab[sym.st_name]);
             }
         }
+        free(strtab);
+        fclose(fp);
 // #endif
-  }
-  return;
+    }
+    return;
 }
