@@ -96,7 +96,7 @@ void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
                 printf("  ");
             }
             ftrace_tab_size ++;
-            printf("call [%s@" FMT_WORD "]", functions[i].name, next_pc);
+            printf("call [%s@" FMT_WORD "]\n", functions[i].name, next_pc);
             break;
         }
     }
@@ -111,7 +111,7 @@ void ftrace_ret(vaddr_t pc) {
             for(int j = 0; j < ftrace_tab_size; j++) {
                 printf("  ");
             }
-            printf("ret [%s]", functions[i].name);
+            printf("ret [%s]\n", functions[i].name);
             break;
         }
     }
