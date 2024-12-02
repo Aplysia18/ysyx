@@ -6,6 +6,7 @@
 
 function_info *functions = NULL;
 int function_num = 0;
+int ftrace_tab_size = 0;
 
 void init_elf(const char *elf_file) {
     printf("elf_file = %s\n", elf_file);
@@ -83,6 +84,36 @@ void init_elf(const char *elf_file) {
         free(strtab);
         fclose(fp);
 #endif
+    }
+    return;
+}
+
+void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
+    printf(FMT_WORD ": ", pc);
+    for (int i = 0; i < function_num; i++) {
+        if (next_pc >= functions[i].start && next_pc < functions[i].start + functions[i].size) {
+            for(int j = 0; j < ftrace_tab_size; j++) {
+                printf("  ");
+            }
+            ftrace_tab_size ++;
+            printf("call [%s@" FMT_WORD "]", functions[i].name, next_pc);
+            break;
+        }
+    }
+    return;
+}
+
+void ftrace_ret(vaddr_t pc) {
+    printf(FMT_WORD ": ", pc);
+    for (int i = 0; i < function_num; i++) {
+        if (pc >= functions[i].start && pc < functions[i].start + functions[i].size) {
+            ftrace_tab_size --;
+            for(int j = 0; j < ftrace_tab_size; j++) {
+                printf("  ");
+            }
+            printf("ret [%s]", functions[i].name);
+            break;
+        }
     }
     return;
 }
