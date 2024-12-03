@@ -1,12 +1,36 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include <elf.h>
 #include <common.h>
+#include <utils.h>
 #include <cpu/ftrace.h>
 
 function_info *functions = NULL;
 int function_num = 0;
 int ftrace_tab_size = 0;
+
+#define BUFFER_SIZE 1024 * 1024 // 1MB 缓冲区
+char output_buffer[BUFFER_SIZE];
+size_t buffer_offset = 0;
+extern FILE* log_fp;
+
+void ftrace_printf(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    int written = vsnprintf(output_buffer + buffer_offset, BUFFER_SIZE - buffer_offset, format, args);
+    va_end(args);
+    buffer_offset += written;
+}
+
+void ftrace_log() {
+    if(log_fp == NULL) {
+        printf("%s",output_buffer);
+    }else{
+        log_write("%s", output_buffer);
+    }
+    
+}
 
 void init_elf(const char *elf_file) {
     printf("elf_file = %s\n", elf_file);
@@ -89,14 +113,14 @@ void init_elf(const char *elf_file) {
 }
 
 void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
-    log_write(FMT_WORD ": ", pc);
+    ftrace_printf(FMT_WORD ": ", pc);
     for (int i = 0; i < function_num; i++) {
         if (next_pc == functions[i].start) {
             for(int j = 0; j < ftrace_tab_size; j++) {
-                log_write("  ");
+                ftrace_printf("  ");
             }
             ftrace_tab_size ++;
-            log_write("call [%s@" FMT_WORD "]\n", functions[i].name, next_pc);
+            ftrace_printf("call [%s@" FMT_WORD "]\n", functions[i].name, next_pc);
             break;
         }
     }
@@ -104,14 +128,14 @@ void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
 }
 
 void ftrace_ret(vaddr_t pc) {
-    log_write(FMT_WORD ": ", pc);
+    ftrace_printf(FMT_WORD ": ", pc);
     for (int i = 0; i < function_num; i++) {
         if (pc >= functions[i].start && pc < functions[i].start + functions[i].size) {
             ftrace_tab_size --;
             for(int j = 0; j < ftrace_tab_size; j++) {
-                log_write("  ");
+                ftrace_printf("  ");
             }
-            log_write("ret [%s]\n", functions[i].name);
+            ftrace_printf("ret [%s]\n", functions[i].name);
             break;
         }
     }
