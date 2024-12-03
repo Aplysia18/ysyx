@@ -89,14 +89,14 @@ void init_elf(const char *elf_file) {
 }
 
 void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
-    printf(FMT_WORD ": ", pc);
+    log_write(FMT_WORD ": ", pc);
     for (int i = 0; i < function_num; i++) {
-        if (next_pc == functions[i].start && next_pc < functions[i].start + functions[i].size) {
+        if (next_pc == functions[i].start) {
             for(int j = 0; j < ftrace_tab_size; j++) {
-                printf("  ");
+                log_write("  ");
             }
             ftrace_tab_size ++;
-            printf("call [%s@" FMT_WORD "]\n", functions[i].name, next_pc);
+            log_write("call [%s@" FMT_WORD "]\n", functions[i].name, next_pc);
             break;
         }
     }
@@ -104,14 +104,14 @@ void ftrace_call(vaddr_t pc, vaddr_t next_pc) {
 }
 
 void ftrace_ret(vaddr_t pc) {
-    printf(FMT_WORD ": ", pc);
+    log_write(FMT_WORD ": ", pc);
     for (int i = 0; i < function_num; i++) {
         if (pc >= functions[i].start && pc < functions[i].start + functions[i].size) {
             ftrace_tab_size --;
             for(int j = 0; j < ftrace_tab_size; j++) {
-                printf("  ");
+                log_write("  ");
             }
-            printf("ret [%s]\n", functions[i].name);
+            log_write("ret [%s]\n", functions[i].name);
             break;
         }
     }
