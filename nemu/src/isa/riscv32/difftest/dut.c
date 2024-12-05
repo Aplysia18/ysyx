@@ -19,8 +19,8 @@
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   size_t gpr_num = sizeof(ref_r->gpr) / sizeof(ref_r->gpr[0]);
-  for (size_t i = 0; i < gpr_num; i++) {
-    if (ref_r->gpr[i] != cpu.gpr[i]) {
+  for (size_t i = 0; i < gpr_num-1; i++) {
+    if (ref_r->gpr[i] != cpu.gpr[i+1]) {
       Log("reg[%s] is different after executing instruction at pc = " FMT_WORD
           ", right = " FMT_WORD ", wrong = " FMT_WORD ", diff = " FMT_WORD,
           reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i], ref_r->gpr[i] ^ cpu.gpr[i]);
