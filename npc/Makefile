@@ -37,8 +37,7 @@ all:
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "Write this Makefile by your self."
-	@$^ $(ARGS) $(IMG)
+	$^ $(ARGS) $(IMG)
 
 clean:
 	rm -rf $(BUILD_DIR)
