@@ -29,13 +29,16 @@ $(BIN): $(VSRCS) $(CSRCS)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
+IMG ?=
+ARGS ?= 
+
 all:
 	@echo "Write this Makefile by your self."
 
 sim: $(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Write this Makefile by your self."
-	@$^
+	@$^ $(ARGS) $(IMG)
 
 clean:
 	rm -rf $(BUILD_DIR)
