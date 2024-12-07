@@ -20,7 +20,6 @@ static long load_img() {
     return 4096; // built-in image size
   }
   printf("image file: %s\n", img_file);
-  assert(0);
 
   FILE *fp = fopen(img_file, "rb");
   if(fp==NULL) {
