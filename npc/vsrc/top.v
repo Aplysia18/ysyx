@@ -8,10 +8,15 @@ module ysyx_24110015_top(
   wire [6:0] opcode, func7;
   wire [2:0] func3;
   wire [31:0] imm;
-  wire [4:0] rs1, rs2, rd;
 
   wire rf_wen, ebreak;
   wire [31:0] rdata1, rdata2, wdata;
+  
+  wire RegWrite;
+  wire [1:0] ALUAsrc;
+  wire [1:0] ALUBsrc;
+  wire PCAsrc;
+  wire PCBsrc;
   
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
@@ -27,20 +32,22 @@ module ysyx_24110015_top(
     .opcode(opcode),
     .func7(func7),
     .func3(func3),
-    .rs1(rs1),
-    .rs2(rs2),
-    .rd(rd),
     .imm(imm),
+    .RegWrite(RegWrite),
+    .ALUAsrc(ALUAsrc),
+    .ALUBsrc(ALUBsrc),
+    .PCAsrc(PCAsrc),
+    .PCBsrc(PCBsrc),
     .ebreak(ebreak)
     );
 
-  ysyx_24110015_RegisterFile #(5, 32) rf (
+  ysyx_24110015_RegisterFile #(4, 32) rf (
     .clk(clk), 
     .wdata(wdata),
-    .waddr(rd),
-    .wen(rf_wen),
-    .raddr1(rs1),
-    .raddr2(rs2),
+    .waddr(inst[10:7]),
+    .wen(RegWrite),
+    .raddr1(inst[18:15]),
+    .raddr2(inst[23:20]),
     .rdata1(rdata1),
     .rdata2(rdata2)
     );
@@ -49,16 +56,16 @@ module ysyx_24110015_top(
     .clk(clk), 
     .rst(rst), 
     .pc(pc), 
-    .opcode(opcode), 
-    .func7(func7), 
-    .func3(func3), 
     .imm(imm), 
     .data1(rdata1), 
     .data2(rdata2), 
+    .ALUAsrc(ALUAsrc),
+    .ALUBsrc(ALUBsrc),
+    .PCAsrc(PCAsrc),
+    .PCBsrc(PCBsrc),
     .ebreak(ebreak),
     .data_out(wdata), 
-    .pc_next(pc_next),
-    .rf_wen(rf_wen)
+    .pc_next(pc_next)
     );
 
 
