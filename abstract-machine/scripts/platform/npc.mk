@@ -14,7 +14,7 @@ LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
 LDFLAGS   += --gc-sections -e _start
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 
-NPCFLAGS += -l test.log
+NPCFLAGS +=
 
 .PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
 

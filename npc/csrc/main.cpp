@@ -70,6 +70,10 @@ void npc_trap(){
 } 
 
 int main(int argc, char** argv) {
+  if(argc < 2) {
+    printf("Usage: %s <binary>\n", argv[0]);
+    return 1;
+  }
 
   VerilatedContext* contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
