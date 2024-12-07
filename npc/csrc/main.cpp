@@ -29,10 +29,6 @@ void npc_trap(){
 } 
 
 int main(int argc, char** argv) {
-  if(argc >= 2) {
-    printf("%s\n", argv[1]);
-    return 0;
-  }
 
   VerilatedContext* contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
