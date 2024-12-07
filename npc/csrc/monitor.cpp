@@ -2,10 +2,21 @@
 
 static char *img_file = NULL;
 
+static void default_img() {
+    // 初始化内存
+    paddr_write(0x80000000, 0x00108093);  // addi x1, x1, 1
+    paddr_write(0x80000004, 0x00208093);
+    paddr_write(0x80000008, 0x00308093);
+    paddr_write(0x8000000c, 0x00408093);
+    paddr_write(0x80000010, 0x00508093);
+    paddr_write(0x80000014, 0x00100073);
+}
+
 static long load_img() {
   if (img_file == NULL) {
     // Log("No image is given. Use the default build-in image.");
     printf("No image is given. Use the default build-in image.\n");
+    default_img();
     return 4096; // built-in image size
   }
 
@@ -19,7 +30,7 @@ static long load_img() {
   long size = ftell(fp);
 
 //   Log("The image is %s, size = %ld", img_file, size);
-    printf("The image is %s, size = %ld\n", img_file, size);
+  printf("The image is %s, size = %ld\n", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
   int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);

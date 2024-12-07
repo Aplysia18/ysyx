@@ -45,13 +45,7 @@ int main(int argc, char** argv) {
   
   reset(top, contextp, tfp, 5);
   
-  // 初始化内存
-  paddr_write(0x80000000, 0x00108093);  // addi x1, x1, 1
-  paddr_write(0x80000004, 0x00208093);
-  paddr_write(0x80000008, 0x00308093);
-  paddr_write(0x8000000c, 0x00408093);
-  paddr_write(0x80000010, 0x00508093);
-  paddr_write(0x80000014, 0x00100073);
+
 
  while(1) {
     top->inst = paddr_read(top->pc);
