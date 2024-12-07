@@ -13,12 +13,12 @@ static void default_img() {
 }
 
 static long load_img() {
-//   if (img_file == NULL) {
+  if (img_file == NULL) {
     // Log("No image is given. Use the default build-in image.");
     printf("No image is given. Use the default build-in image.\n");
     default_img();
     return 4096; // built-in image size
-//   }
+  }
   printf("image file: %s\n", img_file);
   assert(0);
 
