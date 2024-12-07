@@ -3,7 +3,7 @@
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
 #include "Vysyx_24110015_top__Dpi.h"
-#include "memory.hpp"
+#include "monitor.hpp"
 
 static void single_cycle(Vysyx_24110015_top* top, VerilatedContext* contextp, VerilatedVcdC* tfp) {
   top->clk = 1;
@@ -44,6 +44,8 @@ int main(int argc, char** argv) {
   tfp->open("./build/simx.vcd");
   
   reset(top, contextp, tfp, 5);
+
+  init_monitor(argc, argv);
 
  while(1) {
     top->inst = paddr_read(top->pc);
