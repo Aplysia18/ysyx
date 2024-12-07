@@ -3,48 +3,7 @@
 #include "verilated_vcd_c.h"
 #include "svdpi.h"
 #include "Vysyx_24110015_top__Dpi.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-
-#define CONFIG_MSIZE 0x8000000
-#define CONFIG_MBASE 0x80000000
-#define PG_ALIGN __attribute((aligned(4096)))
-
-typedef uint32_t paddr_t;
-typedef uint32_t word_t;
-
-static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
-
-uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
-paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
-
-static inline bool in_pmem(paddr_t addr) {
-  return addr - CONFIG_MBASE < CONFIG_MSIZE;
-}
-
-static word_t pmem_read(paddr_t addr) {
-  word_t ret = *(uint32_t*)guest_to_host(addr);
-  return ret;
-}
-
-static void pmem_write(paddr_t addr, word_t data) {
-  *(uint32_t*)guest_to_host(addr) = data;
-}
-
-word_t paddr_read(paddr_t addr) {
-  if(!in_pmem(addr)) {
-    printf("paddr_read: invalid address 0x%x\n", addr);
-    assert(0);
-  }else return pmem_read(addr);
-}
-
-void paddr_write(paddr_t addr, word_t data) {
-  if(!in_pmem(addr)) {
-    printf("paddr_write: invalid address 0x%x\n", addr);
-    assert(0);
-  }else return pmem_write(addr, data);
-}
+#include "memory.hpp"
 
 static void single_cycle(Vysyx_24110015_top* top, VerilatedContext* contextp, VerilatedVcdC* tfp) {
   top->clk = 1;
