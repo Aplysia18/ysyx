@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
 #include "memory.hpp"
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
