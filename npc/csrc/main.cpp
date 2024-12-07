@@ -44,8 +44,6 @@ int main(int argc, char** argv) {
   tfp->open("./build/simx.vcd");
   
   reset(top, contextp, tfp, 5);
-  
-
 
  while(1) {
     top->inst = paddr_read(top->pc);
