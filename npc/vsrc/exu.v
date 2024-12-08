@@ -72,7 +72,7 @@ module ysyx_24110015_EXU (
     .outy(data_out)
   );
 
-  always @(*) begin
+  always @(ebreak) begin
     if(ebreak) begin
       npc_trap();
     end
