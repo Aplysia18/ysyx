@@ -19,7 +19,6 @@ static long load_img() {
     default_img();
     return 4096; // built-in image size
   }
-  printf("image file: %s\n", img_file);
 
   FILE *fp = fopen(img_file, "rb");
   if(fp==NULL) {
