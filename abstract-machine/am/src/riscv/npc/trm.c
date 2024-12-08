@@ -18,7 +18,7 @@ void putch(char ch) {
 }
 
 void halt(int code) {
-  asm("ecall");
+  asm("ebreak");
   while (1);
 }
 
