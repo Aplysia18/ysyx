@@ -18,8 +18,8 @@ void putch(char ch) {
 }
 
 void halt(int code) {
-  _asm__volatile__("ecall");
-  // while (1);
+  asm("ecall");
+  while (1);
 }
 
 void _trm_init() {
