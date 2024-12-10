@@ -43,12 +43,14 @@ static long load_img() {
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
+    {"batch"    , no_argument      , NULL, 'b'},
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-h", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bh", table, NULL)) != -1) {
     switch (o) {
+      case 'b': sdb_set_batch_mode(); break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
