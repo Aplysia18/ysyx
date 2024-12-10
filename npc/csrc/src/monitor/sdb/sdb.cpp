@@ -60,7 +60,7 @@ static int cmd_si(char *args);
 
 static int cmd_info(char *args);
 
-// static int cmd_x(char *args);
+static int cmd_x(char *args);
 
 // static int cmd_p(char *args);
 
@@ -78,7 +78,7 @@ static struct {
   { "q", "Exit NPC Simulation", cmd_q },
   { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
   { "info", "Print program states", cmd_info},
-  // { "x", "Examine memory", cmd_x},
+  { "x", "Examine memory", cmd_x},
   // { "p", "Print value of expression", cmd_p},
   // { "w", "Set watchpoint", cmd_w},
   // { "d", "Delete watchpoint", cmd_d},
@@ -147,49 +147,49 @@ static int cmd_info(char *args) {
   return 0;
 }
 
-// static int cmd_x(char *args) {
+static int cmd_x(char *args) {
 
-//   char *arg = strtok(NULL, " ");
-//   if (arg == NULL) {
-//     printf("No length given! Please input \"x N EXPR\".\n");
-//     return 0;
-//   }
+  char *arg = strtok(NULL, " ");
+  if (arg == NULL) {
+    printf("No length given! Please input \"x N EXPR\".\n");
+    return 0;
+  }
 
-//   char *endptr;
-//   uint64_t n = strtoul(arg, &endptr, 10);
+  char *endptr;
+  uint64_t n = strtoul(arg, &endptr, 10);
 
-//   if (*endptr != '\0') {
-//     printf("Invalid input N parameter!\n");
-//     return 0;
-//   } 
+  if (*endptr != '\0') {
+    printf("Invalid input N parameter!\n");
+    return 0;
+  } 
 
-//   arg = strtok(NULL, " ");
-//   if (arg == NULL) {
-//     printf("No expression given! Please input \"x N EXPR\".\n");
-//     return 0;
-//   }
+  arg = strtok(NULL, " ");
+  if (arg == NULL) {
+    printf("No expression given! Please input \"x N EXPR\".\n");
+    return 0;
+  }
 
-//   bool success = true;
-//   uint32_t expr_result = expr(arg, &success);
+  bool success = true;
+  uint32_t expr_result = expr(arg, &success);
 
-//   uint32_t addr;
+  uint32_t addr;
 
-//   if(success){
-//     addr = expr_result;
-//   }else{
-//     printf("Invalid expression!\n");
-//     return 0;
-//   }
+  if(success){
+    addr = expr_result;
+  }else{
+    printf("Invalid expression!\n");
+    return 0;
+  }
 
-//   for (int i = 0; i < n; i++) {
-//     printf("0x%08x: ", addr);
-//     printf("0x%08x", vaddr_read(addr, 4));
-//     printf("\n");
-//     addr += 4;
-//   }
+  for (int i = 0; i < n; i++) {
+    printf("0x%08x: ", addr);
+    printf("0x%08x", paddr_read(addr));
+    printf("\n");
+    addr += 4;
+  }
 
-//   return 0;
-// }
+  return 0;
+}
 
 // static int cmd_p(char *args) {
 //   if (args == NULL) {
