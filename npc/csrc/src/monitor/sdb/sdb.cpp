@@ -62,11 +62,11 @@ static int cmd_info(char *args);
 
 static int cmd_x(char *args);
 
-// static int cmd_p(char *args);
+static int cmd_p(char *args);
 
-// static int cmd_w(char *args);
+static int cmd_w(char *args);
 
-// static int cmd_d(char *args);
+static int cmd_d(char *args);
 
 static struct {
   const char *name;
@@ -79,9 +79,9 @@ static struct {
   { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
   { "info", "Print program states", cmd_info},
   { "x", "Examine memory", cmd_x},
-  // { "p", "Print value of expression", cmd_p},
-  // { "w", "Set watchpoint", cmd_w},
-  // { "d", "Delete watchpoint", cmd_d},
+  { "p", "Print value of expression", cmd_p},
+  { "w", "Set watchpoint", cmd_w},
+  { "d", "Delete watchpoint", cmd_d},
 
 };
 
@@ -193,58 +193,58 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-// static int cmd_p(char *args) {
-//   if (args == NULL) {
-//     printf("No expression given!\n");
-//     return 0;
-//   }
+static int cmd_p(char *args) {
+  if (args == NULL) {
+    printf("No expression given!\n");
+    return 0;
+  }
 
-//   bool success = true;
-//   uint32_t result = expr(args, &success);
-//   if (success) {
-//     printf("%u "FMT_WORD"\n", result, result);
-//   } else {
-//     printf("Invalid expression!\n");
-//   }
+  bool success = true;
+  uint32_t result = expr(args, &success);
+  if (success) {
+    printf("%u "FMT_WORD"\n", result, result);
+  } else {
+    printf("Invalid expression!\n");
+  }
 
-//   return 0;
-// }
+  return 0;
+}
 
-// static int cmd_w(char *args) {
-//   if(args == NULL){
-//     printf("No expression given!\n");
-//     return 0;
-//   }
-//   char *e = strtok(NULL, " ");
-//   bool success;
-//   uint32_t result = expr(e, &success);
-//   if(success){
-//     create_wp(e, result);
-//   }else{
-//     printf("Invalid expression!\n");
-//   }
+static int cmd_w(char *args) {
+  if(args == NULL){
+    printf("No expression given!\n");
+    return 0;
+  }
+  char *e = strtok(NULL, " ");
+  bool success;
+  uint32_t result = expr(e, &success);
+  if(success){
+    create_wp(e, result);
+  }else{
+    printf("Invalid expression!\n");
+  }
 
-//   return 0;
-// }
+  return 0;
+}
 
-// static int cmd_d(char *args){
-//   if(args == NULL){
-//     printf("No watchpoint number given!\n");
-//     return 0;
-//   }
+static int cmd_d(char *args){
+  if(args == NULL){
+    printf("No watchpoint number given!\n");
+    return 0;
+  }
   
-//   char *endptr;
-//   uint64_t n = strtoul(args, &endptr, 10);
+  char *endptr;
+  uint64_t n = strtoul(args, &endptr, 10);
 
-//   if(*endptr != '\0'){
-//     printf("Invalid input N parameter!\n");
-//     return 0;
-//   }
+  if(*endptr != '\0'){
+    printf("Invalid input N parameter!\n");
+    return 0;
+  }
 
-//   delete_wp(n);
+  delete_wp(n);
 
-//   return 0;
-// }
+  return 0;
+}
 
 void sdb_set_batch_mode() {
   is_batch_mode = true;
@@ -288,5 +288,5 @@ void init_sdb() {
   init_regex();
 
   /* Initialize the watchpoint pool. */
-  // init_wp_pool();
+  init_wp_pool();
 }
