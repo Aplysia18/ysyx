@@ -56,7 +56,7 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
-// static int cmd_si(char *args); 
+static int cmd_si(char *args); 
 
 // static int cmd_info(char *args);
 
@@ -76,7 +76,7 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NPC Simulation", cmd_q },
-  // { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
+  { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
   // { "info", "Print program states", cmd_info},
   // { "x", "Examine memory", cmd_x},
   // { "p", "Print value of expression", cmd_p},
@@ -110,27 +110,27 @@ static int cmd_help(char *args) {
   return 0;
 }
 
-// static int cmd_si(char *args) {
+static int cmd_si(char *args) {
 
-//   if(args==NULL){
-//     cpu_exec(1);
-//     return 0;
-//   }
+  if(args==NULL){
+    cpu_exec(1);
+    return 0;
+  }
 
-//   char *endptr;
-//   uint64_t n;
+  char *endptr;
+  uint64_t n;
 
-//   unsigned long result = strtoul(args, &endptr, 10);
+  unsigned long result = strtoul(args, &endptr, 10);
 
-//   if (*endptr != '\0') {
-//       printf("Invalid input si parameter!\n");
-//   } else {
-//       n = result;
-//       cpu_exec(n);
-//   }
+  if (*endptr != '\0') {
+      printf("Invalid input si parameter!\n");
+  } else {
+      n = result;
+      cpu_exec(n);
+  }
 
-//   return 0;
-// }
+  return 0;
+}
 
 // static int cmd_info(char *args) {
 

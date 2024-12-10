@@ -32,7 +32,7 @@ $(BIN): $(VSRCS) $(CSRCS)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
 IMG ?=
-ARGS ?= -b
+ARGS ?= 
 
 all:
 	@echo "Write this Makefile by your self."
