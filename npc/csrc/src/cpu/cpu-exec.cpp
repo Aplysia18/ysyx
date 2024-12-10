@@ -44,6 +44,10 @@ void npc_trap(){
   end_flag = 1;
 } 
 
+static void trace_and_difftest(){
+    check_watchpoints();
+}
+
 void cpu_exec(uint64_t n) {
   if(end_flag) {
     printf("Simulation finished\n");
@@ -55,6 +59,7 @@ void cpu_exec(uint64_t n) {
     // printf("pc: %x, inst: %x\n", top->pc, top->inst);
 
     single_cycle();
+    trace_and_difftest();
     if(end_flag) {
         printf("Simulation finished\n");
         break;
