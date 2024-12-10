@@ -64,6 +64,10 @@ void cpu_exec(uint64_t n) {
         printf("Simulation finished\n");
         break;
     }
+    else if(sdb_stop){
+        sdb_stop = false;
+        break;
+    }
   }
 }
 

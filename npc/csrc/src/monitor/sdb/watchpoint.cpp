@@ -103,7 +103,7 @@ void check_watchpoints() {
       printf("Old value = %u\n", p->val);
       printf("New value = %u\n", val);
       p->val = val;
-    //   nemu_state.state = NEMU_STOP;
+      sdb_stop = true;
     }
   }
 }
