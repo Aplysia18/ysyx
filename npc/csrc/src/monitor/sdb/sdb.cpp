@@ -13,7 +13,7 @@
 // * See the Mulan PSL v2 for more details.
 // ***************************************************************************************/
 
-// #include <isa.h>
+#include <isa/reg.hpp>
 #include <cpu/cpu.hpp>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -58,7 +58,7 @@ static int cmd_help(char *args);
 
 static int cmd_si(char *args); 
 
-// static int cmd_info(char *args);
+static int cmd_info(char *args);
 
 // static int cmd_x(char *args);
 
@@ -77,7 +77,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NPC Simulation", cmd_q },
   { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
-  // { "info", "Print program states", cmd_info},
+  { "info", "Print program states", cmd_info},
   // { "x", "Examine memory", cmd_x},
   // { "p", "Print value of expression", cmd_p},
   // { "w", "Set watchpoint", cmd_w},
@@ -132,20 +132,20 @@ static int cmd_si(char *args) {
   return 0;
 }
 
-// static int cmd_info(char *args) {
+static int cmd_info(char *args) {
 
-//   if (args == NULL) {
-//     printf("info r: Print registers\n");
-//     printf("info w: Print watchpoints\n");
-//   } else if (strcmp(args, "r") == 0) {
-//     isa_reg_display();
-//   } else if (strcmp(args, "w") == 0) {
-//     print_wp();
-//   } else {
-//     printf("Unknown info command '%s'\n", args);
-//   }
-//   return 0;
-// }
+  if (args == NULL) {
+    printf("info r: Print registers\n");
+    // printf("info w: Print watchpoints\n");
+  } else if (strcmp(args, "r") == 0) {
+    isa_reg_display();
+  // } else if (strcmp(args, "w") == 0) {
+  //   print_wp();
+  } else {
+    printf("Unknown info command '%s'\n", args);
+  }
+  return 0;
+}
 
 // static int cmd_x(char *args) {
 
