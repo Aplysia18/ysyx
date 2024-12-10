@@ -170,7 +170,9 @@ static int cmd_x(char *args) {
   }
 
   bool success = true;
+  printf("EXPR: %s\n", arg);
   uint32_t expr_result = expr(arg, &success);
+  printf("EXPR_RESULT: %u\n", expr_result);
 
   uint32_t addr;
 
