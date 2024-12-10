@@ -1,4 +1,5 @@
-#include "memory.hpp"
+#include "memory/paddr.hpp"
+#include "common.hpp"
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 

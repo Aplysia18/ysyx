@@ -1,4 +1,5 @@
-#include "monitor.hpp"
+#include <monitor/monitor.hpp>
+#include <monitor/sdb.hpp>
 
 static char *img_file = NULL;
 
@@ -66,4 +67,8 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
+
+  /* Initialize the simple debugger. */
+  init_sdb();
+
 }
