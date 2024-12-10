@@ -50,13 +50,9 @@ static int cmd_c(char *args) {
 }
 
 
-// static int cmd_q(char *args) {
-//   if(nemu_state.state == NEMU_STOP) {
-//     nemu_state.state = NEMU_QUIT;
-//   }
-  
-//   return -1;
-// }
+static int cmd_q(char *args) {
+  return -1;
+}
 
 static int cmd_help(char *args);
 
@@ -79,7 +75,7 @@ static struct {
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
-  // { "q", "Exit NEMU", cmd_q },
+  { "q", "Exit NPC Simulation", cmd_q },
   // { "si", "Execute N instructions using single step execution, N defaults to 1", cmd_si},
   // { "info", "Print program states", cmd_info},
   // { "x", "Examine memory", cmd_x},
