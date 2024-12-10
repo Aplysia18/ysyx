@@ -45,6 +45,11 @@ void npc_trap(){
 } 
 
 void cpu_exec(uint64_t n) {
+  if(end_flag) {
+    printf("Simulation finished\n");
+    return;
+  }
+
   while(n--) {
     top->inst = paddr_read(top->pc);
     // printf("pc: %x, inst: %x\n", top->pc, top->inst);
