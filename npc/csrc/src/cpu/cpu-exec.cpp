@@ -43,8 +43,6 @@ void init_cpu(int argc, char* argv[]) {
 static bool end_flag = 0;
 
 void npc_trap(){
-  int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];
-  Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), top->pc);
   end_flag = 1;
 } 
 
@@ -108,10 +106,14 @@ void cpu_exec(uint64_t n) {
 
 
     if(end_flag) {
-        Log("ftrace:");
-        ftrace_log();
-        printf("Simulation finished\n");
-        break;
+      int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];
+      Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), top->pc);
+      
+      Log("ftrace:");
+      ftrace_log();
+      
+      printf("Simulation finished\n");
+      break;
     }
     else if(sdb_stop){  //watchpoint stop the sdb
         sdb_stop = false;
