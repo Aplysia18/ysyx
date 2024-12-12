@@ -59,6 +59,7 @@ static void execute_once(Decode *s, vaddr_t pc){
 
   s->pc = pc;
   s->snpc = pc + 4;
+  s->inst = top->inst;
 
   // execute
   single_cycle();
