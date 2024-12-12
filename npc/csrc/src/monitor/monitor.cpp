@@ -16,8 +16,7 @@ static void default_img() {
 
 static long load_img() {
   if (img_file == NULL) {
-    // Log("No image is given. Use the default build-in image.");
-    printf("No image is given. Use the default build-in image.\n");
+    Log("No image is given. Use the default build-in image.");
     default_img();
     return 4096; // built-in image size
   }
@@ -31,8 +30,7 @@ static long load_img() {
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
 
-//   Log("The image is %s, size = %ld", img_file, size);
-  printf("The image is %s, size = %ld\n", img_file, size);
+  Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
   int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
