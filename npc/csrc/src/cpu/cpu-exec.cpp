@@ -83,8 +83,8 @@ static void execute_once(Decode *s, vaddr_t pc){
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p, s->pc, (uint8_t *)&s->inst, ilen);
 
   //ftrace
+  printf("inst = %08x\n", s->inst);
   if(s->inst&0xfff == 0x0ef || s->inst&0xfff == 0x0e7){
-    printf("!!!");
     ftrace_call(pc, top->pc);
   }else if(s->inst == 0x00008067){
     ftrace_ret(pc);
