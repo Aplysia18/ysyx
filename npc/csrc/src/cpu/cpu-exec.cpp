@@ -60,8 +60,6 @@ void cpu_exec(uint64_t n) {
 
   while(n--) {
     top->inst = paddr_read(top->pc);
-    // printf("pc: %x, inst: %x\n", top->pc, top->inst);
-    single_cycle();
 
     // trace
     char logbuf[128];
@@ -85,6 +83,9 @@ void cpu_exec(uint64_t n) {
       top->pc, (uint8_t *)&top->inst, ilen);
 
     trace_and_difftest(logbuf);
+
+    single_cycle();
+    
     if(end_flag) {
         printf("Simulation finished\n");
         break;
