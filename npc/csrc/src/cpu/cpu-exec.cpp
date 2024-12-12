@@ -1,5 +1,6 @@
 #include <cpu/cpu.hpp>
-#include <common.hpp>
+#include <cpu/decode.hpp>
+#include <cpu/ftrace.hpp>
 
 Vysyx_24110015_top* top;
 VerilatedContext* contextp;
@@ -47,50 +48,71 @@ void npc_trap(){
   end_flag = 1;
 } 
 
-static void trace_and_difftest(char *logbuf){
-    log_write("%s\n", logbuf);
+static void trace_and_difftest(Decode *_this){
+    log_write("%s\n", _this->logbuf);
     check_watchpoints();
 }
 
+static void execute_once(Decode *s, vaddr_t pc){
+
+  top->inst = paddr_read(top->pc);
+
+  s->pc = pc;
+  s->snpc = pc + 4;
+
+  // execute
+  single_cycle();
+
+  //itrace
+  char *p = s->logbuf;
+  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
+  int ilen = s->snpc - s->pc;
+  int i;
+  uint8_t *inst = (uint8_t *)&s->inst;
+  for (i = ilen - 1; i >= 0; i --) {
+    p += snprintf(p, 4, " %02x", inst[i]);
+  }
+  int ilen_max = 4;
+  int space_len = ilen_max - ilen;
+  if (space_len < 0) space_len = 0;
+  space_len = space_len * 3 + 1;
+  memset(p, ' ', space_len);
+  p += space_len;
+
+  disassemble(p, s->logbuf + sizeof(s->logbuf) - p, s->pc, (uint8_t *)&s->inst, ilen);
+
+  //ftrace
+  if(s->inst&0xfff == 0x0ef || s->inst&0xfff == 0x0e7){
+    ftrace_call(pc, top->pc);
+  }else if(s->inst == 0x00008067){
+    ftrace_ret(pc);
+  }
+
+}
+
 void cpu_exec(uint64_t n) {
+
   if(end_flag) {
     printf("Simulation finished\n");
     return;
   }
 
+  Decode s;
+  
   while(n--) {
-    top->inst = paddr_read(top->pc);
 
-    // trace
-    char logbuf[128];
+    execute_once(&s, top->pc);
 
-    char *p = logbuf;
-    p += snprintf(p, sizeof(logbuf), FMT_WORD ":", top->pc);
-    int ilen = 4;
-    int i;
-    uint8_t *inst = (uint8_t *)&top->inst;
-    for (i = ilen - 1; i >= 0; i --) {
-      p += snprintf(p, 4, " %02x", inst[i]);
-    }
-    int ilen_max = 4;
-    int space_len = ilen_max - ilen;
-    if (space_len < 0) space_len = 0;
-    space_len = space_len * 3 + 1;
-    memset(p, ' ', space_len);
-    p += space_len;
+    trace_and_difftest(&s);
 
-    disassemble(p, logbuf + sizeof(logbuf) - p, top->pc, (uint8_t *)&top->inst, ilen);
-
-    trace_and_difftest(logbuf);
-
-    // execute
-    single_cycle();
 
     if(end_flag) {
+        Log("ftrace:");
+        ftrace_log();
         printf("Simulation finished\n");
         break;
     }
-    else if(sdb_stop){
+    else if(sdb_stop){  //watchpoint stop the sdb
         sdb_stop = false;
         break;
     }
