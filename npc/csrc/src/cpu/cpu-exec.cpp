@@ -79,13 +79,13 @@ void cpu_exec(uint64_t n) {
     memset(p, ' ', space_len);
     p += space_len;
 
-    disassemble(p, logbuf + sizeof(logbuf) - p,
-      top->pc, (uint8_t *)&top->inst, ilen);
+    disassemble(p, logbuf + sizeof(logbuf) - p, top->pc, (uint8_t *)&top->inst, ilen);
 
     trace_and_difftest(logbuf);
 
+    // execute
     single_cycle();
-    
+
     if(end_flag) {
         printf("Simulation finished\n");
         break;

@@ -20,6 +20,9 @@ static void pmem_write(paddr_t addr, word_t data) {
 }
 
 word_t paddr_read(paddr_t addr) {
+#ifdef CONFIG_MTRACE
+  printf("paddr_read: addr = " FMT_PADDR "\n", addr);
+#endif
   if(!in_pmem(addr)) {
     printf("paddr_read: invalid address 0x%x\n", addr);
     assert(0);
@@ -27,6 +30,9 @@ word_t paddr_read(paddr_t addr) {
 }
 
 void paddr_write(paddr_t addr, word_t data) {
+#ifdef CONFIG_MTRACE
+  printf("paddr_write: addr = " FMT_PADDR ", data = " FMT_WORD "\n", addr, data);
+#endif
   if(!in_pmem(addr)) {
     printf("paddr_write: invalid address 0x%x\n", addr);
     assert(0);
