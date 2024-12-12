@@ -1,8 +1,11 @@
 #include <cpu/cpu.hpp>
+#include <common.hpp>
 
 Vysyx_24110015_top* top;
 VerilatedContext* contextp;
 VerilatedVcdC* tfp;
+
+void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
   top->clk = 1;
@@ -44,7 +47,8 @@ void npc_trap(){
   end_flag = 1;
 } 
 
-static void trace_and_difftest(){
+static void trace_and_difftest(char *logbuf){
+    log_write("%s\n", logbuf);
     check_watchpoints();
 }
 
@@ -57,9 +61,30 @@ void cpu_exec(uint64_t n) {
   while(n--) {
     top->inst = paddr_read(top->pc);
     // printf("pc: %x, inst: %x\n", top->pc, top->inst);
-
     single_cycle();
-    trace_and_difftest();
+
+    // trace
+    char logbuf[128];
+
+    char *p = logbuf;
+    p += snprintf(p, sizeof(logbuf), FMT_WORD ":", top->pc);
+    int ilen = 4;
+    int i;
+    uint8_t *inst = (uint8_t *)&top->inst;
+    for (i = ilen - 1; i >= 0; i --) {
+      p += snprintf(p, 4, " %02x", inst[i]);
+    }
+    int ilen_max = 4;
+    int space_len = ilen_max - ilen;
+    if (space_len < 0) space_len = 0;
+    space_len = space_len * 3 + 1;
+    memset(p, ' ', space_len);
+    p += space_len;
+
+    disassemble(p, logbuf + sizeof(logbuf) - p,
+      top->pc, (uint8_t *)&top->inst, ilen);
+
+    trace_and_difftest(logbuf);
     if(end_flag) {
         printf("Simulation finished\n");
         break;

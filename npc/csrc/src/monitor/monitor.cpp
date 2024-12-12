@@ -1,6 +1,8 @@
 #include <monitor/monitor.hpp>
 #include <monitor/sdb.hpp>
 
+void init_disasm(const char *triple);
+
 static char *img_file = NULL;
 static char *log_file = NULL;
 
@@ -76,5 +78,8 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize the simple debugger. */
   init_sdb();
+
+  /* Initialize the disassemble */
+  init_disasm("riscv32-pc-linux-gnu");
 
 }
