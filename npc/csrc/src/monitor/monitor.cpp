@@ -70,6 +70,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-b,--batch              run with batch mode\n");
         printf("\t-e,--elf=FILE           input ELF FILE for ftrace\n");
         printf("\t-l,--log=FILE           output log to FILE\n");
+        printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\n");
         exit(0);
     }
@@ -93,6 +94,7 @@ void init_monitor(int argc, char *argv[]) {
   long img_size = load_img();
 
   /* Initialize differential testing. */
+  printf("diff_so_file: %s\n", diff_so_file);
   init_difftest(diff_so_file, img_size, difftest_port);
 
   /* Initialize the simple debugger. */
