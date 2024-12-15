@@ -58,4 +58,6 @@ __EXPORT void difftest_init(int port) {
   init_mem();
   /* Perform ISA dependent initialization. */
   init_isa();
+  printf("init end/n");
+  fflush(stdout);
 }
