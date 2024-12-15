@@ -117,7 +117,7 @@ void cpu_exec(uint64_t n) {
   Decode s;
 
   printf("Simulation start\n");
-  printf("n=%d\n", n);
+  printf("n=%u\n", n);
   while(n--) {
     printf("111");
     printf("pc: 0x%08x\n", top->pc);
