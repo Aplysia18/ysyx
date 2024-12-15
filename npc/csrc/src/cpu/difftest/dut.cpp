@@ -53,17 +53,24 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   handle = dlopen(ref_so_file, RTLD_LAZY);
   assert(handle);
 
+  printf("1");
+
   ref_difftest_memcpy = reinterpret_cast<void (*)(paddr_t, void*, size_t, bool)>(dlsym(handle, "difftest_memcpy"));
   assert(ref_difftest_memcpy);
+
+  printf("2");
 
   ref_difftest_regcpy = reinterpret_cast<void (*)(void*, bool)>(dlsym(handle, "difftest_regcpy"));
   assert(ref_difftest_regcpy);
 
+  printf("3");
+
   ref_difftest_exec = reinterpret_cast<void (*)(uint64_t)>(dlsym(handle, "difftest_exec"));
   assert(ref_difftest_exec);
 
+  printf("4");
+
   ref_difftest_raise_intr = reinterpret_cast<void (*)(uint64_t)>(dlsym(handle, "difftest_raise_intr"));
-  assert(ref_difftest_raise_intr);
   assert(ref_difftest_raise_intr);
 
   void (*ref_difftest_init)(int) = reinterpret_cast<void (*)(int)>(dlsym(handle, "difftest_init"));
@@ -140,7 +147,5 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   checkregs(&ref_r, pc);
 }
 #else
-void init_difftest(char *ref_so_file, long img_size, int port) {
-  printf("No difftest\n");
- }
+void init_difftest(char *ref_so_file, long img_size, int port) { }
 #endif
