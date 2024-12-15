@@ -62,7 +62,6 @@ static void trace_and_difftest(Decode *_this){
 }
 
 static void execute_once(Decode *s, vaddr_t pc){
-  printf("test\n");
 
   top->inst = paddr_read(top->pc);
 
@@ -116,6 +115,8 @@ void cpu_exec(uint64_t n) {
   }
 
   Decode s;
+
+  printf("Simulation start\n");
   
   while(n--) {
 
