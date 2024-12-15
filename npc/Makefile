@@ -22,7 +22,7 @@ CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*
 INC_PATH += $(NPC_HOME)/csrc/include
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\"" $(shell llvm-config --cxxflags) -fPIE
-LDFLAGS += -lreadline $(shell llvm-config --libs)
+LDFLAGS += -lreadline -ldl $(shell llvm-config --libs)
 
 $(BIN): $(VSRCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
