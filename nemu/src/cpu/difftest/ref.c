@@ -54,8 +54,10 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 }
 
 __EXPORT void difftest_init(int port) {
+  printf("1\n");
   void init_mem();
   init_mem();
+  printf("2\n");
   /* Perform ISA dependent initialization. */
   init_isa();
 }
