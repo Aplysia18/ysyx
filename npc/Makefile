@@ -34,6 +34,10 @@ $(BIN): $(VSRCS) $(CSRCS)
 IMG ?=
 ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 
+# nemu shared library for difftest
+DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-interpreter-so
+ARGS += --diff=$(DIFF_REF_SO)
+
 all:
 	@echo "Write this Makefile by your self."
 

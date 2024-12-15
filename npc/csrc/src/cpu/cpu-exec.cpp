@@ -1,10 +1,15 @@
 #include <cpu/cpu.hpp>
 #include <cpu/decode.hpp>
 #include <cpu/ftrace.hpp>
+#include <isa/isa-def.hpp>
+#include <cpu/difftest.hpp>
+#include <common.hpp>
 
 Vysyx_24110015_top* top;
 VerilatedContext* contextp;
 VerilatedVcdC* tfp;
+
+CPU_state cpu = {};
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
@@ -23,6 +28,8 @@ static void reset(int n){
   top->rst = 1;
   while(n--) single_cycle();
   top->rst = 0;
+  cpu.pc = top->pc;
+  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -40,6 +47,8 @@ void init_cpu(int argc, char* argv[]) {
 
 }
 
+bool abort_flag = 0;
+
 static bool end_flag = 0;
 
 void npc_trap(){
@@ -48,6 +57,7 @@ void npc_trap(){
 
 static void trace_and_difftest(Decode *_this){
     log_write("%s\n", _this->logbuf);
+    difftest_step(_this->pc, _this->dnpc);
     check_watchpoints();
 }
 
@@ -61,6 +71,14 @@ static void execute_once(Decode *s, vaddr_t pc){
 
   // execute
   single_cycle();
+
+  s->dnpc = top->pc;
+
+  //update cpu state
+  cpu.pc = top->pc;
+  for(int i = 0; i < 16; i++) {
+    cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  }
 
   //itrace
   char *p = s->logbuf;
@@ -104,6 +122,11 @@ void cpu_exec(uint64_t n) {
 
     trace_and_difftest(&s);
 
+    if(abort_flag){
+      end_flag = 1;
+      printf("Simulation aborted\n");
+      break;
+    }
 
     if(end_flag) {
       int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];

@@ -1,12 +1,16 @@
 #include <monitor/monitor.hpp>
 #include <monitor/sdb.hpp>
 #include <cpu/ftrace.hpp>
+#include <cpu/difftest.hpp>
 
 void init_disasm(const char *triple);
+void init_difftest(char *ref_so_file, long img_size, int port);
 
 static char *elf_file = NULL;
 static char *img_file = NULL;
 static char *log_file = NULL;
+static char *diff_so_file = NULL;
+static int difftest_port = 1234;
 
 static void default_img() {
     // 初始化内存
@@ -48,16 +52,18 @@ static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
     {"batch"    , no_argument      , NULL, 'b'},
     {"elf"      , required_argument, NULL, 'e'},
-    {"log"      , required_argument, NULL, 'l'},
+    {"log"      , required_argument, NULL, 'l'},\
+    {"diff"     , required_argument, NULL, 'd'},
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhe:l:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhe:l:d:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'e': elf_file = optarg; break;
       case 'l': log_file = optarg; break;
+      case 'd': diff_so_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -85,6 +91,9 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
+
+  /* Initialize differential testing. */
+  init_difftest(diff_so_file, img_size, difftest_port);
 
   /* Initialize the simple debugger. */
   init_sdb();
