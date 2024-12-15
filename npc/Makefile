@@ -35,7 +35,7 @@ IMG ?=
 ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 
 # nemu shared library for difftest
-DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-interpreter-so
+DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 EXTRA_ARGS += --diff=$(DIFF_REF_SO)
 
 all:
