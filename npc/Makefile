@@ -44,6 +44,7 @@ all:
 sim: $(BIN)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Verilator simulation"
+	@echo "ARGS: $(ARGS)"
 	@$^ $(ARGS) $(IMG)
 
 clean:
