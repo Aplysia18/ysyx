@@ -149,6 +149,8 @@ void cpu_exec(uint64_t n) {
         break;
     }
   }
+  printf("Simulation end\n");
+
 }
 
 void exit_cpu() {
