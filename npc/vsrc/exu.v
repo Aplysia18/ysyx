@@ -17,7 +17,6 @@ module ysyx_24110015_EXU (
   output [31:0] pc_next
 );
   
-  wire addi;
   wire [31:0] alu_out;
 
   /*-----Next PC Calculate-----*/
@@ -60,7 +59,7 @@ module ysyx_24110015_EXU (
     .key(ALUBsrc),
     .lut({
       2'b00, data2,
-      2'b01, imm,
+      2'b01, imm+32'b1,
       2'b10, 32'b100,
       2'b11, 32'b0
     })
