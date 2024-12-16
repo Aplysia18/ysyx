@@ -29,6 +29,7 @@ static void reset(int n){
   while(n--) single_cycle();
   top->rst = 0;
   cpu.pc = top->pc;
+  printf("npc: pc after reset 0x%08x\n", top->pc);
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
 
