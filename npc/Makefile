@@ -38,6 +38,9 @@ ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 EXTRA_ARGS += --diff=$(DIFF_REF_SO)
 
+$(DIFF_REF_SO):
+	$(MAKE) -C $(NEMU_HOME)
+
 all:
 	@echo "Write this Makefile by your self."
 
