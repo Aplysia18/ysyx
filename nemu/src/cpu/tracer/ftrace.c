@@ -25,7 +25,7 @@ void ftrace_printf(const char *format, ...) {
 
 void ftrace_log() {
     if(log_fp == NULL) {
-        printf("ftracelog%s", output_buffer);
+        // printf("%s", output_buffer);
     }else{
         log_write("%s", output_buffer);
     }
