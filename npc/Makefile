@@ -44,7 +44,7 @@ $(DIFF_REF_SO):
 all:
 	@echo "Write this Makefile by your self."
 
-sim: $(BIN)
+sim: $(BIN) $(DIFF_REF_SO)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@echo "Verilator simulation"
 	@echo "$^ $(ARGS) $(EXTRA_ARGS) $(IMG)"

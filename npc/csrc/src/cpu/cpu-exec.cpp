@@ -118,12 +118,12 @@ void cpu_exec(uint64_t n) {
 
   printf("Simulation start\n");
   while(n--) {
-    printf("111\n");
-    printf("pc: 0x%08x\n", top->pc);
+    // printf("111\n");
+    printf("npc: pc before exec 0x%08x\n", top->pc);
 
     execute_once(&s, top->pc);
 
-    printf("npc: 0x%08x\n", top->pc);
+    printf("npc: pc after exec 0x%08x\n", top->pc);
 
     trace_and_difftest(&s);
 
