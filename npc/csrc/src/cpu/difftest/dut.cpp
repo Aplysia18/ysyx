@@ -77,7 +77,6 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
   ref_difftest_init(port);
   ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
-  printf("difftest: pc is %08x\n", cpu.pc);
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
@@ -113,7 +112,6 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
 }
 
 void difftest_step(vaddr_t pc, vaddr_t npc) {
-  printf("difftest_step\n");
   CPU_state ref_r;
 
   if (skip_dut_nr_inst > 0) {

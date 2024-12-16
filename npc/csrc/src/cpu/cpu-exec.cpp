@@ -116,20 +116,15 @@ void cpu_exec(uint64_t n) {
 
   Decode s;
 
-  printf("Simulation start\n");
   while(n--) {
-    // printf("111\n");
-    printf("npc: pc before exec 0x%08x\n", top->pc);
 
     execute_once(&s, top->pc);
-
-    printf("npc: pc after exec 0x%08x\n", top->pc);
 
     trace_and_difftest(&s);
 
     if(abort_flag){
       end_flag = 1;
-      printf("Simulation aborted\n");
+      Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("ABORT", ANSI_FG_GREEN), s.pc);
       break;
     }
 
@@ -140,7 +135,6 @@ void cpu_exec(uint64_t n) {
       Log("ftrace:");
       ftrace_log();
       
-      printf("Simulation finished\n");
       break;
     }
     else if(sdb_stop){  //watchpoint stop the sdb
@@ -148,7 +142,6 @@ void cpu_exec(uint64_t n) {
         break;
     }
   }
-  printf("Simulation end\n");
 
 }
 
