@@ -39,6 +39,7 @@ DIFF_REF_SO = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 EXTRA_ARGS += --diff=$(DIFF_REF_SO)
 
 $(DIFF_REF_SO):
+	$(MAKE) -C $(NEMU_HOME) clean
 	$(MAKE) -C $(NEMU_HOME)
 
 all:
