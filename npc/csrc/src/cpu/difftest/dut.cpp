@@ -9,13 +9,11 @@
 #include <cpu/difftest.hpp>
 #include <common.hpp>
 
-// extern "C"{
 ref_difftest_memcpy_t ref_difftest_memcpy = NULL;
 ref_difftest_regcpy_t ref_difftest_regcpy = NULL;
 ref_difftest_exec_t ref_difftest_exec = NULL;
 ref_difftest_raise_intr_t ref_difftest_raise_intr = NULL;
 ref_difftest_init_t ref_difftest_init = NULL;
-// }
 
 #ifdef CONFIG_DIFFTEST
 
