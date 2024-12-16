@@ -123,11 +123,7 @@ static int decode_exec(Decode *s) {
 }
 
 int isa_exec_once(Decode *s) {
-  printf("before fetch\n");
   s->isa.inst.val = inst_fetch(&s->snpc, 4);
-  printf("after fetch, insn = %08x\n", s->isa.inst.val);
   ringbuf_add(s->pc, s->snpc, s->isa.inst.val);
-  printf("after ringbuf_add\n");
   return decode_exec(s);
-  printf("after decode_exec\n");
 }
