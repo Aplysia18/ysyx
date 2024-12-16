@@ -6,12 +6,16 @@
 #include <memory/paddr.hpp>
 #include <utils.hpp>
 #include <difftest-def.hpp>
+#include <cpu/difftest.hpp>
 #include <common.hpp>
 
-extern "C" void (*ref_difftest_memcpy)(paddr_t addr, void *buf, size_t n, bool direction) = NULL;
-extern "C" void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
-extern "C" void (*ref_difftest_exec)(uint64_t n) = NULL;
-extern "C" void (*ref_difftest_raise_intr)(uint64_t NO) = NULL;
+extern "C"{
+ref_difftest_memcpy_t ref_difftest_memcpy = NULL;
+ref_difftest_regcpy_t ref_difftest_regcpy = NULL;
+ref_difftest_exec_t ref_difftest_exec = NULL;
+ref_difftest_raise_intr_t ref_difftest_raise_intr = NULL;
+ref_difftest_init_t ref_difftest_init = NULL;
+}
 
 #ifdef CONFIG_DIFFTEST
 
@@ -53,19 +57,19 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   handle = dlopen(ref_so_file, RTLD_LAZY);
   assert(handle);
 
-  ref_difftest_memcpy = dlsym(handle, "difftest_memcpy");
+  ref_difftest_memcpy = (ref_difftest_memcpy_t)dlsym(handle, "difftest_memcpy");
   assert(ref_difftest_memcpy);
 
-  ref_difftest_regcpy = dlsym(handle, "difftest_regcpy");
+  ref_difftest_regcpy = (ref_difftest_regcpy_t)dlsym(handle, "difftest_regcpy");
   assert(ref_difftest_regcpy);
 
-  ref_difftest_exec = dlsym(handle, "difftest_exec");
+  ref_difftest_exec = (ref_difftest_exec_t)dlsym(handle, "difftest_exec");
   assert(ref_difftest_exec);
 
-  ref_difftest_raise_intr = dlsym(handle, "difftest_raise_intr");
+  ref_difftest_raise_intr = (ref_difftest_raise_intr_t)dlsym(handle, "difftest_raise_intr");
   assert(ref_difftest_raise_intr);
 
-  void (*ref_difftest_init)(int) = dlsym(handle, "difftest_init");
+  ref_difftest_init = (ref_difftest_init_t)dlsym(handle, "difftest_init");
   assert(ref_difftest_init);
 
   Log("Differential testing: %s", ANSI_FMT("ON", ANSI_FG_GREEN));
