@@ -112,8 +112,9 @@ void cpu_exec(uint64_t n) {
   }
 
   uint64_t timer_start = get_time();
-
+  printf("before nemu execute\n");
   execute(n);
+  printf("after nemu execute\n");
 
   uint64_t timer_end = get_time();
   g_timer += timer_end - timer_start;
