@@ -33,7 +33,6 @@ void ftrace_log() {
 }
 
 void init_elf(const char *elf_file) {
-    printf("elf_file = %s\n", elf_file);
     if (elf_file != NULL) {
         FILE *fp = fopen(elf_file, "rb");
         if(fp==NULL) {
