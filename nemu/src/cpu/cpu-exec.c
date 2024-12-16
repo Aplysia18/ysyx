@@ -50,6 +50,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   printf("before isa_exec_once, pc=%08x\n",s->pc);
   isa_exec_once(s);
+  printf("after isa_exec_once\n");
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
