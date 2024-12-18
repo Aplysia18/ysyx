@@ -11,8 +11,10 @@ module ysyx_24110015_IDU (
   output RegWrite,
   output [1:0] ALUAsrc,
   output [1:0] ALUBsrc,
+  output reg [3:0] ALUop,
   output PCAsrc,
   output PCBsrc,
+  output branch,
   output ebreak
 );
 
@@ -41,7 +43,7 @@ module ysyx_24110015_IDU (
   /*-----Reg Write Single Generation-----*/
   assign RegWrite = R_type || I_type || U_type || J_type;
 
-  /*-----ALU control single generation-----*/
+  /*-----ALU data select control signal generation-----*/
   wire ALUAsrc_rs1, ALUAsrc_pc, ALUAsrc_0;
   wire ALUBsrc_rs2, ALUBsrc_imm, ALUBsrc_4;
   assign ALUAsrc_0 = (opcode == `lui)? 1 : 0;
@@ -54,9 +56,44 @@ module ysyx_24110015_IDU (
   assign ALUAsrc = ALUAsrc_rs1 ? 2'b00 : ALUAsrc_pc ? 2'b01 : ALUAsrc_0 ? 2'b10 : 2'b11;  //0: rs1, 1:pc, 2:0
   assign ALUBsrc = ALUBsrc_rs2 ? 2'b00 : ALUBsrc_imm ? 2'b01 : ALUBsrc_4 ? 2'B10 : 2'b11;  //0: rs2, 1:imm, 2:4
 
+  /*-----ALU operation control signal generation-----*/
+  reg [3:0]b_type_alu_op;
+  //ALU op select for B type
+  ysyx_24110015_MuxKey #(8, 3, 4) BTypeALUOpmux(
+    .out(b_type_alu_op),
+    .key(func3),
+    .lut({
+      3'b000, `ALU_EQ,
+      3'b001, `ALU_NE,
+      3'b010, 4'b1111,
+      3'b011, 4'b1111,
+      3'b100, `ALU_LT,
+      3'b101, `ALU_GE,
+      3'b110, `ALU_LTU,
+      3'b111, `ALU_GEU
+    })
+  );
+
+  always @(*) begin
+    case (opcode)
+      `lui: ALUop = `ALU_ADD;
+      `auipc: ALUop = `ALU_ADD;
+      `jal: ALUop = `ALU_ADD;
+      `jalr: ALUop = `ALU_ADD;
+      `B_type: ALUop = b_type_alu_op;
+      `load: ALUop = `ALU_ADD;
+      `S_type: ALUop = `ALU_ADD;
+      `ALU_I_type: ALUop = {1'b0, func3};
+      `ALU_R_type: ALUop = {func7[5], func3};
+      default: ALUop = 4'b1111;
+    endcase
+  end
+
   /*-----PC control single generation-----*/
   assign PCAsrc = (opcode == `jalr) ? 1 : 0; //0: pc, 1:rs1
   assign PCBsrc = (opcode == `jal || opcode == `jalr) ? 1 : 0;  //0: 4, 1: imm 
+
+  assign branch = B_type;
 
   /*-----ebreak single-----*/
   assign ebreak = (inst==32'h00100073);

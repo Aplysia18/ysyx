@@ -15,8 +15,10 @@ module ysyx_24110015_top(
   wire RegWrite;
   wire [1:0] ALUAsrc;
   wire [1:0] ALUBsrc;
+  wire [3:0] ALUop;
   wire PCAsrc;
   wire PCBsrc;
+  wire branch;
   
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
@@ -36,8 +38,10 @@ module ysyx_24110015_top(
     .RegWrite(RegWrite),
     .ALUAsrc(ALUAsrc),
     .ALUBsrc(ALUBsrc),
+    .ALUop(ALUop),
     .PCAsrc(PCAsrc),
     .PCBsrc(PCBsrc),
+    .branch(branch),
     .ebreak(ebreak)
     );
 
@@ -61,8 +65,10 @@ module ysyx_24110015_top(
     .data2(rdata2), 
     .ALUAsrc(ALUAsrc),
     .ALUBsrc(ALUBsrc),
+    .ALUop(ALUop),
     .PCAsrc(PCAsrc),
     .PCBsrc(PCBsrc),
+    .branch(branch),
     .ebreak(ebreak),
     .data_out(wdata), 
     .pc_next(pc_next)

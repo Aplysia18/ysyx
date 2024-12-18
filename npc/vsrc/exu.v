@@ -10,14 +10,14 @@ module ysyx_24110015_EXU (
   input [31:0] data2,
   input [1:0] ALUAsrc,
   input [1:0] ALUBsrc,
+  input [3:0] ALUop,
   input PCAsrc,
   input PCBsrc,
+  input branch,
   input ebreak,
   output [31:0] data_out,
   output [31:0] pc_next
 );
-  
-  wire [31:0] alu_out;
 
   /*-----Next PC Calculate-----*/
   wire [31:0] PCAdata, PCBdata;
@@ -39,7 +39,10 @@ module ysyx_24110015_EXU (
     })
   );
 
-  assign pc_next = PCAdata + PCBdata;
+  wire [31:0] pc_default;
+
+  assign pc_default = PCAdata + PCBdata;
+  assign pc_next = (branch && (data_out==32'b1)) ? pc + imm : pc_default;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
@@ -65,10 +68,11 @@ module ysyx_24110015_EXU (
     })
   );
   
-  ysyx_24110015_Addr #(32) addr32(
-    .ina(ALUAdata),
-    .inb(ALUBdata),
-    .outy(data_out)
+  ysyx_24110015_ALU #(32) ALU32(
+    .data1(ALUAdata),
+    .data2(ALUBdata),
+    .ALUop(ALUop),
+    .data_out(data_out)
   );
 
   always @(ebreak) begin
