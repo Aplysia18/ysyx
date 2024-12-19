@@ -1,9 +1,10 @@
 module ysyx_24110015_top(
   input clk,
   input rst,
-  input [31:0] inst,
   output [31:0] pc
 );
+  wire [31:0] inst;
+
   wire [31:0] pc_next;
   wire [6:0] opcode, func7;
   wire [2:0] func3;
@@ -25,6 +26,13 @@ module ysyx_24110015_top(
     .rst(rst), 
     .din(pc_next), 
     .dout(pc)
+    );
+
+  ysyx_24110015_IFU ifu (
+    .clk(clk), 
+    .rst(rst), 
+    .pc(pc), 
+    .inst(inst)
     );
 
   ysyx_24110015_IDU idu (

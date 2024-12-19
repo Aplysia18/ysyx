@@ -63,11 +63,11 @@ static void trace_and_difftest(Decode *_this){
 
 static void execute_once(Decode *s, vaddr_t pc){
 
-  top->inst = paddr_read(top->pc);
+  // top->inst = paddr_read(top->pc);
 
   s->pc = pc;
   s->snpc = pc + 4;
-  s->inst = top->inst;
+  s->inst = top->rootp->ysyx_24110015_top__DOT__inst;
 
   // execute
   single_cycle();

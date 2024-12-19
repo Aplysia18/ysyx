@@ -10,31 +10,56 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
-static word_t pmem_read(paddr_t addr) {
-  word_t ret = *(uint32_t*)guest_to_host(addr);
+int pmem_read(int raddr) {
+  if(!in_pmem(raddr)) {
+    printf("paddr_read: invalid address 0x%x\n", raddr);
+    assert(0);
+  }
+#ifdef CONFIG_MTRACE
+  printf("pmem_read: addr = " FMT_PADDR "\n", raddr & ~0x3u);
+#endif
+  int ret = *(int*)guest_to_host(raddr & ~0x3u);
   return ret;
 }
 
-static void pmem_write(paddr_t addr, word_t data) {
-  *(uint32_t*)guest_to_host(addr) = data;
+void pmem_write(int waddr, int wdata, char wmask) {
+  if(!in_pmem(waddr)) {
+    printf("paddr_write: invalid address 0x%x\n", waddr);
+    assert(0);
+  }
+#ifdef CONFIG_MTRACE
+  printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
+#endif
+  int waddr_aligned = waddr & ~0x3u;
+  for(int i = 0; i < 4; i++) {
+    if(wmask & (1 << i)) {
+      *(uint8_t*)guest_to_host(waddr_aligned + i) = (wdata >> (i * 8)) & 0xff;
+    }
+  }
 }
 
 word_t paddr_read(paddr_t addr) {
-#ifdef CONFIG_MTRACE
-  printf("paddr_read: addr = " FMT_PADDR "\n", addr);
-#endif
   if(!in_pmem(addr)) {
     printf("paddr_read: invalid address 0x%x\n", addr);
     assert(0);
-  }else return pmem_read(addr);
+  }else{
+    if(addr & 0x3) {
+      printf("paddr_read: unaligned address 0x%x\n", addr);
+      assert(0);
+    }
+    return pmem_read(addr);
+  }
 }
 
 void paddr_write(paddr_t addr, word_t data) {
-#ifdef CONFIG_MTRACE
-  printf("paddr_write: addr = " FMT_PADDR ", data = " FMT_WORD "\n", addr, data);
-#endif
   if(!in_pmem(addr)) {
     printf("paddr_write: invalid address 0x%x\n", addr);
     assert(0);
-  }else return pmem_write(addr, data);
+  }else{
+    if(addr & 0x3) {
+      printf("paddr_write: unaligned address 0x%x\n", addr);
+      assert(0);
+    }
+    return pmem_write(addr, data, 0xff);
+  }
 }
