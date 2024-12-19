@@ -20,9 +20,11 @@ module ysyx_24110015_EXU (
   input PCBsrc,
   input branch,
   input ebreak,
-  output [31:0] data_out,
+  output reg [31:0] data_out,
   output [31:0] pc_next
 );
+
+  wire [31:0] ALUout;
 
   /*-----Next PC Calculate-----*/
   wire [31:0] PCAdata, PCBdata;
@@ -47,7 +49,7 @@ module ysyx_24110015_EXU (
   wire [31:0] pc_default;
 
   assign pc_default = PCAdata + PCBdata;
-  assign pc_next = (branch && (data_out==32'b1)) ? pc + imm : pc_default;
+  assign pc_next = (branch && (ALUout==32'b1)) ? pc + imm : pc_default;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
@@ -77,7 +79,7 @@ module ysyx_24110015_EXU (
     .data1(ALUAdata),
     .data2(ALUBdata),
     .ALUop(ALUop),
-    .data_out(data_out)
+    .ALUout(ALUout)
   );
 
   /*-----Memory Access-----*/
@@ -85,19 +87,26 @@ module ysyx_24110015_EXU (
   wire mem_valid;
   assign mem_valid = MemWrite | MemRead;
   always @(*) begin
-    if (mem_valid) begin
-      rdata = pmem_read(data_out);
-      if(MemWrite) begin
-        case (MemOp)
-          3'b000: pmem_write(data_out, data2, 8'b0001);
-          3'b001: pmem_write(data_out, data2, 8'b0011);
-          3'b010: pmem_write(data_out, data2, 8'b1111);
-          default: pmem_write(data_out, data2, 8'b0000);
-        endcase
-      end
+    if (MemWrite) begin
+      case (MemOp)
+        3'b000: pmem_write(ALUout, data2, 8'b0001);
+        3'b001: pmem_write(ALUout, data2, 8'b0011);
+        3'b010: pmem_write(ALUout, data2, 8'b1111);
+        default: pmem_write(ALUout, data2, 8'b0000);
+      endcase
     end
-    else begin
-      rdata = 32'b0;
+    else if (MemRead) begin
+      rdata = pmem_read(ALUout);
+      case (MemOp)
+        3'b000: data_out = {{24{rdata[7]}}, rdata[7:0]};
+        3'b001: data_out = {{16{rdata[15]}}, rdata[15:0]};
+        3'b010: data_out = rdata;
+        3'b100: data_out = {24'b0, rdata[7:0]};
+        3'b101: data_out = {16'b0, rdata[15:0]};
+        default: data_out = 32'b0;
+      endcase
+    end else begin
+      data_out = ALUout;
     end
   end
 

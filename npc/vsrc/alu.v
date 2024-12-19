@@ -3,7 +3,7 @@ module ysyx_24110015_ALU #(DATA_WIDTH=32) (
   input [DATA_WIDTH-1:0] data1,
   input [DATA_WIDTH-1:0] data2,
   input [3:0] ALUop,
-  output signed [DATA_WIDTH-1:0] data_out
+  output signed [DATA_WIDTH-1:0] ALUout
 );
 
   wire signed [DATA_WIDTH-1:0] sdata1, sdata2;
@@ -30,7 +30,7 @@ module ysyx_24110015_ALU #(DATA_WIDTH=32) (
 
 
   ysyx_24110015_MuxKey #(16, 4, 32) ALUmux(
-    .out(data_out),
+    .out(ALUout),
     .key(ALUop),
     .lut({
       `ALU_ADD, alu_add,
