@@ -8,7 +8,7 @@ module ysyx_24110015_IFU (
   output reg [31:0] inst
 );
 
-  always @(*) begin
+  always @(pc or rst) begin
     if (rst) begin
       inst = 32'b0;
     end else begin
