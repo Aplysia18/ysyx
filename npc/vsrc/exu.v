@@ -1,5 +1,7 @@
 `include "macros.v"
 import "DPI-C" function void npc_trap();
+// import "DPI-C" function int pmem_read(input int addr);
+// import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
 
 module ysyx_24110015_EXU (
   input clk,
@@ -11,6 +13,9 @@ module ysyx_24110015_EXU (
   input [1:0] ALUAsrc,
   input [1:0] ALUBsrc,
   input [3:0] ALUop,
+  input MemWrite,
+  input MemRead,
+  input [2:0] MemOp,
   input PCAsrc,
   input PCBsrc,
   input branch,
@@ -74,6 +79,27 @@ module ysyx_24110015_EXU (
     .ALUop(ALUop),
     .data_out(data_out)
   );
+
+  /*-----Memory Access-----*/
+  reg [31:0] rdata;
+  wire mem_valid;
+  assign mem_valid = MemWrite | MemRead;
+  always @(*) begin
+    if (mem_valid) begin
+      rdata = pmem_read(data_out);
+      if(MemWrite) begin
+        case (MemOp)
+          3'b000: pmem_write(data_out, data2, 8'b0001);
+          3'b001: pmem_write(data_out, data2, 8'b0011);
+          3'b010: pmem_write(data_out, data2, 8'b1111);
+          default: pmem_write(data_out, data2, 8'b0000);
+        endcase
+      end
+    end
+    else begin
+      rdata = 32'b0;
+    end
+  end
 
   always @(ebreak) begin
     if(ebreak) begin

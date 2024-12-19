@@ -17,6 +17,9 @@ module ysyx_24110015_top(
   wire [1:0] ALUAsrc;
   wire [1:0] ALUBsrc;
   wire [3:0] ALUop;
+  wire MemWrite;
+  wire MemRead;
+  wire [2:0] MemOp;
   wire PCAsrc;
   wire PCBsrc;
   wire branch;
@@ -47,6 +50,9 @@ module ysyx_24110015_top(
     .ALUAsrc(ALUAsrc),
     .ALUBsrc(ALUBsrc),
     .ALUop(ALUop),
+    .MemWrite(MemWrite),
+    .MemRead(MemRead),
+    .MemOp(MemOp),
     .PCAsrc(PCAsrc),
     .PCBsrc(PCBsrc),
     .branch(branch),
@@ -74,6 +80,9 @@ module ysyx_24110015_top(
     .ALUAsrc(ALUAsrc),
     .ALUBsrc(ALUBsrc),
     .ALUop(ALUop),
+    .MemWrite(MemWrite),
+    .MemRead(MemRead),
+    .MemOp(MemOp),
     .PCAsrc(PCAsrc),
     .PCBsrc(PCBsrc),
     .branch(branch),

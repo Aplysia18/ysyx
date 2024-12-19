@@ -12,6 +12,9 @@ module ysyx_24110015_IDU (
   output [1:0] ALUAsrc,
   output [1:0] ALUBsrc,
   output reg [3:0] ALUop,
+  output reg MemWrite,
+  output MemRead,
+  output [2:0] MemOp,
   output PCAsrc,
   output PCBsrc,
   output branch,
@@ -94,6 +97,17 @@ module ysyx_24110015_IDU (
   assign PCBsrc = (opcode == `jal || opcode == `jalr) ? 1 : 0;  //0: 4, 1: imm 
 
   assign branch = B_type;
+
+  /*-----Mem control single generation-----*/
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      MemWrite <= 0;
+    end else begin
+      MemWrite <= (opcode == `S_type);
+    end
+  end
+  assign MemRead = (opcode == `load);
+  assign MemOp = func3;
 
   /*-----ebreak single-----*/
   assign ebreak = (inst==32'h00100073);
