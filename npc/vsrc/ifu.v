@@ -8,10 +8,15 @@ module ysyx_24110015_IFU (
   input [31:0] pc,
   output reg [31:0] inst
 );
-
-  always @(pc) begin
+  reg [31:0]pre_pc;
+  always @(posedge clk) begin
     if(!rst) begin
-      inst = pmem_read(pc);
+      pre_pc <= pc;
+    end
+  end
+  always @(pre_pc) begin
+    if(!rst) begin
+      inst = pmem_read(pre_pc);
       get_inst(inst);
     end
   end
