@@ -17,11 +17,11 @@ static uint32_t npc_dnpc = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
-  top->clk = 0;
+  top->clk = 1;
   top->eval();
   contextp->timeInc(1);
   tfp->dump(contextp->time());
-  top->clk = 1;
+  top->clk = 0;
   top->eval();
   contextp->timeInc(1);
   tfp->dump(contextp->time());
@@ -32,7 +32,7 @@ static void reset(int n){
   while(n--) single_cycle();
   top->rst = 0;
   cpu.pc = 0x80000000;
-  // for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -70,12 +70,6 @@ void get_dnpc(int dnpc){
   npc_dnpc = (uint32_t)dnpc;
 }
 
-uint32_t *npc_regs;
-
-void get_regs(const svOpenArrayHandle regs){
-  npc_regs = (uint32_t *)svGetArrayPtr(regs);
-}
-
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);
@@ -94,10 +88,8 @@ static void execute_once(Decode *s){
 
   //update cpu state
   cpu.pc = npc_dnpc;
-  printf("npc: pc=0x%08x\n", cpu.pc);
   for(int i = 0; i < 16; i++) {
-    printf("npc: reg[%d] = 0x%08x\n", i, npc_regs[i]);
-    cpu.gpr[i] = (uint32_t)npc_regs[i];
+    cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
 
   //itrace
