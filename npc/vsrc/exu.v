@@ -51,7 +51,7 @@ module ysyx_24110015_EXU (
   assign pc_default = PCAdata + PCBdata;
 
   reg pc_next_valid;
-  always @(negedge clk) begin
+  always @(posedge clk) begin
     if (rst) begin
       pc_next_valid <= 0;
     end else begin
