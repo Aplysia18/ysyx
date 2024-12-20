@@ -17,11 +17,11 @@ static uint32_t npc_dnpc = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
-  top->clk = 0;
+  top->clk = 1;
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
-  top->clk = 1;
+  top->clk = 0;
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
@@ -72,7 +72,7 @@ void get_dnpc(int dnpc){
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
-    difftest_step(_this->pc, dnpc);
+    // difftest_step(_this->pc, dnpc);
     check_watchpoints();
 }
 
