@@ -55,19 +55,19 @@ void npc_trap(){
   end_flag = 1;
 } 
 
-static uint32_t npc_inst = 0;
+Decode *s;
 
 void get_inst(int inst){
-  npc_inst = (uint32_t)inst;
+  s->inst = (uint32_t)inst;
 }
 
-static void trace_and_difftest(Decode *_this){
-    log_write("%s\n", _this->logbuf);
-    difftest_step(_this->pc, _this->dnpc);
+static void trace_and_difftest(){
+    log_write("%s\n", s->logbuf);
+    difftest_step(s->pc, s->dnpc);
     check_watchpoints();
 }
 
-static void execute_once(Decode *s, vaddr_t pc){
+static void execute_once(vaddr_t pc){
 
   // top->inst = paddr_read(top->pc);
 
@@ -75,7 +75,6 @@ static void execute_once(Decode *s, vaddr_t pc){
   s->snpc = pc + 4;
   // execute
   single_cycle();
-  s->inst = npc_inst;
   s->dnpc = top->pc;
 
   //update cpu state
@@ -118,24 +117,22 @@ void cpu_exec(uint64_t n) {
     return;
   }
 
-  Decode s;
-
   while(n--) {
 
-    execute_once(&s, top->pc);
+    execute_once(top->pc);
 
-    trace_and_difftest(&s);
+    trace_and_difftest();
 
     if(abort_flag){
       end_flag = 1;
-      Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("ABORT", ANSI_FG_RED), s.pc);
+      Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("ABORT", ANSI_FG_RED), s->pc);
       assert(0);
       break;
     }
 
     if(end_flag) {
       int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];
-      Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
+      Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s->pc);
       
       Log("ftrace:");
       ftrace_log();
