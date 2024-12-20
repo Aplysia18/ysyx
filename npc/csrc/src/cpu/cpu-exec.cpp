@@ -67,11 +67,9 @@ static void execute_once(Decode *s, vaddr_t pc){
 
   s->pc = pc;
   s->snpc = pc + 4;
-  s->inst = top->rootp->ysyx_24110015_top__DOT__inst;
-
   // execute
   single_cycle();
-
+  s->inst = top->rootp->ysyx_24110015_top__DOT__inst;
   s->dnpc = top->pc;
 
   //update cpu state
@@ -124,7 +122,7 @@ void cpu_exec(uint64_t n) {
 
     if(abort_flag){
       end_flag = 1;
-      Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("ABORT", ANSI_FG_GREEN), s.pc);
+      Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("ABORT", ANSI_FG_RED), s.pc);
       assert(0);
       break;
     }
