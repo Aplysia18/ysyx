@@ -17,11 +17,11 @@ static uint32_t npc_dnpc = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
-  top->clk = 1;
+  top->clk = 0;
   top->eval();
   contextp->timeInc(1);
   tfp->dump(contextp->time());
-  top->clk = 0;
+  top->clk = 1;
   top->eval();
   contextp->timeInc(1);
   tfp->dump(contextp->time());
@@ -73,7 +73,7 @@ void get_dnpc(int dnpc){
 uint32_t *npc_regs;
 
 void get_regs(const svOpenArrayHandle regs){
-  npc_regs =(uint32_t *)svGetArrayPtr(regs);
+  npc_regs = (uint32_t *)svGetArrayPtr(regs);
 }
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -94,6 +94,7 @@ static void execute_once(Decode *s){
 
   //update cpu state
   cpu.pc = npc_dnpc;
+  printf("npc: pc=0x%08x\n", cpu.pc);
   for(int i = 0; i < 16; i++) {
     printf("npc: reg[%d] = 0x%08x\n", i, npc_regs[i]);
     cpu.gpr[i] = (uint32_t)npc_regs[i];
