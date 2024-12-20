@@ -127,7 +127,6 @@ void cpu_exec(uint64_t n) {
   }
 
   Decode s;
-  n=10;
   while(n--) {
 
     execute_once(&s);
