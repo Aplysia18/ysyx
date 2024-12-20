@@ -95,6 +95,7 @@ static void execute_once(Decode *s){
   //update cpu state
   cpu.pc = npc_dnpc;
   for(int i = 0; i < 16; i++) {
+    printf("npc: reg[%d] = 0x%08x\n", i, npc_regs[i]);
     cpu.gpr[i] = (uint32_t)npc_regs[i];
   }
 
