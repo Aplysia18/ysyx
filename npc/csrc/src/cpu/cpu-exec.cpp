@@ -17,11 +17,11 @@ static uint32_t npc_dnpc = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
-  top->clk = 0;
+  top->clk = 1;
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
-  top->clk = 1;
+  top->clk = 0;
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
@@ -87,7 +87,7 @@ static void execute_once(Decode *s){
   printf("npc: pc=0x%08x, inst=0x%08x, dnpc=0x%08x\n", s->pc, s->inst, s->dnpc);
 
   //update cpu state
-  cpu.pc = npc_pc;
+  cpu.pc = npc_dnpc;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
