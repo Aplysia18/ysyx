@@ -9,8 +9,8 @@ module ysyx_24110015_IFU (
   output reg [31:0] inst
 );
 
-  always @(pc) begin
-    if(pc!=0) begin
+  always @(pc or rst) begin
+    if(!rst) begin
       inst = pmem_read(pc);
       get_inst(inst);
     end
