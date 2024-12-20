@@ -7,7 +7,6 @@ module ysyx_24110015_top(
   wire [31:0] inst;
   wire [31:0] pc;
   wire [31:0] pc_next;
-  wire [31:0] alu_pc_next;
   wire [6:0] opcode, func7;
   wire [2:0] func3;
   wire [31:0] imm;
@@ -34,15 +33,14 @@ module ysyx_24110015_top(
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
     .rst(rst), 
-    .din(alu_pc_next), 
-    .pc(pc),
-    .pc_next(pc_next)
+    .din(pc_next), 
+    .pc(pc)
     );
 
   ysyx_24110015_IFU ifu (
     .clk(clk), 
     .rst(rst), 
-    .pc(pc), 
+    .pc(pc_next), 
     .inst(inst)
     );
 
@@ -96,7 +94,7 @@ module ysyx_24110015_top(
     .branch(branch),
     .ebreak(ebreak),
     .data_out(wdata), 
-    .pc_next(alu_pc_next)
+    .pc_next(pc_next)
     );
 
 

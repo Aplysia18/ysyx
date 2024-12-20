@@ -21,7 +21,7 @@ module ysyx_24110015_EXU (
   input branch,
   input ebreak,
   output reg [31:0] data_out,
-  output [31:0] pc_next
+  output reg [31:0] pc_next
 );
 
   wire [31:0] ALUout;
@@ -49,7 +49,20 @@ module ysyx_24110015_EXU (
   wire [31:0] pc_default;
 
   assign pc_default = PCAdata + PCBdata;
-  assign pc_next = (branch && (ALUout==32'b1)) ? pc + imm : pc_default;
+  always @(*) begin
+    if(rst) begin
+      pc_next = 32'h80000000;
+    end
+    else begin
+      if(branch && (ALUout==32'b1)) begin
+        pc_next = pc + imm;
+      end
+      else begin
+        pc_next = pc_default;
+      end
+    end
+  end
+  // assign pc_next = (branch && (ALUout==32'b1)) ? pc + imm : pc_default;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
