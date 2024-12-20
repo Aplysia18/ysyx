@@ -10,14 +10,16 @@ VerilatedContext* contextp;
 VerilatedVcdC* tfp;
 
 CPU_state cpu = {};
+static uint32_t npc_inst = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
-static void single_cycle() {
+static void single_cycle(Decode *s) {
   top->clk = 1;
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
+  s->inst = npc_inst;
   top->clk = 0;
   top->eval();
   tfp->dump(contextp->time());
@@ -26,7 +28,7 @@ static void single_cycle() {
 
 static void reset(int n){
   top->rst = 1;
-  while(n--) single_cycle();
+  while(n--) single_cycle(NULL);
   top->rst = 0;
   cpu.pc = top->pc;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
@@ -55,27 +57,25 @@ void npc_trap(){
   end_flag = 1;
 } 
 
-Decode s;
-
 void get_inst(int inst){
-  s.inst = (uint32_t)inst;
+  npc_inst = (uint32_t)inst;
 }
 
-static void trace_and_difftest(){
-    log_write("%s\n", s.logbuf);
-    difftest_step(s.pc, s.dnpc);
+static void trace_and_difftest(Decode *_this){
+    log_write("%s\n", _this->logbuf);
+    difftest_step(_this->pc, _this->dnpc);
     check_watchpoints();
 }
 
-static void execute_once(vaddr_t pc){
+static void execute_once(Decode *s, vaddr_t pc){
 
   // top->inst = paddr_read(top->pc);
 
-  s.pc = pc;
-  s.snpc = pc + 4;
+  s->pc = pc;
+  s->snpc = pc + 4;
   // execute
-  single_cycle();
-  s.dnpc = top->pc;
+  single_cycle(s);
+  s->dnpc = top->pc;
 
   //update cpu state
   cpu.pc = top->pc;
@@ -84,11 +84,11 @@ static void execute_once(vaddr_t pc){
   }
 
   //itrace
-  char *p = s.logbuf;
-  p += snprintf(p, sizeof(s.logbuf), FMT_WORD ":", s.pc);
-  int ilen = s.snpc - s.pc;
+  char *p = s->logbuf;
+  p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
+  int ilen = s->snpc - s->pc;
   int i;
-  uint8_t *inst = (uint8_t *)&s.inst;
+  uint8_t *inst = (uint8_t *)&s->inst;
   for (i = ilen - 1; i >= 0; i --) {
     p += snprintf(p, 4, " %02x", inst[i]);
   }
@@ -99,12 +99,12 @@ static void execute_once(vaddr_t pc){
   memset(p, ' ', space_len);
   p += space_len;
 
-  disassemble(p, s.logbuf + sizeof(s.logbuf) - p, s.pc, (uint8_t *)&s.inst, ilen);
+  disassemble(p, s->logbuf + sizeof(s->logbuf) - p, s->pc, (uint8_t *)&s->inst, ilen);
 
   //ftrace
-  if((s.inst&0xfff) == 0x0ef || (s.inst&0xfff) == 0x0e7){
+  if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
     ftrace_call(pc, top->pc);
-  }else if(s.inst == 0x00008067){
+  }else if(s->inst == 0x00008067){
     ftrace_ret(pc);
   }
 
@@ -117,11 +117,13 @@ void cpu_exec(uint64_t n) {
     return;
   }
 
+  Decode s;
+
   while(n--) {
 
-    execute_once(top->pc);
+    execute_once(&s, top->pc);
 
-    trace_and_difftest();
+    trace_and_difftest(&s);
 
     if(abort_flag){
       end_flag = 1;
