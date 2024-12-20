@@ -49,7 +49,7 @@ module ysyx_24110015_EXU (
   wire [31:0] pc_default;
 
   assign pc_default = PCAdata + PCBdata;
-  assign pc_next = rst ? 32'h80000000 : (branch && (ALUout==32'b1)) ? pc + imm : pc_default;
+  assign pc_next = (branch && (ALUout==32'b1)) ? pc + imm : pc_default;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
