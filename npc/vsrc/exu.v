@@ -86,7 +86,7 @@ module ysyx_24110015_EXU (
   reg [31:0] rdata;
   wire mem_valid;
   assign mem_valid = MemWrite | MemRead;
-  always @(negedge clk or posedge clk) begin
+  always @(negedge clk) begin
     if (MemWrite) begin
       case (MemOp)
         3'b000: pmem_write(ALUout, data2, 8'b0001);
