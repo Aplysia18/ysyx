@@ -10,7 +10,7 @@ module ysyx_24110015_IFU (
 );
 
   always @(pc) begin
-    if(|pc) begin
+    if(pc!=0) begin
       inst = pmem_read(pc);
       get_inst(inst);
     end
