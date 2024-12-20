@@ -89,9 +89,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
           reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i], ref_r->gpr[i] ^ cpu.gpr[i]);
       return false;
     }
-    printf("reg[%s] is the same after executing instruction at pc = " FMT_WORD
-          ", right = " FMT_WORD "\n",
-          reg_name(i), pc, ref_r->gpr[i]);
+    
   }
 
   if (ref_r->pc != cpu.pc) {
@@ -140,8 +138,6 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
 
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
-  printf("difftest_npc: pc=0x%08x, npc=0x%08x\n", pc, npc);
-  printf("difftest_ref: pc=0x%08x\n", ref_r.pc);
   checkregs(&ref_r, pc);
   ref_difftest_exec(1);
 }

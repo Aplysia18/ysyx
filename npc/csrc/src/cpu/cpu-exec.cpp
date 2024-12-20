@@ -136,7 +136,7 @@ void cpu_exec(uint64_t n) {
     if(abort_flag){
       end_flag = 1;
       Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("ABORT", ANSI_FG_RED), s.pc);
-      // assert(0);
+      assert(0);
       break;
     }
 
