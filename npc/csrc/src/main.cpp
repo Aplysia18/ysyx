@@ -11,5 +11,7 @@ int main(int argc, char** argv) {
 
   sdb_mainloop();
 
+  exit_cpu();
+
   return 0;
 }
