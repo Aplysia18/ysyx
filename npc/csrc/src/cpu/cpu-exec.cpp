@@ -19,7 +19,7 @@ static void single_cycle(Decode *s) {
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
-  s->inst = npc_inst;
+  if(s)  s->inst = npc_inst;
   top->clk = 0;
   top->eval();
   tfp->dump(contextp->time());
