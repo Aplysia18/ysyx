@@ -24,7 +24,7 @@ int pmem_read(int raddr) {
 
 void pmem_write(int waddr, int wdata, char wmask) {
   if(!in_pmem(waddr)) {
-    printf("paddr_write: invalid address 0x%x\n", waddr);
+    printf("pmem_write: invalid address 0x%x\n", waddr);
     // assert(0);
   }
 #ifdef CONFIG_MTRACE
