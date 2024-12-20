@@ -25,8 +25,8 @@ module ysyx_24110015_top(
   wire PCBsrc;
   wire branch;
 
-  always @(pc_next) begin
-    get_dnpc(pc_next);
+  always @(pc) begin
+    get_dnpc(pc);
   end
   
   ysyx_24110015_Pc pc_reg (
