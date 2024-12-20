@@ -10,16 +10,14 @@ VerilatedContext* contextp;
 VerilatedVcdC* tfp;
 
 CPU_state cpu = {};
-static uint32_t npc_inst = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
-static void single_cycle(Decode *s) {
+static void single_cycle() {
   top->clk = 1;
   top->eval();
   tfp->dump(contextp->time());
   contextp->timeInc(1);
-  if(s)  s->inst = npc_inst;
   top->clk = 0;
   top->eval();
   tfp->dump(contextp->time());
@@ -28,7 +26,7 @@ static void single_cycle(Decode *s) {
 
 static void reset(int n){
   top->rst = 1;
-  while(n--) single_cycle(NULL);
+  while(n--) single_cycle();
   top->rst = 0;
   cpu.pc = top->pc;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
@@ -57,6 +55,8 @@ void npc_trap(){
   end_flag = 1;
 } 
 
+static uint32_t npc_inst = 0;
+
 void get_inst(int inst){
   npc_inst = (uint32_t)inst;
 }
@@ -73,8 +73,9 @@ static void execute_once(Decode *s, vaddr_t pc){
 
   s->pc = pc;
   s->snpc = pc + 4;
+  s->inst = npc_inst;
   // execute
-  single_cycle(s);
+  single_cycle();
   s->dnpc = top->pc;
 
   //update cpu state
