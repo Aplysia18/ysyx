@@ -72,7 +72,7 @@ void get_dnpc(int dnpc){
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
-    difftest_step(_this->pc, dnpc);
+    // difftest_step(_this->pc, dnpc);
     check_watchpoints();
 }
 
