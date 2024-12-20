@@ -63,7 +63,7 @@ void get_inst(int inst){
 
 static void trace_and_difftest(Decode *_this){
     log_write("%s\n", _this->logbuf);
-    // difftest_step(_this->pc, _this->dnpc);
+    difftest_step(_this->pc, _this->dnpc);
     check_watchpoints();
 }
 
