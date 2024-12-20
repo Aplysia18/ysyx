@@ -75,7 +75,7 @@ static void execute_once(Decode *s, vaddr_t pc){
   s->snpc = pc + 4;
   // execute
   single_cycle();
-  s->inst = top->rootp->ysyx_24110015_top__DOT__inst;
+  s->inst = npc_inst;
   s->dnpc = top->pc;
 
   //update cpu state
