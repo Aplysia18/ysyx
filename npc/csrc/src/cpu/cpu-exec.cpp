@@ -70,9 +70,9 @@ void get_dnpc(int dnpc){
   npc_dnpc = (uint32_t)dnpc;
 }
 
-static void trace_and_difftest(Decode *_this){
+static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
-    difftest_step(_this->pc, _this->dnpc);
+    difftest_step(_this->pc, dnpc);
     check_watchpoints();
 }
 
@@ -132,7 +132,7 @@ void cpu_exec(uint64_t n) {
 
     execute_once(&s);
 
-    trace_and_difftest(&s);
+    trace_and_difftest(&s, cpu.pc);
 
     if(abort_flag){
       end_flag = 1;
