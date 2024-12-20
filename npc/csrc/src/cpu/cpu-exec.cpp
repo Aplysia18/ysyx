@@ -70,9 +70,10 @@ void get_dnpc(int dnpc){
   npc_dnpc = (uint32_t)dnpc;
 }
 
-void get_regs(const svOpenArrayHandle regs){
+uint32_t *npc_regs;
 
-    cpu.gpr =(uint32_t *)svGetArrayPtr(regs);
+void get_regs(const svOpenArrayHandle regs){
+  npc_regs =(uint32_t *)svGetArrayPtr(regs);
 }
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -93,9 +94,9 @@ static void execute_once(Decode *s){
 
   //update cpu state
   cpu.pc = npc_dnpc;
-  // for(int i = 0; i < 16; i++) {
-  //   cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
-  // }
+  for(int i = 0; i < 16; i++) {
+    cpu.gpr[i] = npc_regs[i];
+  }
 
   //itrace
   char *p = s->logbuf;
