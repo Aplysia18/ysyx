@@ -28,8 +28,8 @@ static void reset(int n){
   top->rst = 1;
   while(n--) single_cycle();
   top->rst = 0;
-  cpu.pc = top->pc;
-  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  // cpu.pc = top->pc;
+  // for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -56,30 +56,38 @@ void npc_trap(){
 } 
 
 static uint32_t npc_inst = 0;
+static uint32_t npc_pc = 0;
+static uint32_t npc_dnpc = 0;
 
 void get_inst(int inst){
   npc_inst = (uint32_t)inst;
 }
 
+void get_pc(int pc){
+  npc_pc = (uint32_t)pc;
+}
+
+void get_dnpc(int dnpc){
+  npc_dnpc = (uint32_t)dnpc;
+}
+
 static void trace_and_difftest(Decode *_this){
     log_write("%s\n", _this->logbuf);
-    // difftest_step(_this->pc, _this->dnpc);
+    difftest_step(_this->pc, _this->dnpc);
     check_watchpoints();
 }
 
-static void execute_once(Decode *s, vaddr_t pc){
+static void execute_once(Decode *s){
 
-  // top->inst = paddr_read(top->pc);
-
-  s->pc = pc;
-  s->snpc = pc + 4;
-  s->inst = npc_inst;
   // execute
   single_cycle();
-  s->dnpc = top->pc;
+  s->inst = npc_inst;
+  s->pc = npc_pc;
+  s->snpc = npc_pc + 4;
+  s->dnpc = npc_dnpc; // not used
 
   //update cpu state
-  cpu.pc = top->pc;
+  cpu.pc = npc_pc;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
@@ -104,9 +112,9 @@ static void execute_once(Decode *s, vaddr_t pc){
 
   //ftrace
   if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
-    ftrace_call(pc, top->pc);
+    ftrace_call(npc_pc, npc_dnpc);
   }else if(s->inst == 0x00008067){
-    ftrace_ret(pc);
+    ftrace_ret(npc_pc);
   }
 
 }
@@ -122,7 +130,7 @@ void cpu_exec(uint64_t n) {
 
   while(n--) {
 
-    execute_once(&s, top->pc);
+    execute_once(&s);
 
     trace_and_difftest(&s);
 

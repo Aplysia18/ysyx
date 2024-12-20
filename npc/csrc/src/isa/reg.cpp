@@ -15,7 +15,7 @@ void isa_reg_display() {
 
 word_t isa_reg_str2val(const char *s, bool *success) {
   if (strcmp(s, "pc") == 0) {
-    return top->pc;
+    return cpu.pc;
   }
 
   if (strcmp(s,"0" )== 0 || strcmp(s,"zero") == 0){
