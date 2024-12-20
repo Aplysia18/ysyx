@@ -19,12 +19,12 @@ void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 static void single_cycle() {
   top->clk = 0;
   top->eval();
-  tfp->dump(contextp->time());
   contextp->timeInc(1);
+  tfp->dump(contextp->time());
   top->clk = 1;
   top->eval();
-  tfp->dump(contextp->time());
   contextp->timeInc(1);
+  tfp->dump(contextp->time());
 }
 
 static void reset(int n){
