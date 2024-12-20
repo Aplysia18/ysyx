@@ -99,15 +99,6 @@ module ysyx_24110015_IDU (
   assign branch = B_type;
 
   /*-----Mem control single generation-----*/
-  // always @(negedge clk or posedge rst) begin
-  //   if (rst) begin
-  //     MemWrite <= 0;
-  //     MemRead <= 0;
-  //   end else begin
-  //     MemWrite <= (opcode == `S_type);
-  //      MemRead <= (opcode == `load);
-  //   end
-  // end
   assign MemWrite = (opcode == `S_type);
   assign MemRead = (opcode == `load);
   assign MemOp = func3;
