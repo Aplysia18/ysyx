@@ -138,12 +138,12 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     return;
   }
 
-  ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_r, DIFFTEST_TO_DUT);
 
   printf("difftest_npc: pc=0x%08x, npc=0x%08x\n", pc, npc);
   printf("difftest_ref: pc=0x%08x\n", ref_r.pc);
   checkregs(&ref_r, pc);
+  ref_difftest_exec(1);
 }
 #else
 void init_difftest(char *ref_so_file, long img_size, int port) { }
