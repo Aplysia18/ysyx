@@ -40,7 +40,7 @@ module ysyx_24110015_top(
   ysyx_24110015_IFU ifu (
     .clk(clk), 
     .rst(rst), 
-    .pc(pc), 
+    .pc(pc_next), 
     .inst(inst)
     );
 

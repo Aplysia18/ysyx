@@ -49,7 +49,16 @@ module ysyx_24110015_EXU (
   wire [31:0] pc_default;
 
   assign pc_default = PCAdata + PCBdata;
-  assign pc_next = (branch && (ALUout==32'b1)) ? pc + imm : pc_default;
+
+  reg pc_next_valid;
+  always @(negedge clk) begin
+    if (rst) begin
+      pc_next_valid <= 0;
+    end else begin
+      pc_next_valid <= 1;
+    end
+  end
+  assign pc_next = pc_next_valid ? (branch && (ALUout==32'b1)) ? pc + imm : pc_default : 32'h80000000;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
