@@ -1,3 +1,4 @@
+import "DPI-C" function void get_regs(input logic [31:0] a []);
 module ysyx_24110015_RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
   input clk,
   input [DATA_WIDTH-1:0] wdata,
@@ -12,6 +13,7 @@ module ysyx_24110015_RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
   //write
   always @(posedge clk) begin
     if (wen&&waddr!=0) rf[waddr] <= wdata;
+    get_regs(rf);
   end
   //read
   assign rdata1 = (raddr1!=0) ? rf[raddr1] : 0;

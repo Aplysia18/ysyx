@@ -32,7 +32,7 @@ static void reset(int n){
   while(n--) single_cycle();
   top->rst = 0;
   cpu.pc = 0x80000000;
-  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  // for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -70,6 +70,10 @@ void get_dnpc(int dnpc){
   npc_dnpc = (uint32_t)dnpc;
 }
 
+void get_regs(const svOpenArrayHandle regs){
+    cpu.gpr = (uint32_t*)svGetArrayPtr(regs);
+}
+
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);
@@ -88,9 +92,9 @@ static void execute_once(Decode *s){
 
   //update cpu state
   cpu.pc = npc_dnpc;
-  for(int i = 0; i < 16; i++) {
-    cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
-  }
+  // for(int i = 0; i < 16; i++) {
+  //   cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  // }
 
   //itrace
   char *p = s->logbuf;
