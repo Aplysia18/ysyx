@@ -10,6 +10,9 @@ VerilatedContext* contextp;
 VerilatedVcdC* tfp;
 
 CPU_state cpu = {};
+static uint32_t npc_inst = 0;
+static uint32_t npc_pc = 0;
+static uint32_t npc_dnpc = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
@@ -28,8 +31,8 @@ static void reset(int n){
   top->rst = 1;
   while(n--) single_cycle();
   top->rst = 0;
-  // cpu.pc = top->pc;
-  // for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  cpu.pc = npc_pc;
+  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -54,10 +57,6 @@ static bool end_flag = 0;
 void npc_trap(){
   end_flag = 1;
 } 
-
-static uint32_t npc_inst = 0;
-static uint32_t npc_pc = 0;
-static uint32_t npc_dnpc = 0;
 
 void get_inst(int inst){
   npc_inst = (uint32_t)inst;
