@@ -9,14 +9,12 @@ module ysyx_24110015_IFU (
   output reg [31:0] inst
 );
 
-  always @(posedge clk or posedge rst) begin
-    if (rst) begin
-      inst = 32'b0;
-      get_inst(32'b0);
-    end else begin
+  always @(pc) begin
+    // if (rst) begin
+    //   inst = 32'b0;
+    // end else begin
       inst = pmem_read(pc);
-      get_inst(inst);
-    end
+    // end
   end
 
 endmodule

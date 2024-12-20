@@ -61,6 +61,7 @@ module ysyx_24110015_top(
 
   ysyx_24110015_RegisterFile #(4, 32) rf (
     .clk(clk), 
+    .rst(rst),
     .wdata(wdata),
     .waddr(inst[10:7]),
     .wen(RegWrite),
