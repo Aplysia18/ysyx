@@ -84,7 +84,7 @@ static void execute_once(Decode *s){
   s->pc = npc_pc;
   s->snpc = npc_pc + 4;
   s->dnpc = npc_dnpc;
-  printf("npc: pc=0x%08x, inst=0x%08x, dnpc=0x%08x\n", s->pc, s->inst, s->dnpc);
+  //printf("npc: pc=0x%08x, inst=0x%08x, dnpc=0x%08x\n", s->pc, s->inst, s->dnpc);
 
   //update cpu state
   cpu.pc = npc_pc;
