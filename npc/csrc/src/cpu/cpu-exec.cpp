@@ -79,7 +79,7 @@ static void execute_once(Decode *s, vaddr_t pc){
   s->dnpc = top->pc;
 
   //update cpu state
-  cpu.pc = top->pc;
+  cpu.pc = s->pc;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
