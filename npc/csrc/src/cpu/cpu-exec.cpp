@@ -71,9 +71,8 @@ void get_dnpc(int dnpc){
 }
 
 void get_regs(const svOpenArrayHandle regs){
-  for(int i = 0; i < 16; i++) {
-    cpu.gpr[i] = *(uint32_t*)(svGetArrElemPtr(regs, i));
-  }
+
+    cpu.gpr =(uint32_t *)svGetArrayPtr(regs);
 }
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {

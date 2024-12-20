@@ -10,10 +10,12 @@ module ysyx_24110015_RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
   output [DATA_WIDTH-1:0] rdata2
 );
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
+  initial begin
+    get_regs(rf);
+  end
   //write
   always @(posedge clk) begin
     if (wen&&waddr!=0) rf[waddr] <= wdata;
-    get_regs(rf);
   end
   //read
   assign rdata1 = (raddr1!=0) ? rf[raddr1] : 0;
