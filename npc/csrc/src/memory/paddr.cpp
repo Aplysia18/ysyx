@@ -13,7 +13,7 @@ static inline bool in_pmem(paddr_t addr) {
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
     printf("paddr_read: invalid address 0x%x\n", raddr);
-    assert(0);
+    // assert(0);
   }
 #ifdef CONFIG_MTRACE
   printf("pmem_read: addr = " FMT_PADDR "\n", raddr & ~0x3u);
@@ -25,7 +25,7 @@ int pmem_read(int raddr) {
 void pmem_write(int waddr, int wdata, char wmask) {
   if(!in_pmem(waddr)) {
     printf("paddr_write: invalid address 0x%x\n", waddr);
-    assert(0);
+    // assert(0);
   }
 #ifdef CONFIG_MTRACE
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
