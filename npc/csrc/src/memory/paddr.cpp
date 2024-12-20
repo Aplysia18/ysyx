@@ -12,7 +12,7 @@ static inline bool in_pmem(paddr_t addr) {
 
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
-    printf("paddr_read: invalid address 0x%x\n", raddr);
+    printf("pmem_read: invalid address 0x%x\n", raddr);
     // assert(0);
     return 0;
   }
