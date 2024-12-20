@@ -90,8 +90,8 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       return false;
     }
     printf("reg[%s] is the same after executing instruction at pc = " FMT_WORD
-          ", right = " FMT_WORD ", wrong = " FMT_WORD ", diff = " FMT_WORD,
-          reg_name(i), pc, ref_r->gpr[i], cpu.gpr[i], ref_r->gpr[i] ^ cpu.gpr[i]);
+          ", right = " FMT_WORD "\n",
+          reg_name(i), pc, ref_r->gpr[i]);
   }
 
   if (ref_r->pc != cpu.pc) {
