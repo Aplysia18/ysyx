@@ -1,5 +1,6 @@
 import "DPI-C" function int pmem_read(input int addr);
 import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+import "DPI-C" function void get_inst(input int inst);
 
 module ysyx_24110015_IFU (
   input clk,
@@ -11,8 +12,10 @@ module ysyx_24110015_IFU (
   always @(pc or rst) begin
     if (rst) begin
       inst = 32'b0;
+      get_inst(32'b0);
     end else begin
       inst = pmem_read(pc);
+      get_inst(inst);
     end
   end
 

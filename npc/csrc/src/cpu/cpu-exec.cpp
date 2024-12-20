@@ -55,6 +55,12 @@ void npc_trap(){
   end_flag = 1;
 } 
 
+static uint32_t npc_inst = 0;
+
+void get_inst(int inst){
+  npc_inst = (uint32_t)inst;
+}
+
 static void trace_and_difftest(Decode *_this){
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, _this->dnpc);
