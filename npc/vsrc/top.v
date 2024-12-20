@@ -27,6 +27,7 @@ module ysyx_24110015_top(
   wire branch;
 
   always @(pc_next) begin
+    $display("pc_next: %d", pc_next);
     get_dnpc(pc_next);
   end
   
