@@ -13,7 +13,7 @@ module ysyx_24110015_ALU #(DATA_WIDTH=32) (
   wire [DATA_WIDTH-1:0] alu_add, alu_sll, alu_slt, alu_sltu, alu_xor, alu_srl, alu_or, alu_and, alu_sub, alu_eq, alu_ne, alu_ge, alu_geu, alu_sra;
   wire [4:0] shamt;
   assign shamt = data2[4:0];
-  assign alu_add = data1 + data2;
+  assign alu_add = data1 + data2+32'b1;
   assign alu_sll = data1 << shamt;
   assign alu_slt = (sdata1 < sdata2) ? 32'b1 : 32'b0;
   assign alu_sltu = (data1 < data2) ? 32'b1 : 32'b0;
