@@ -13,7 +13,7 @@ module ysyx_24110015_IFU (
     if(!rst) begin
       inst <= pmem_read(pc);
       get_pc(pc);
-      get_inst(inst);
+      get_inst(pmem_read(pc));
     end else begin
       inst <= 32'h0;
     end
