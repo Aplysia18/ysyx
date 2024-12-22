@@ -93,8 +93,8 @@ module ysyx_24110015_EXU (
 
   /*-----Memory Access-----*/
   reg [31:0] rdata;
-  wire mem_valid;
-  assign mem_valid = MemWrite | MemRead;
+  // wire mem_valid;
+  // assign mem_valid = MemWrite | MemRead;
   always @(negedge clk) begin
     if (MemWrite) begin
       case (MemOp)

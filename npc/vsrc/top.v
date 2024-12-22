@@ -11,7 +11,7 @@ module ysyx_24110015_top(
   wire [2:0] func3;
   wire [31:0] imm;
 
-  wire rf_wen, ebreak;
+  wire ebreak;
   wire [31:0] rdata1, rdata2, wdata;
   
   wire RegWrite;

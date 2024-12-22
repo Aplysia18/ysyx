@@ -16,10 +16,10 @@ int pmem_read(int raddr) {
     assert(0);
     return 0;
   }
-#ifdef CONFIG_MTRACE
-  printf("pmem_read: addr = " FMT_PADDR "\n", raddr & ~0x3u);
-#endif
   int ret = *(int*)guest_to_host(raddr & ~0x3u);
+#ifdef CONFIG_MTRACE
+  printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr & ~0x3u, ret);
+#endif
   return ret;
 }
 
