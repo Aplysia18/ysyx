@@ -28,9 +28,9 @@ static void single_cycle() {
 }
 
 static void reset(int n){
-  top->rst = 1;
-  while(n--) single_cycle();
   top->rst = 0;
+  while(n--) single_cycle();
+  top->rst = 1;
   cpu.pc = 0x80000000;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
 }
