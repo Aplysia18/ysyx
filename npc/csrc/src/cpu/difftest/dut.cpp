@@ -82,6 +82,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   size_t gpr_num = sizeof(ref_r->gpr) / sizeof(ref_r->gpr[0]);
+  printf("ref.pc: 0x%08x, nemu.pc: 0x%08x\n", ref_r->pc, cpu.pc);
   printf("gpr[a4]: npc: 0x%08x, nemu: %08x\n", cpu.gpr[14], ref_r->gpr[14]);
   printf("gpr[a5]: npc: 0x%08x, nemu: %08x\n", cpu.gpr[15], ref_r->gpr[15]);
   for (size_t i = 0; i < gpr_num; i++) {
