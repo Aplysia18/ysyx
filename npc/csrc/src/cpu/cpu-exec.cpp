@@ -163,5 +163,5 @@ void exit_cpu() {
   tfp->close();
   delete top;
   delete contextp;
-  if(abort_flag || bad_trap_flag) exit(1);
+  if(abort_flag || bad_trap_flag) assert(0);
 }
