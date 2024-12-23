@@ -93,19 +93,17 @@ module ysyx_24110015_EXU (
 
   /*-----Memory Access-----*/
   reg [31:0] rdata;
-  // wire mem_valid;
-  // assign mem_valid = MemWrite | MemRead;
-  always @(negedge clk) begin
-    if (MemWrite) begin
-      case (MemOp)
-        3'b000: pmem_write(ALUout, data2, 8'b0001);
-        3'b001: pmem_write(ALUout, data2, 8'b0011);
-        3'b010: pmem_write(ALUout, data2, 8'b1111);
-        default: pmem_write(ALUout, data2, 8'b0000);
-      endcase
-    end
-    else if (MemRead) begin
+
+  always @(*) begin
+    if (MemRead) begin
       rdata = pmem_read(ALUout);
+    end else begin
+      rdata = 32'b0;
+    end
+  end
+
+  always @(negedge clk) begin
+    if (MemRead) begin
       case (MemOp)
         3'b000: data_out <= {{24{rdata[7]}}, rdata[7:0]};
         3'b001: data_out <= {{16{rdata[15]}}, rdata[15:0]};
@@ -114,11 +112,24 @@ module ysyx_24110015_EXU (
         3'b101: data_out <= {16'b0, rdata[15:0]};
         default: data_out <= 32'b0;
       endcase
-    end else begin
+    end
+    else begin
       data_out <= ALUout;
     end
   end
 
+  always @(posedge clk) begin
+    if(MemWrite) begin
+      case (MemOp)
+        3'b000: pmem_write(ALUout, data2, 8'b0001);
+        3'b001: pmem_write(ALUout, data2, 8'b0011);
+        3'b010: pmem_write(ALUout, data2, 8'b1111);
+        default: pmem_write(ALUout, data2, 8'b0000);
+      endcase
+    end
+  end
+
+/*-----ebreak-----*/
   always @(ebreak) begin
     if(ebreak) begin
       npc_trap();
