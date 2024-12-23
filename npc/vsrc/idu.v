@@ -86,7 +86,7 @@ module ysyx_24110015_IDU (
       `B_type: ALUop = b_type_alu_op;
       `load: ALUop = `ALU_ADD;
       `S_type: ALUop = `ALU_ADD;
-      `ALU_I_type: ALUop = {1'b0, func3};
+      `ALU_I_type: ALUop = (func3==3'b101) ? {func7[5], func3} : {1'b0, func3};
       `ALU_R_type: ALUop = {func7[5], func3};
       default: ALUop = 4'b1111;
     endcase
