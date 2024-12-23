@@ -16,13 +16,15 @@ int pmem_read(int raddr) {
     assert(0);
     return 0;
   }
-  if(raddr & 0x3) {
-    printf("pmem_read: unaligned address 0x%x\n", raddr);
-    assert(0);
-  }
-  int ret = *(int*)guest_to_host(raddr & ~0x3u);
+  // if(raddr & 0x3) {
+  //   printf("pmem_read: unaligned address 0x%x\n", raddr);
+  //   assert(0);
+  // }
+  // int ret = *(int*)guest_to_host(raddr & ~0x3u);
+  int ret = *(int*)guest_to_host(raddr);
 #ifdef CONFIG_MTRACE
-  printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr & ~0x3u, ret);
+  // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr & ~0x3u, ret);
+  printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, ret);
 #endif
   return ret;
 }
@@ -33,17 +35,18 @@ void pmem_write(int waddr, int wdata, char wmask) {
     assert(0);
     return;
   }
-  if(waddr & 0x3) {
-    printf("pmem_write: unaligned address 0x%x\n", waddr);
-    assert(0);
-  }
+  // if(waddr & 0x3) {
+  //   printf("pmem_write: unaligned address 0x%x\n", waddr);
+  //   assert(0);
+  // }
 #ifdef CONFIG_MTRACE
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
 #endif
-  int waddr_aligned = waddr & ~0x3u;
+  // int waddr_aligned = waddr & ~0x3u;
   for(int i = 0; i < 4; i++) {
     if(wmask & (1 << i)) {
-      *(uint8_t*)guest_to_host(waddr_aligned + i) = (wdata >> (i * 8)) & 0xff;
+      // *(uint8_t*)guest_to_host(waddr_aligned + i) = (wdata >> (i * 8)) & 0xff;
+      *(uint8_t*)guest_to_host(waddr + i) = (wdata >> (i * 8)) & 0xff;
     }
   }
 }
