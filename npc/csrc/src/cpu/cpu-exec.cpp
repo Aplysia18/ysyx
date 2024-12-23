@@ -75,6 +75,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     printf("pc: %08x, dnpc: %08x\n", _this->pc, dnpc);
     difftest_step(_this->pc, dnpc);
+    printf("difftest_step done\n");
     check_watchpoints();
 }
 
