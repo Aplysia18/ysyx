@@ -33,6 +33,10 @@ void pmem_write(int waddr, int wdata, char wmask) {
     assert(0);
     return;
   }
+  if(waddr & 0x3) {
+    printf("pmem_write: unaligned address 0x%x\n", waddr);
+    assert(0);
+  }
 #ifdef CONFIG_MTRACE
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
 #endif
