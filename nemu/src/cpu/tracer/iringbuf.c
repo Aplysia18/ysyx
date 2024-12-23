@@ -3,6 +3,8 @@
 
 Ringbuf ringbuf;
 
+#ifndef CONFIG_TARGET_SHARE
+
 void init_ringbuf() {
     ringbuf.max = 20;
     ringbuf.length = 0;
@@ -60,3 +62,11 @@ void print_ringbuf() {
         printf(ANSI_FMT(" -->  %s\n", ANSI_FG_RED), temp->info);
     }
 }
+
+#else
+ 
+void init_ringbuf() {}
+void ringbuf_add(vaddr_t pc, vaddr_t snpc, uint32_t inst) {}
+void print_ringbuf() {}
+
+#endif

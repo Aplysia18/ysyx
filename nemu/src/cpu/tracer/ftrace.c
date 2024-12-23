@@ -25,7 +25,7 @@ void ftrace_printf(const char *format, ...) {
 
 void ftrace_log() {
     if(log_fp == NULL) {
-        printf("%s",output_buffer);
+        // printf("%s", output_buffer);
     }else{
         log_write("%s", output_buffer);
     }
@@ -33,7 +33,6 @@ void ftrace_log() {
 }
 
 void init_elf(const char *elf_file) {
-    printf("elf_file = %s\n", elf_file);
     if (elf_file != NULL) {
         FILE *fp = fopen(elf_file, "rb");
         Assert(fp, "Can not open '%s'", elf_file);
