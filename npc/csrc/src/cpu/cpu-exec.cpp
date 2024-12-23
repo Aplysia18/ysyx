@@ -73,9 +73,7 @@ void get_dnpc(int dnpc){
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
-    printf("pc: %08x, dnpc: %08x\n", _this->pc, dnpc);
     difftest_step(_this->pc, dnpc);
-    printf("difftest_step done\n");
     check_watchpoints();
 }
 
@@ -83,12 +81,10 @@ static void execute_once(Decode *s){
   s->inst = npc_inst;
   s->pc = npc_pc;
   s->snpc = npc_pc + 4;
-  printf("npc: pc=0x%08x, inst=0x%08x, snpc=0x%08x\n", s->pc, s->inst, s->snpc);
   // execute
   single_cycle();
   
   s->dnpc = npc_pc;
-  //printf("npc: pc=0x%08x, inst=0x%08x, dnpc=0x%08x\n", s->pc, s->inst, s->dnpc);
 
   //update cpu state
   cpu.pc = npc_pc;
