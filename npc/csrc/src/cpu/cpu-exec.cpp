@@ -78,17 +78,16 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
-
-  // execute
-  single_cycle();
   s->inst = npc_inst;
   s->pc = npc_pc;
   s->snpc = npc_pc + 4;
-  s->dnpc = npc_dnpc;
+  // execute
+  single_cycle();
+  s->dnpc = npc_pc;
   //printf("npc: pc=0x%08x, inst=0x%08x, dnpc=0x%08x\n", s->pc, s->inst, s->dnpc);
 
   //update cpu state
-  cpu.pc = npc_pc;
+  cpu.pc = s->pc;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
