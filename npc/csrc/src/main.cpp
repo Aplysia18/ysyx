@@ -5,9 +5,9 @@
 
 int main(int argc, char** argv) {
 
-  init_cpu(argc, argv);
-
   init_monitor(argc, argv);
+
+  init_cpu(argc, argv);
 
   sdb_mainloop();
 
