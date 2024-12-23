@@ -47,6 +47,7 @@ void init_cpu(int argc, char* argv[]) {
   tfp->open("./build/simx.vcd");
   
   reset(5);
+  single_cycle();
 
 }
 
@@ -83,11 +84,12 @@ static void execute_once(Decode *s){
   s->snpc = npc_pc + 4;
   // execute
   single_cycle();
+
   s->dnpc = npc_pc;
   //printf("npc: pc=0x%08x, inst=0x%08x, dnpc=0x%08x\n", s->pc, s->inst, s->dnpc);
 
   //update cpu state
-  cpu.pc = s->pc;
+  cpu.pc = npc_pc;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
