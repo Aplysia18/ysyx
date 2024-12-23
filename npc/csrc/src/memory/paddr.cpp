@@ -16,6 +16,10 @@ int pmem_read(int raddr) {
     assert(0);
     return 0;
   }
+  if(raddr & 0x3) {
+    printf("pmem_read: unaligned address 0x%x\n", raddr);
+    assert(0);
+  }
   int ret = *(int*)guest_to_host(raddr & ~0x3u);
 #ifdef CONFIG_MTRACE
   printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr & ~0x3u, ret);
