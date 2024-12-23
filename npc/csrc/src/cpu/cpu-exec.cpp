@@ -47,7 +47,7 @@ void init_cpu(int argc, char* argv[]) {
   tfp->open("./build/simx.vcd");
   
   reset(5);
-
+  single_cycle();
 }
 
 bool abort_flag = 0;
