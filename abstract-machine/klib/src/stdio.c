@@ -11,6 +11,7 @@ int printf(const char *fmt, ...) {
   va_start(args, fmt);
   sprintf(out, fmt, args);
   va_end(args);
+  out[1023] = '\0';
   int i;
   for(i = 0; out[i] != '\0' && i < 1024; i++){
     putch(out[i]);
