@@ -13,7 +13,7 @@ int printf(const char *fmt, ...) {
   va_end(args);
   out[1023] = '\0';
   int i;
-  for(i = 0; out[i] != '\0' && i < 1024; i++){
+  for(i = 0; out[i] != '\0'; i++){
     putch(out[i]);
   }
   return i;
