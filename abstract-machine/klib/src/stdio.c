@@ -6,7 +6,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  char out[512];
+  char out[128];
   va_list args;
   va_start(args, fmt);
   sprintf(out, fmt, args);
