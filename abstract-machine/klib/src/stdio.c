@@ -101,7 +101,7 @@ int sprintf(char *out, const char *fmt, ...) {
   va_start(args, fmt);
   int ret = vsnprintf_helper(str_putch_wrapper, &out, fmt, args);
   va_end(args);
-  out[ret] = '\0';
+  out[ret-1] = '\0';
   return ret;
 }
 
