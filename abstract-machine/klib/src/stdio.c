@@ -6,7 +6,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 // 辅助函数，用于格式化输出
-static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, const char *fmt, va_list args) {
+static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_arg, const char *fmt, va_list args) {
   int i, j = 0;
   bool conver = false;
   for (i = 0; fmt[i] != '\0'; i++) {
@@ -16,25 +16,25 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
           conver = false;
           char *str = va_arg(args, char*);
           while (*str) {
-            output_func(*str++, output_arg);
+            output_func(*str++, output_arg, j);
             j++;
           }
           break;
         case 'c': 
           conver = false;
           char ch = va_arg(args, int);
-          output_func(ch, output_arg);
+          output_func(ch, output_arg, j);
           j++;
           break;
         case 'd': 
           conver = false;
           int num = va_arg(args, int);
           if (num < 0) {
-            output_func('-', output_arg);
+            output_func('-', output_arg, j);
             j++;
             num = -num;
           } else if (num == 0) {
-            output_func('0', output_arg);
+            output_func('0', output_arg, j);
             j++;
             break;
           }
@@ -50,13 +50,13 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
             num /= 10;
           }
           for (int k = 0; k < len; k++) {
-            output_func(num3[k], output_arg);
+            output_func(num3[k], output_arg, j);
             j++;
           }
           break;
         case '%': 
           conver = false;
-          output_func('%', output_arg);
+          output_func('%', output_arg, j);
           j++;
           break;
         default: {
@@ -66,7 +66,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
     } else if (fmt[i] == '%') {
       conver = true;
     } else {
-      output_func(fmt[i], output_arg);
+      output_func(fmt[i], output_arg, j);
       j++;
     }
   }
@@ -74,14 +74,14 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
 }
 
 // 输出到控制台的函数
-static void putch_wrapper(char ch, void *arg) {
+static void putch_wrapper(char ch, void *arg, int cnt) {
   putch(ch);
 }
 
 // 输出到字符串的函数
-static void str_putch_wrapper(char ch, void *arg) {
-  char **str = (char **)arg;
-  *(*str)++ = ch;
+static void str_putch_wrapper(char ch, void *arg, int cnt) {
+  char *str = (char *)arg;
+  str[cnt] = ch;
 }
 
 int printf(const char *fmt, ...) {
@@ -99,9 +99,9 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 int sprintf(char *out, const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  int ret = vsnprintf_helper(str_putch_wrapper, &out, fmt, args);
+  int ret = vsnprintf_helper(str_putch_wrapper, out, fmt, args);
   va_end(args);
-  out[ret-1] = '\0';
+  out[ret] = '\0';
   return ret;
 }
 
