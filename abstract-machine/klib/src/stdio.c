@@ -5,61 +5,88 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-int printf(const char *fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
+// 辅助函数，用于格式化输出
+static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, const char *fmt, va_list args) {
   int i, j = 0;
   bool conver = false;
-  for(i=0; fmt[i]!='\0'; i++) {
-    if(conver){
-      switch(fmt[i]){
-        case 's':
+  for (i = 0; fmt[i] != '\0'; i++) {
+    if (conver) {
+      switch (fmt[i]) {
+        case 's': {
           conver = false;
           char *str = va_arg(args, char*);
-          while(*str){
-            putch(*str++);
+          while (*str) {
+            output_func(*str++, output_arg);
+            j++;
           }
           break;
-        case 'd':
+        }
+        case 'd': {
           conver = false;
           int num = va_arg(args, int);
-          if(num < 0){
-            putch('-');
+          if (num < 0) {
+            output_func('-', output_arg);
+            j++;
             num = -num;
-          }else if(num == 0){
-            putch('0');
+          } else if (num == 0) {
+            output_func('0', output_arg);
+            j++;
             break;
           }
           int len = 0;
           int num2 = num;
-          while(num2){
+          while (num2) {
             num2 /= 10;
             len++;
           }
           char num3[11];
-          for(int k = len-1; k >= 0; k--){
+          for (int k = len - 1; k >= 0; k--) {
             num3[k] = num % 10 + '0';
             num /= 10;
           }
-          for(int k = 0; k < len; k++){
-            putch(num3[k]);
+          for (int k = 0; k < len; k++) {
+            output_func(num3[k], output_arg);
+            j++;
           }
           break;
-        case '%':
+        }
+        case '%': {
           conver = false;
-          putch('%');
+          output_func('%', output_arg);
+          j++;
           break;
-        default:
+        }
+        default: {
           assert(0);
+        }
       }
-    }else if(fmt[i] == '%'){
+    } else if (fmt[i] == '%') {
       conver = true;
-    }else{
-      putch(fmt[i]);
+    } else {
+      output_func(fmt[i], output_arg);
+      j++;
     }
   }
-  va_end(args);
   return j;
+}
+
+// 输出到控制台的函数
+static void putch_wrapper(char ch, void *arg) {
+  putch(ch);
+}
+
+// 输出到字符串的函数
+static void str_putch_wrapper(char ch, void *arg) {
+  char **str = (char **)arg;
+  *(*str)++ = ch;
+}
+
+int printf(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  int ret = vsnprintf_helper(putch_wrapper, NULL, fmt, args);
+  va_end(args);
+  return ret;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
@@ -69,59 +96,9 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 int sprintf(char *out, const char *fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  int i, j = 0;
-  bool conver = false;
-  for(i=0; fmt[i]!='\0'; i++) {
-    if(conver){
-      switch(fmt[i]){
-        case 's':
-          conver = false;
-          char *str = va_arg(args, char*);
-          while(*str){
-            out[j++] = *str++;
-          }
-          break;
-        case 'd':
-          conver = false;
-          int num = va_arg(args, int);
-          if(num < 0){
-            out[j++] = '-';
-            num = -num;
-          }else if(num == 0){
-            out[j++] = '0';
-            break;
-          }
-          int len = 0;
-          int num2 = num;
-          while(num2){
-            num2 /= 10;
-            len++;
-          }
-          char num3[11];
-          for(int k = len-1; k >= 0; k--){
-            num3[k] = num % 10 + '0';
-            num /= 10;
-          }
-          for(int k = 0; k < len; k++){
-            out[j++] = num3[k];
-          }
-          break;
-        case '%':
-          conver = false;
-          out[j++] = '%';
-          break;
-        default:
-          assert(0);
-      }
-    }else if(fmt[i] == '%'){
-      conver = true;
-    }else{
-      out[j++] = fmt[i];
-    }
-  }
+  int ret = vsnprintf_helper(str_putch_wrapper, &out, fmt, args);
   va_end(args);
-  out[j] = '\0';
-  return j;
+  return ret;
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
