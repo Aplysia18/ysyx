@@ -12,7 +12,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
   for (i = 0; fmt[i] != '\0'; i++) {
     if (conver) {
       switch (fmt[i]) {
-        case 's': {
+        case 's': 
           conver = false;
           char *str = va_arg(args, char*);
           while (*str) {
@@ -20,8 +20,13 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
             j++;
           }
           break;
-        }
-        case 'd': {
+        case 'c': 
+          conver = false;
+          char ch = va_arg(args, int);
+          output_func(ch, output_arg);
+          j++;
+          break;
+        case 'd': 
           conver = false;
           int num = va_arg(args, int);
           if (num < 0) {
@@ -49,13 +54,11 @@ static int vsnprintf_helper(void (*output_func)(char, void*), void *output_arg, 
             j++;
           }
           break;
-        }
-        case '%': {
+        case '%': 
           conver = false;
           output_func('%', output_arg);
           j++;
           break;
-        }
         default: {
           assert(0);
         }
