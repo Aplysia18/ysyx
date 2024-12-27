@@ -38,7 +38,6 @@ char *strcat(char *dst, const char *src) {
 int strcmp(const char *s1, const char *s2) {
   size_t i;
   for(i=0; s1[i]!='\0' || s2[i]!='\0'; i++){
-    printf("s1[%d] = %c, s2[%d] = %c\n", i, s1[i], i, s2[i]);
     if(s1[i] != s2[i]){
       return s1[i] - s2[i];
     }
