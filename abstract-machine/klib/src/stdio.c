@@ -6,17 +6,60 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  char out[256];
   va_list args;
   va_start(args, fmt);
-  sprintf(out, fmt, args);
-  va_end(args);
-  // out[255] = '\0';
-  int i;
-  for(i = 0; out[i]; i++){
-    putch(out[i]);
+  int i, j = 0;
+  bool conver = false;
+  for(i=0; fmt[i]!='\0'; i++) {
+    if(conver){
+      switch(fmt[i]){
+        case 's':
+          conver = false;
+          char *str = va_arg(args, char*);
+          while(*str){
+            putch(*str++);
+          }
+          break;
+        case 'd':
+          conver = false;
+          int num = va_arg(args, int);
+          if(num < 0){
+            putch('-');
+            num = -num;
+          }else if(num == 0){
+            putch('0');
+            break;
+          }
+          int len = 0;
+          int num2 = num;
+          while(num2){
+            num2 /= 10;
+            len++;
+          }
+          char num3[11];
+          for(int k = len-1; k >= 0; k--){
+            num3[k] = num % 10 + '0';
+            num /= 10;
+          }
+          for(int k = 0; k < len; k++){
+            putch(num3[k]);
+          }
+          break;
+        case '%':
+          conver = false;
+          putch('%');
+          break;
+        default:
+          assert(0);
+      }
+    }else if(fmt[i] == '%'){
+      conver = true;
+    }else{
+      putch(fmt[i]);
+    }
   }
-  return i;
+  va_end(args);
+  return j;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
