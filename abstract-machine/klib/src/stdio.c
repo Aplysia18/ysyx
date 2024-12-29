@@ -29,6 +29,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
               j++;
             }
             width = 0;  //TODO: width not implemented
+            zero_flag = false;
             break;
           case 'c': 
             conver = false;
