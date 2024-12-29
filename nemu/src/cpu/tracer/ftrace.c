@@ -15,6 +15,8 @@ int ftrace_tab_size = 0;
 // size_t buffer_offset = 0;
 extern FILE* log_fp;
 
+#ifdef CONFIG_FTRACE
+
 void ftrace_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
@@ -142,3 +144,13 @@ void ftrace_ret(vaddr_t pc) {
     }
     return;
 }
+
+#else
+
+void ftrace_printf(const char *format, ...) {}
+void ftrace_log() {}
+void init_elf(const char *elf_file) {}
+void ftrace_call(vaddr_t pc, vaddr_t next_pc) {}
+void ftrace_ret(vaddr_t pc) {}
+
+#endif
