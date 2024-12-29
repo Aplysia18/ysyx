@@ -19,6 +19,7 @@ void ftrace_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
     char buffer[BUFFER_SIZE];
+    printf("ftrace_printf\n");
     vsnprintf(buffer, BUFFER_SIZE, format, args);
     if(log_fp){
         // sprintf(buffer, format, args);
