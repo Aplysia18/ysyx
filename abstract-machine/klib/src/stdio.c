@@ -7,7 +7,6 @@
 
 // 辅助函数，用于格式化输出
 static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_arg, const char *fmt, va_list args) {
-  return 0;
   int i, j = 0;
   bool conver = false;
   bool zero_flag = false;
@@ -109,6 +108,7 @@ static void str_putch_wrapper(char ch, void *arg, int cnt) {
 }
 
 int printf(const char *fmt, ...) {
+  return 0;
   va_list args;
   va_start(args, fmt);
   int ret = vsnprintf_helper(putch_wrapper, NULL, fmt, args);
