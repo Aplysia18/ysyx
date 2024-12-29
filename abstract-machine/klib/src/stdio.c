@@ -108,7 +108,6 @@ static void str_putch_wrapper(char ch, void *arg, int cnt) {
 }
 
 int printf(const char *fmt, ...) {
-  return 0;
   va_list args;
   va_start(args, fmt);
   int ret = vsnprintf_helper(putch_wrapper, NULL, fmt, args);
