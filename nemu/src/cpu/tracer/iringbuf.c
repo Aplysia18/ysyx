@@ -3,7 +3,7 @@
 
 Ringbuf ringbuf;
 
-#ifndef CONFIG_TARGET_SHARE
+#if !defined(CONFIG_TARGET_SHARE) && defined(CONFIG_ITRACE)
 
 void init_ringbuf() {
     ringbuf.max = 20;
