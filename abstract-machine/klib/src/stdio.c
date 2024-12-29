@@ -37,6 +37,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             output_func(ch, output_arg, j);
             j++;
             width = 0;  //TODO: width not implemented
+            zero_flag = false;
             break;
           case 'd': 
             conver = false;
@@ -70,11 +71,15 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
               output_func(num3[k], output_arg, j);
               j++;
             }
+            width = 0;
+            zero_flag = false;
             break;
           case '%': 
             conver = false;
             output_func('%', output_arg, j);
             j++;
+            width = 0;  //TODO: width not implemented
+            zero_flag = false;
             break;
           default: {
             assert(0);
