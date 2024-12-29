@@ -16,7 +16,6 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
       if(fmt[i]>='0' && fmt[i]<='9') {
         if(fmt[i] == '0' && width == 0) {
           zero_flag = true;
-          printf("zero_flag\n");
         } else {
           width = width * 10 + fmt[i] - '0';
         }
