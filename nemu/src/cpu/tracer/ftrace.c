@@ -16,11 +16,11 @@ size_t buffer_offset = 0;
 extern FILE* log_fp;
 
 void ftrace_printf(const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    int written = vsnprintf(output_buffer + buffer_offset, BUFFER_SIZE - buffer_offset, format, args);
-    va_end(args);
-    buffer_offset += written;
+    // va_list args;
+    // va_start(args, format);
+    // int written = vsnprintf(output_buffer + buffer_offset, BUFFER_SIZE - buffer_offset, format, args);
+    // va_end(args);
+    // buffer_offset += written;
 }
 
 void ftrace_log() {
