@@ -1,6 +1,6 @@
 #include <am.h>
 #include <nemu.h>
-#include <klib.h>
+#include <stdio.h>
 
 void __am_timer_init() {
   outl(RTC_ADDR, 0);
