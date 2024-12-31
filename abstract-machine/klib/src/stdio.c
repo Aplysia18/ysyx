@@ -8,6 +8,8 @@
 // 辅助函数，用于格式化输出
 static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_arg, const char *fmt, va_list args) {
   int i, j = 0;
+  int num, len, num2;
+  char num3[16];
   bool conver = false;
   bool zero_flag = false;
   int width = 0;
@@ -41,15 +43,15 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             break;
           case 'd': 
             conver = false;
-            int num = va_arg(args, int);
+            num = va_arg(args, int);
             if (num < 0) {
               output_func('-', output_arg, j);
               j++;
               num = -num;
               width--;
             } 
-            int len = 0;
-            int num2 = num;
+            len = 0;
+            num2 = num;
             while (num2) {
               num2 /= 10;
               len++;
@@ -61,11 +63,44 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
                 j++;
               }
             }
-            char num3[11];
             for (int k = len - 1; k >= 0; k--) {
-              if(k>=11) assert(0);
+              if(k>=16) assert(0);
               num3[k] = num % 10 + '0';
               num /= 10;
+            }
+            for (int k = 0; k < len; k++) {
+              output_func(num3[k], output_arg, j);
+              j++;
+            }
+            width = 0;
+            zero_flag = false;
+            break;
+          case 'x':
+            conver = false;
+            num = va_arg(args, int);
+            if (num < 0) {
+              output_func('-', output_arg, j);
+              j++;
+              num = -num;
+              width--;
+            } 
+            len = 0;
+            num2 = num;
+            while (num2) {
+              num2 /= 16;
+              len++;
+            }
+            if(num==0) len=1;
+            if(zero_flag) {
+              for(int k = len; k < width; k++) {
+                output_func('0', output_arg, j);
+                j++;
+              }
+            }
+            for (int k = len - 1; k >= 0; k--) {
+              if(k>=16) assert(0);
+              num3[k] = ((num % 16) < 10) ? num % 16 + '0' : num % 16 - 10 + 'a';
+              num /= 16;
             }
             for (int k = 0; k < len; k++) {
               output_func(num3[k], output_arg, j);
