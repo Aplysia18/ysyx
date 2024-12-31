@@ -60,10 +60,14 @@ void *memset(void *s, int c, size_t n) {
 
 void *memmove(void *dst, const void *src, size_t n) {
   size_t i;
-  char *xdst = (char *)dst;
-  char *xsrc = (char *)src;
-  for(i=0; i<n; i++){
-    xdst[i] = xsrc[i];
+  if(dst < src){
+    for(i=0; i<n; i++){
+      ((char *)dst)[i] = ((char *)src)[i];
+    }
+  }else{
+    for(i=n-1; i>=0; i--){
+      ((char *)dst)[i] = ((char *)src)[i];
+    }
   }
   return dst;
 }
