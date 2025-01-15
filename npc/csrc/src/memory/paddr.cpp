@@ -33,6 +33,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   if(!in_pmem(waddr)) {
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {
+    printf("%c", wdata);
     if(wmask == 1) {
       putchar(wdata&0xf);
       return;
