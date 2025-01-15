@@ -15,12 +15,12 @@ static int difftest_port = 1234;
 
 static void default_img() {
     // 初始化内存
-    paddr_write(0x80000000, 0x00108093);  // addi x1, x1, 1
-    paddr_write(0x80000004, 0x00208093);
-    paddr_write(0x80000008, 0x00308093);
-    paddr_write(0x8000000c, 0x00408093);
-    paddr_write(0x80000010, 0x00508093);
-    paddr_write(0x80000014, 0x00100073);
+    pmem_write(0x80000000, 0x00108093, 0xf);  // addi x1, x1, 1
+    pmem_write(0x80000004, 0x00208093, 0xf);
+    pmem_write(0x80000008, 0x00308093, 0xf);
+    pmem_write(0x8000000c, 0x00408093, 0xf);
+    pmem_write(0x80000010, 0x00508093, 0xf);
+    pmem_write(0x80000014, 0x00100073, 0xf);
 }
 
 static long load_img() {

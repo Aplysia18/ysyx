@@ -336,7 +336,7 @@ uint32_t eval(int begin, int end, bool *success) {
         break;
       case TK_DEREF:
         val1 = eval(op + 1, end, success);
-        result = paddr_read(val1);
+        result = pmem_read(val1);
         break;
       default: assert(0);
     }
