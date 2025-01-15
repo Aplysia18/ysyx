@@ -32,8 +32,8 @@ int pmem_read(int raddr) {
 void pmem_write(int waddr, int wdata, char wmask) {
   if(!in_pmem(waddr)) {
 #ifdef CONFIG_SERIAL_MMIO
-  assert(0);
   if(waddr == CONFIG_SERIAL_MMIO) {
+    assert(0);
     printf("%c", wdata);
     if(wmask == 1) {
       putchar(wdata&0xf);
