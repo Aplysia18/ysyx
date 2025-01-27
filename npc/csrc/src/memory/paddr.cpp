@@ -1,6 +1,7 @@
 #include "memory/paddr.hpp"
 #include "common.hpp"
 #include "cpu/difftest.hpp"
+#include "utils.hpp"
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 
@@ -13,6 +14,21 @@ static inline bool in_pmem(paddr_t addr) {
 
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
+#ifdef CONFIG_RTC_MMIO
+  static uint64_t us = get_time();
+  if(raddr == CONFIG_RTC_MMIO || raddr == CONFIG_RTC_MMIO + 4) {
+    if(raddr == CONFIG_RTC_MMIO + 4){
+      us = get_time();
+      if(raddr == CONFIG_RTC_MMIO) {
+        return us & 0xffffffff;
+      } else {
+        return us >> 32;
+      }
+    }
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
     printf("pmem_read: invalid address 0x%x\n", raddr);
     assert(0);
     return 0;
@@ -39,6 +55,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
     // printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
     // printf("%c", wdata&0xff);
     // putchar(wdata&0xf);
+    return;
+  }
+#endif
+#ifdef CONFIG_RTC_MMIO
+  if(waddr == CONFIG_RTC_MMIO || waddr == CONFIG_RTC_MMIO + 4) {
+    difftest_skip_ref();
     return;
   }
 #endif
