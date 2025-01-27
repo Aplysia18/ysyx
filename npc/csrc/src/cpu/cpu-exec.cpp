@@ -83,7 +83,7 @@ static void execute_once(Decode *s){
   s->snpc = npc_pc + 4;
   // execute
   single_cycle();
-  printf("single cycle\n");
+  printf("single cycle, pc = 0x%08x\n", s->pc);
   
   s->dnpc = npc_pc;
 
