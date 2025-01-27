@@ -20,11 +20,11 @@ int pmem_read(int raddr) {
     difftest_skip_ref();
     if(raddr == CONFIG_RTC_MMIO + 4){
       us = get_time();
+      printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
       return us >> 32;
     } else {
       return us & 0xffffffff;
     }
-    printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   }
 #endif
     printf("pmem_read: invalid address 0x%x\n", raddr);
