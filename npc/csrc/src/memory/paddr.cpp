@@ -24,6 +24,7 @@ int pmem_read(int raddr) {
       printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
       return us >> 32;
     } else {
+      printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
       return us & 0xffffffff;
     }
   }
