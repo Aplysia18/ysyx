@@ -76,6 +76,10 @@ bool difftest_skip_next = false;
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);
+    if(difftest_skip_next){
+      difftest_skip_next = false;
+      difftest_skip_ref();
+    }
     check_watchpoints();
 }
 
