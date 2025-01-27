@@ -10,6 +10,7 @@ VerilatedContext* contextp;
 VerilatedVcdC* tfp;
 
 CPU_state cpu = {};
+uint64_t g_nr_guest_inst = 0;
 static uint32_t npc_inst = 0;
 static uint32_t npc_pc = 0;
 static uint32_t npc_dnpc = 0;
@@ -137,7 +138,7 @@ void cpu_exec(uint64_t n) {
   while(n--) {
 
     execute_once(&s);
-
+    g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
 
     if(abort_flag){
