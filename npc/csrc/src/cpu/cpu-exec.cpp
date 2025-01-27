@@ -119,11 +119,11 @@ static void execute_once(Decode *s){
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p, s->pc, (uint8_t *)&s->inst, ilen);
 
   //ftrace
-  // if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
-  //   ftrace_call(npc_pc, npc_dnpc);
-  // }else if(s->inst == 0x00008067){
-  //   ftrace_ret(npc_pc);
-  // }
+  if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
+    ftrace_call(npc_pc, npc_dnpc);
+  }else if(s->inst == 0x00008067){
+    ftrace_ret(npc_pc);
+  }
 
 }
 
