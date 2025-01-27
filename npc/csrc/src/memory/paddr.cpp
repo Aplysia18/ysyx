@@ -19,11 +19,9 @@ int pmem_read(int raddr) {
   if(raddr == CONFIG_RTC_MMIO || raddr == CONFIG_RTC_MMIO + 4) {
     if(raddr == CONFIG_RTC_MMIO + 4){
       us = get_time();
-      if(raddr == CONFIG_RTC_MMIO) {
+      return us >> 32;
+    } else {
         return us & 0xffffffff;
-      } else {
-        return us >> 32;
-      }
     }
     difftest_skip_ref();
     return 0;
