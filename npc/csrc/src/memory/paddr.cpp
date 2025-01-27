@@ -17,14 +17,13 @@ int pmem_read(int raddr) {
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if(raddr == CONFIG_RTC_MMIO || raddr == CONFIG_RTC_MMIO + 4) {
+    difftest_skip_ref();
     if(raddr == CONFIG_RTC_MMIO + 4){
       us = get_time();
       return us >> 32;
     } else {
         return us & 0xffffffff;
     }
-    difftest_skip_ref();
-    return 0;
   }
 #endif
     printf("pmem_read: invalid address 0x%x\n", raddr);
