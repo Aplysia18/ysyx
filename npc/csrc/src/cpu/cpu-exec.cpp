@@ -71,6 +71,8 @@ void get_dnpc(int dnpc){
   npc_dnpc = (uint32_t)dnpc;
 }
 
+bool difftest_skip_next = false;
+
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);

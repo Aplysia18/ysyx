@@ -12,6 +12,8 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
+extern bool difftest_skip_next;
+
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
 #ifdef CONFIG_RTC_MMIO
@@ -51,7 +53,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   if(waddr == CONFIG_SERIAL_MMIO) {
     printf("%c", wdata&0xff);
     difftest_skip_ref();
-    printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
+    // printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
     // printf("%c", wdata&0xff);
     // putchar(wdata&0xf);
     return;
