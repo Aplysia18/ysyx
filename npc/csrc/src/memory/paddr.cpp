@@ -51,7 +51,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   if(waddr == CONFIG_SERIAL_MMIO) {
     printf("%c", wdata&0xff);
     difftest_skip_ref();
-    // printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
+    printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
     // printf("%c", wdata&0xff);
     // putchar(wdata&0xf);
     return;
