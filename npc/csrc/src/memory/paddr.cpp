@@ -16,6 +16,7 @@ int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
+  printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
     if(raddr == CONFIG_RTC_MMIO + 4){
