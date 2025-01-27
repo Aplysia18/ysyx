@@ -17,11 +17,11 @@ static uint32_t npc_dnpc = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
-  top->clk = 0;
+  top->clk = 1;
   top->eval();
   contextp->timeInc(1);
   tfp->dump(contextp->time());
-  top->clk = 1;
+  top->clk = 0;
   top->eval();
   contextp->timeInc(1);
   tfp->dump(contextp->time());
@@ -83,6 +83,7 @@ static void execute_once(Decode *s){
   s->snpc = npc_pc + 4;
   // execute
   single_cycle();
+  printf("single cycle\n");
   
   s->dnpc = npc_pc;
 
