@@ -1,5 +1,6 @@
 #include "memory/paddr.hpp"
 #include "common.hpp"
+#include "cpu/difftest.hpp"
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 
@@ -34,6 +35,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {
     printf("%c", wdata&0xff);
+    difftest_skip_ref();
     // printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
     // printf("%c", wdata&0xff);
     // putchar(wdata&0xf);
