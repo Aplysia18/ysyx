@@ -3,7 +3,7 @@ INC_PATH ?=
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert --trace \
+				-O3 --x-assign fast --x-initial fast --noassert --trace-fst \
 				-I./vsrc/include
 
 BUILD_DIR = ./build
