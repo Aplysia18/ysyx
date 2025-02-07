@@ -10,25 +10,28 @@ function_info *functions = NULL;
 int function_num = 0;
 int ftrace_tab_size = 0;
 
-#define BUFFER_SIZE 1024 * 1024 // 1MB 缓冲区
-char output_buffer[BUFFER_SIZE];
-size_t buffer_offset = 0;
+#define BUFFER_SIZE 1024
+// char output_buffer[BUFFER_SIZE];
+// size_t buffer_offset = 0;
 extern FILE* log_fp;
+
+#ifdef CONFIG_FTRACE
 
 void ftrace_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
-    int written = vsnprintf(output_buffer + buffer_offset, BUFFER_SIZE - buffer_offset, format, args);
+    char buffer[BUFFER_SIZE];
+    vsnprintf(buffer, BUFFER_SIZE, format, args);
+    log_write("%s", buffer);
     va_end(args);
-    buffer_offset += written;
-}
 
+}
 void ftrace_log() {
-    if(log_fp == NULL) {
-        printf("%s",output_buffer);
-    }else{
-        log_write("%s", output_buffer);
-    }
+    // if(log_fp == NULL) {
+    //     printf("%s",output_buffer);
+    // }else{
+    //     log_write("%s", output_buffer);
+    // }
     
 }
 
@@ -149,3 +152,13 @@ void ftrace_ret(vaddr_t pc) {
     }
     return;
 }
+
+#else
+
+void ftrace_printf(const char *format, ...) {}
+void ftrace_log() {}
+void init_elf(const char *elf_file) {}
+void ftrace_call(vaddr_t pc, vaddr_t next_pc) {}
+void ftrace_ret(vaddr_t pc) {}
+
+#endif

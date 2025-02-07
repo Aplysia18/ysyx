@@ -183,7 +183,7 @@ static int cmd_x(char *args) {
 
   for (int i = 0; i < n; i++) {
     printf("0x%08x: ", addr);
-    printf("0x%08x", paddr_read(addr));
+    printf("0x%08x", pmem_read(addr));
     printf("\n");
     addr += 4;
   }

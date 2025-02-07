@@ -1,5 +1,7 @@
 #include "memory/paddr.hpp"
 #include "common.hpp"
+#include "cpu/difftest.hpp"
+#include "utils.hpp"
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 
@@ -10,8 +12,25 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
+extern bool difftest_skip_next;
+
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
+#ifdef CONFIG_RTC_MMIO
+  static uint64_t us = get_time();
+  // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
+  if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
+    // difftest_skip_ref();
+    difftest_skip_next = true;
+    // printf("difftest skip ref\n");
+    if(raddr == CONFIG_RTC_MMIO + 4){
+      us = get_time();
+      return us >> 32;
+    } else {
+      return us & 0xffffffff;
+    }
+  }
+#endif
     printf("pmem_read: invalid address 0x%x\n", raddr);
     assert(0);
     return 0;
@@ -31,6 +50,22 @@ int pmem_read(int raddr) {
 
 void pmem_write(int waddr, int wdata, char wmask) {
   if(!in_pmem(waddr)) {
+#ifdef CONFIG_SERIAL_MMIO
+  if(waddr == CONFIG_SERIAL_MMIO) {
+    printf("%c", wdata&0xff);
+    difftest_skip_ref();
+    // printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
+    // printf("%c", wdata&0xff);
+    // putchar(wdata&0xf);
+    return;
+  }
+#endif
+#ifdef CONFIG_RTC_MMIO
+  if(waddr == CONFIG_RTC_MMIO || waddr == CONFIG_RTC_MMIO + 4) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
     printf("pmem_write: invalid address 0x%x\n", waddr);
     assert(0);
     return;
@@ -51,28 +86,28 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
 }
 
-word_t paddr_read(paddr_t addr) {
-  if(!in_pmem(addr)) {
-    printf("paddr_read: invalid address 0x%x\n", addr);
-    assert(0);
-  }else{
-    if(addr & 0x3) {
-      printf("paddr_read: unaligned address 0x%x\n", addr);
-      assert(0);
-    }
-    return pmem_read(addr);
-  }
-}
+// word_t paddr_read(paddr_t addr) {
+//   if(!in_pmem(addr)) {
+//     printf("paddr_read: invalid address 0x%x\n", addr);
+//     assert(0);
+//   }else{
+//     if(addr & 0x3) {
+//       printf("paddr_read: unaligned address 0x%x\n", addr);
+//       assert(0);
+//     }
+//     return pmem_read(addr);
+//   }
+// }
 
-void paddr_write(paddr_t addr, word_t data) {
-  if(!in_pmem(addr)) {
-    printf("paddr_write: invalid address 0x%x\n", addr);
-    assert(0);
-  }else{
-    if(addr & 0x3) {
-      printf("paddr_write: unaligned address 0x%x\n", addr);
-      assert(0);
-    }
-    return pmem_write(addr, data, 0xff);
-  }
-}
+// void paddr_write(paddr_t addr, word_t data) {
+//   if(!in_pmem(addr)) {
+//     printf("paddr_write: invalid address 0x%x\n", addr);
+//     assert(0);
+//   }else{
+//     if(addr & 0x3) {
+//       printf("paddr_write: unaligned address 0x%x\n", addr);
+//       assert(0);
+//     }
+//     return pmem_write(addr, data, 0xff);
+//   }
+// }

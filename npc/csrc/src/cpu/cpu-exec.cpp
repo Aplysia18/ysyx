@@ -10,6 +10,7 @@ VerilatedContext* contextp;
 VerilatedVcdC* tfp;
 
 CPU_state cpu = {};
+uint64_t g_nr_guest_inst = 0;
 static uint32_t npc_inst = 0;
 static uint32_t npc_pc = 0;
 static uint32_t npc_dnpc = 0;
@@ -71,9 +72,15 @@ void get_dnpc(int dnpc){
   npc_dnpc = (uint32_t)dnpc;
 }
 
+bool difftest_skip_next = false;
+
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);
+    if(difftest_skip_next){
+      difftest_skip_next = false;
+      difftest_skip_ref();
+    }
     check_watchpoints();
 }
 
@@ -83,6 +90,7 @@ static void execute_once(Decode *s){
   s->snpc = npc_pc + 4;
   // execute
   single_cycle();
+  // printf("single cycle, pc = 0x%08x\n", s->pc);
   
   s->dnpc = npc_pc;
 
@@ -130,7 +138,7 @@ void cpu_exec(uint64_t n) {
   while(n--) {
 
     execute_once(&s);
-
+    g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
 
     if(abort_flag){
@@ -145,8 +153,8 @@ void cpu_exec(uint64_t n) {
       if(code!=0) bad_trap_flag = 1;
       Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
       
-      Log("ftrace:");
-      ftrace_log();
+      // Log("ftrace:");
+      // ftrace_log();
       
       break;
     }
