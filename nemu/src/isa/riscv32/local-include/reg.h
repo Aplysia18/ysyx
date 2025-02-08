@@ -30,4 +30,7 @@ static inline const char* reg_name(int idx) {
   return regs[check_reg_idx(idx)];
 }
 
+word_t *csr_reg(word_t idx);
+#define CSRs(idx) (*csr_reg(idx))
+
 #endif
