@@ -107,7 +107,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   /*----------Zicsr----------*/
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, {R(rd) = CSRs(imm); CSRs(imm) = src1; printf("csrrw @ 0x%x\n", s->pc);});
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, {R(rd) = CSRs(imm); CSRs(imm) = src1; printf("csrrw @ 0x%x, mtvec = 0x%x\n", s->pc, CSRs(imm));});
 
   /*----------RV32M----------*/
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = src1 * src2);
