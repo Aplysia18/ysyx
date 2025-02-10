@@ -77,7 +77,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             break;
           case 'x':
             conver = false;
-            num = va_arg(args, uint64_t);
+            num = va_arg(args, uint32_t);
             len = 0;
             num2 = num;
             while (num2) {
