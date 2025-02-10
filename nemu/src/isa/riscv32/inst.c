@@ -118,7 +118,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, {R(rd) = CSRs(imm); CSRs(imm) |= src1;});
 
   /*----------Trap Return----------*/
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, MRET());
+  // INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, MRET());
 
   /*----------RV32M----------*/
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = src1 * src2);
