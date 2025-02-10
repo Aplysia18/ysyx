@@ -31,6 +31,12 @@
   cpu.csr.mstatus &= 0xffffe7ff; \
 }
 
+static void etrace(word_t pc){
+#ifdef CONFIG_ETRACE
+  log_write("[etrace] ecall @ 0x%08x\n", pc);
+#endif
+}
+
 enum {
   TYPE_R, TYPE_I, TYPE_U, TYPE_S, TYPE_B, TYPE_J,
   TYPE_N, // none
@@ -110,7 +116,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or     , R, R(rd) = src1 | src2);
   INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and    , R, R(rd) = src1 & src2);
 
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc););
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, {s->dnpc = isa_raise_intr(11, s->pc); etrace(s->pc);});
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   /*----------Zicsr----------*/
@@ -118,7 +124,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, {R(rd) = CSRs(imm); CSRs(imm) |= src1;});
 
   /*----------Trap Return----------*/
-  // INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, MRET());
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, MRET());
 
   /*----------RV32M----------*/
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = src1 * src2);
