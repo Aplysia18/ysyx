@@ -110,6 +110,13 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, {R(rd) = CSRs(imm); CSRs(imm) = src1; printf("csrrw @ 0x%08x: csr %d = 0x%08x\n", s->pc, imm, CSRs(imm));});
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, {R(rd) = CSRs(imm); CSRs(imm) |= src1; printf("csrrs @ 0x%08x: csr %d = 0x%08x\n", s->pc, imm, CSRs(imm));});
 
+  /*----------Trap Return----------*/
+  INSTPAT("0011000 00010 00000 000 00000 1110011", mret   , N, {s->dnpc = cpu.csr.mepc; 
+  cpu.csr.mstatus = ((cpu.csr.mstatus & 0xfffffff7) | (((cpu.csr.mstatus >> 7) & 1) << 3)); //MIE(3) = MPIE(7)
+  cpu.csr.mstatus |= 0x00000080; //MPIE(7) = 1
+  cpu.csr.mstatus &= 0xffffe7ff; //MPP(12,11) = 0
+  });
+
   /*----------RV32M----------*/
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , R, R(rd) = src1 * src2);
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , R, R(rd) = (SEXT(src1, 32) * SEXT(src2, 32)) >> 32);

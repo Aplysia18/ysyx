@@ -21,7 +21,9 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
    */
   cpu.csr.mcause = NO;
   cpu.csr.mepc = epc;
-  // cpu.csr.mstatus = (cpu.csr.mstatus & ~MSTATUS_MPP) | ((cpu.csr.mstatus << 1) & MSTATUS_MPP);
+  cpu.csr.mstatus = ((cpu.csr.mstatus & 0xffffff7f) | (((cpu.csr.mstatus >> 3) & 1) << 7)); //MPIE(7) = MIE(3)
+  cpu.csr.mstatus &= 0xfffffff7; //MIE(3) = 0
+  cpu.csr.mstatus |= 0x00001800; //MPP(12,11) = 3
   return cpu.csr.mtvec;
 }
 
