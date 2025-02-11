@@ -7,7 +7,7 @@
 
 Vysyx_24110015_top* top;
 VerilatedContext* contextp;
-VerilatedVcdC* tfp;
+VerilatedFstC* tfp;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -42,10 +42,10 @@ void init_cpu(int argc, char* argv[]) {
   contextp->commandArgs(argc, argv);
   top = new Vysyx_24110015_top{contextp};
 
-  tfp = new VerilatedVcdC;
+  tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
-  tfp->open("./build/simx.vcd");
+  tfp->open("./build/simx.fst");
   
   reset(5);
   single_cycle();

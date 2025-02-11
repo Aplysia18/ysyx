@@ -53,7 +53,7 @@ void init_elf(const char *elf_file) {
 
         fseek(fp, ehdr.e_shoff, SEEK_SET);
 
-        Elf32_Shdr shdr, shdr_symtab, shdr_strtab;
+        Elf32_Shdr shdr, shdr_symtab={0}, shdr_strtab;
         Elf32_Sym sym;
 
         Elf32_Half i;
