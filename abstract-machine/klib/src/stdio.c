@@ -112,6 +112,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             zero_flag = false;
             break;
           default: {
+            printf("Unhandled format specifier: %c\n", fmt[i]);
             assert(0);
           }
         }
