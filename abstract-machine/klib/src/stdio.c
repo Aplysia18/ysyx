@@ -49,14 +49,6 @@ static void output_number(void (*output_func)(char, void*, int), void *output_ar
 // 辅助函数，用于格式化输出
 static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_arg, const char *fmt, va_list args) {
   int i, j = 0;
-  // int num, len, num2;
-  // uint32_t unum, unum2;
-  // long lnum, lnum2;
-  // unsigned long ulnum, ulnum2;
-  // long long llnum, llnum2;
-  // unsigned long long ullnum, ullnum2;
-
-  // char num3[22];
   bool conver = false;
   bool zero_flag = false;
   bool l_flag = false;
@@ -109,36 +101,6 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             }else{
               output_number(output_func, output_arg, &j, va_arg(args, int), 10, true, zero_flag, width);
             }
-            // num = va_arg(args, int);
-            // if (num < 0) {
-            //   output_func('-', output_arg, j);
-            //   j++;
-            //   num = -num;
-            //   width--;
-            // } 
-            // len = 0;
-            // num2 = num;
-            // while (num2) {
-            //   num2 /= 10;
-            //   len++;
-            // }
-            // if(num==0) len=1;
-            // if(zero_flag) {
-            //   for(int k = len; k < width; k++) {
-            //     output_func('0', output_arg, j);
-            //     j++;
-            //   }
-            // }
-            // for (int k = len - 1; k >= 0; k--) {
-            //   if(k>=16) assert(0);
-            //   num3[k] = num % 10 + '0';
-            //   num /= 10;
-            // }
-            // for (int k = 0; k < len; k++) {
-            //   output_func(num3[k], output_arg, j);
-            //   j++;
-            // }
-            // width = 0;
             zero_flag = false;
             break;
           case 'u':
@@ -150,30 +112,6 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             }else{
               output_number(output_func, output_arg, &j, va_arg(args, uint32_t), 10, false, zero_flag, width);
             }
-            // unum = va_arg(args, uint32_t);
-            // len = 0;
-            // unum2 = unum;
-            // while (unum2) {
-            //   unum2 /= 10;
-            //   len++;
-            // }
-            // if(unum==0) len=1;
-            // if(zero_flag) {
-            //   for(int k = len; k < width; k++) {
-            //     output_func('0', output_arg, j);
-            //     j++;
-            //   }
-            // }
-            // for (int k = len - 1; k >= 0; k--) {
-            //   if(k>=16) assert(0);
-            //   num3[k] = unum % 10 + '0';
-            //   unum /= 10;
-            // }
-            // for (int k = 0; k < len; k++) {
-            //   output_func(num3[k], output_arg, j);
-            //   j++;
-            // }
-            // width = 0;
             zero_flag = false;
             break;
           case 'x':
@@ -186,30 +124,6 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             }else{
               output_number(output_func, output_arg, &j, va_arg(args, uint32_t), 16, false, zero_flag, width);
             }
-            // unum = va_arg(args, uint32_t);
-            // len = 0;
-            // unum2 = unum;
-            // while (unum2) {
-            //   unum2 /= 16;
-            //   len++;
-            // }
-            // if(unum==0) len=1;
-            // if(zero_flag) {
-            //   for(int k = len; k < width; k++) {
-            //     output_func('0', output_arg, j);
-            //     j++;
-            //   }
-            // }
-            // for (int k = len - 1; k >= 0; k--) {
-            //   if(k>=16) assert(0);
-            //   num3[k] = ((unum % 16) < 10) ? unum % 16 + '0' : unum % 16 - 10 + 'a';
-            //   unum /= 16;
-            // }
-            // for (int k = 0; k < len; k++) {
-            //   output_func(num3[k], output_arg, j);
-            //   j++;
-            // }
-            // width = 0;
             zero_flag = false;
             break;
           case '%': 
