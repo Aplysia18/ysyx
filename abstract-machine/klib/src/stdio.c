@@ -10,14 +10,22 @@ static void output_number(void (*output_func)(char, void*, int), void *output_ar
   char num3[22];
   int len = 0;
   uint64_t num2 = num;
+  int64_t num4 = (int64_t)num;
 
   // 计算数字长度
   if (num == 0) {
     len = 1;
   } else {
-    while (num2) {
-      num2 /= base;
-      len++;
+    if(is_signed) {
+      while (num4) {
+        num4 /= base;
+        len++;
+      }
+    }else{
+      while (num2) {
+        num2 /= base;
+        len++;
+      }
     }
   }
 
@@ -31,7 +39,6 @@ static void output_number(void (*output_func)(char, void*, int), void *output_ar
   // 处理宽度
   if (zero_flag) {
     for (int k = len; k < width; k++) {
-      printf("add zero\n");
       output_func('0', output_arg, (*j)++);
     }
   }
