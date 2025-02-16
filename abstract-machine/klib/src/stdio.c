@@ -96,8 +96,10 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             conver = false;
             if(l_flag){
               output_number(output_func, output_arg, &j, va_arg(args, long), 10, true, zero_flag, width);
+              l_flag = false;
             }else if(ll_flag){
               output_number(output_func, output_arg, &j, va_arg(args, long long), 10, true, zero_flag, width);
+              ll_flag = false;
             }else{
               output_number(output_func, output_arg, &j, va_arg(args, int), 10, true, zero_flag, width);
             }
@@ -107,8 +109,10 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             conver = false;
             if(l_flag){
               output_number(output_func, output_arg, &j, va_arg(args, unsigned long), 10, false, zero_flag, width);
+              l_flag = false;
             }else if(ll_flag){
               output_number(output_func, output_arg, &j, va_arg(args, unsigned long long), 10, false, zero_flag, width);
+              ll_flag = false;
             }else{
               output_number(output_func, output_arg, &j, va_arg(args, uint32_t), 10, false, zero_flag, width);
             }
@@ -119,8 +123,10 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             conver = false;
             if(l_flag){
               output_number(output_func, output_arg, &j, va_arg(args, unsigned long), 16, false, zero_flag, width);
+              l_flag = false;
             }else if(ll_flag){
               output_number(output_func, output_arg, &j, va_arg(args, unsigned long long), 16, false, zero_flag, width);
+              ll_flag = false;
             }else{
               output_number(output_func, output_arg, &j, va_arg(args, uint32_t), 16, false, zero_flag, width);
             }
