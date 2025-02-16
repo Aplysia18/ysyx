@@ -31,6 +31,7 @@ static void output_number(void (*output_func)(char, void*, int), void *output_ar
   // 处理宽度
   if (zero_flag) {
     for (int k = len; k < width; k++) {
+      printf("add zero\n");
       output_func('0', output_arg, (*j)++);
     }
   }
