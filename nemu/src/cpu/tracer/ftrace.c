@@ -22,8 +22,7 @@ void ftrace_printf(const char *format, ...) {
     va_start(args, format);
     char buffer[BUFFER_SIZE];
     vsnprintf(buffer, BUFFER_SIZE, format, args);
-    // log_write("%s", buffer);
-    printf("%s", buffer);
+    log_write("%s", buffer);
     va_end(args);
 
 }
