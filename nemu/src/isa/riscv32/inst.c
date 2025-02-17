@@ -120,8 +120,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   /*----------Zicsr----------*/
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, {R(rd) = CSRs(imm); CSRs(imm) = src1;});
-  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, {R(rd) = CSRs(imm); CSRs(imm) |= src1;});
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, {R(rd) = CSRs(imm); CSRs(imm) = src1; printf("csrrw@%08x rd=%d, imm=%d, CSR(imm)=0x%08x\n", s->pc, rd, imm, CSRs(imm));});
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, {R(rd) = CSRs(imm); CSRs(imm) |= src1; printf("csrrs@%08x rd=%d, imm=%d, src1=%08x CSR(imm)=0x%08x\n", s->pc, rd, imm, src1, CSRs(imm));});
 
   /*----------Trap Return----------*/
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, MRET());
