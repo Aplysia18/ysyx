@@ -130,6 +130,7 @@ static void execute_once(Decode *s){
   }
   if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
     ftrace_call_pc = npc_pc;
+    printf("ftrace call at pc = 0x%08x\n", ftrace_call_pc);
     ftrace_call_flag = true;
   }else if(s->inst == 0x00008067){
     ftrace_ret(npc_pc);
