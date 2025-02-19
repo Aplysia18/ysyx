@@ -99,6 +99,10 @@ static void execute_once(Decode *s){
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
+  cpu.csr.mstatus = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mstatus;
+  cpu.csr.mepc = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mepc;
+  cpu.csr.mcause = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mcause;
+  cpu.csr.mtvec = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mtvec;
 
   //itrace
   char *p = s->logbuf;
