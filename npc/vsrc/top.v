@@ -1,5 +1,3 @@
-import "DPI-C" function void get_dnpc(input int pc);
-
 module ysyx_24110015_top(
   input clk,
   input rst
@@ -26,10 +24,6 @@ module ysyx_24110015_top(
   wire ebreak;
   wire ecall;
   wire mret;
-
-  always @(pc_next) begin
-    get_dnpc(pc_next);
-  end
   
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 

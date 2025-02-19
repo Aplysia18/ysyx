@@ -13,7 +13,6 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint32_t npc_inst = 0;
 static uint32_t npc_pc = 0;
-static uint32_t npc_dnpc = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
@@ -72,10 +71,6 @@ void get_pc(int pc){
   npc_pc = (uint32_t)pc;
 }
 
-void get_dnpc(int dnpc){
-  npc_dnpc = (uint32_t)dnpc;
-}
-
 bool difftest_skip_next = false;
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -127,8 +122,15 @@ static void execute_once(Decode *s){
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p, s->pc, (uint8_t *)&s->inst, ilen);
 
   //ftrace
+  static uint32_t ftrace_call_pc = 0;
+  static bool ftrace_call_flag = false;
+  if(ftrace_call_flag){
+    ftrace_call(ftrace_call_pc, npc_pc);
+    ftrace_call_flag = false;
+  }
   if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
-    ftrace_call(npc_pc, npc_dnpc);
+    ftrace_call_pc = npc_pc;
+    ftrace_call_flag = true;
   }else if(s->inst == 0x00008067){
     ftrace_ret(npc_pc);
   }
