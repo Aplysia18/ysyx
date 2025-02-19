@@ -14,6 +14,7 @@ Context* __am_irq_handle(Context *c) {
 
   if (user_handler) {
     Event ev = {0};
+    printf("mcause = 0x%08x\n", (uint32_t)c->mcause);
     switch (c->mcause) {
       case 11: 
         ev.event = EVENT_YIELD; 
