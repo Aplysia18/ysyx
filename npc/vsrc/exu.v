@@ -169,8 +169,8 @@ module ysyx_24110015_EXU (
   end
 
   wire [31:0] din_mstatus_ecall, din_mstatus_mret;
-  assign din_mstatus_ecall = ((dout_mstatus & 32'hffffff7f) | (((dout_mstatus >> 3) & 32'b1) << 7)) & 32'hfffffff7 | 32'h00001800;
-  assign din_mstatus_mret = ((dout_mstatus & 32'hfffffff7) | (((dout_mstatus >> 7) & 32'b1) << 3)) | 32'h80 & 32'hffffe7ff;
+  assign din_mstatus_ecall = (((dout_mstatus & 32'hffffff7f) | (((dout_mstatus >> 3) & 32'b1) << 7)) & 32'hfffffff7) | 32'h00001800;
+  assign din_mstatus_mret = (((dout_mstatus & 32'hfffffff7) | (((dout_mstatus >> 7) & 32'b1) << 3)) | 32'h80) & 32'hffffe7ff;
   assign din_mstatus = (zicsr&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
   assign wen_mstatus = (zicsr&(imm[11:0]==12'h300)) | ecall | mret;
 
