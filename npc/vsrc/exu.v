@@ -151,7 +151,7 @@ module ysyx_24110015_EXU (
   always @(*) begin
     case(imm[11:0])
       12'h300: csr_rdata = dout_mstatus;
-      12'h304: csr_rdata = dout_mtvec;
+      12'h305: csr_rdata = dout_mtvec;
       12'h341: csr_rdata = dout_mepc;
       12'h342: csr_rdata = dout_mcause;
       default: csr_rdata = 32'b0;
@@ -174,8 +174,8 @@ module ysyx_24110015_EXU (
   assign din_mstatus = (zicsr&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
   assign wen_mstatus = (zicsr&(imm[11:0]==12'h300)) | ecall | mret;
 
-  assign din_mtvec = (zicsr&(imm[11:0]==12'h304)) ? csr_wdata : dout_mtvec;
-  assign wen_mtvec = (zicsr&(imm[11:0]==12'h304));
+  assign din_mtvec = (zicsr&(imm[11:0]==12'h305)) ? csr_wdata : dout_mtvec;
+  assign wen_mtvec = (zicsr&(imm[11:0]==12'h305));
 
   wire [31:0] din_mepc_ecall;
   assign din_mepc_ecall = pc;
