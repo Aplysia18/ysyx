@@ -8,13 +8,12 @@ Context* __am_irq_handle(Context *c) {
   // for(int i=0; i<16; i++){
   //   printf("gpr[%d] = 0x%08x\n", i, (uint32_t)c->gpr[i]);
   // }
-  printf("1mcause = 0x%08x\n", (uint32_t)c->mcause);
+  // printf("mcause = 0x%08x\n", (uint32_t)c->mcause);
   // printf("mstatus = 0x%08x\n", (uint32_t)c->mstatus);
   // printf("mepc = 0x%08x\n", (uint32_t)c->mepc);
 
   if (user_handler) {
     Event ev = {0};
-    printf("2mcause = 0x%08x\n", (uint32_t)c->mcause);
     switch (c->mcause) {
       case 11: 
         ev.event = EVENT_YIELD; 
