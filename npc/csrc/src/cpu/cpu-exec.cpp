@@ -13,7 +13,6 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint32_t npc_inst = 0;
 static uint32_t npc_pc = 0;
-static uint32_t npc_dnpc = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
@@ -34,6 +33,10 @@ static void reset(int n){
   top->rst = 0;
   cpu.pc = 0x80000000;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  cpu.csr.mstatus = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mstatus;
+  cpu.csr.mepc = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mepc;
+  cpu.csr.mcause = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mcause;
+  cpu.csr.mtvec = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mtvec;
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -68,10 +71,6 @@ void get_pc(int pc){
   npc_pc = (uint32_t)pc;
 }
 
-void get_dnpc(int dnpc){
-  npc_dnpc = (uint32_t)dnpc;
-}
-
 bool difftest_skip_next = false;
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -99,6 +98,10 @@ static void execute_once(Decode *s){
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
+  cpu.csr.mstatus = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mstatus;
+  cpu.csr.mepc = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mepc;
+  cpu.csr.mcause = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mcause;
+  cpu.csr.mtvec = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mtvec;
 
   //itrace
   char *p = s->logbuf;
@@ -120,9 +123,9 @@ static void execute_once(Decode *s){
 
   //ftrace
   if((s->inst&0xfff) == 0x0ef || (s->inst&0xfff) == 0x0e7){
-    ftrace_call(npc_pc, npc_dnpc);
+    ftrace_call(s->pc, s->dnpc);
   }else if(s->inst == 0x00008067){
-    ftrace_ret(npc_pc);
+    ftrace_ret(s->pc);
   }
 
 }

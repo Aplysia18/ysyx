@@ -10,6 +10,7 @@
 `define ALU_R_type 7'b0110011
 `define fence 7'b0001111
 `define system 7'b1110011
+`define zicsr 7'b1110011
 
 //ALUsel
 `define ALU_ADD 4'b0000

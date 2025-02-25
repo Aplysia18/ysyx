@@ -2,10 +2,8 @@
 
 module ysyx_24110015_IDU (
   input clk,
-  input rst,
+  input rst, 
   input [31:0] inst,
-  output [6:0] opcode,
-  output [6:0] func7,
   output [2:0] func3,
   output [31:0] imm,
   output RegWrite,
@@ -14,14 +12,18 @@ module ysyx_24110015_IDU (
   output reg [3:0] ALUop,
   output reg MemWrite,
   output reg MemRead,
-  output [2:0] MemOp,
   output PCAsrc,
   output PCBsrc,
   output branch,
-  output ebreak
+  output zicsr,
+  output [4:0] zimm,
+  output ebreak,
+  output ecall,
+  output mret
 );
 
   /*-----imm gen-----*/
+  wire [6:0] opcode, func7;
   wire [31:0] immI, immS, immB, immU, immJ;
   wire R_type, I_type, S_type, B_type, U_type, J_type;
 
@@ -35,7 +37,7 @@ module ysyx_24110015_IDU (
   assign immJ = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
   
   assign R_type = (opcode == `ALU_R_type);
-  assign I_type = (opcode == `load) || (opcode == `jalr) || (opcode == `ALU_I_type);
+  assign I_type = (opcode == `load) || (opcode == `jalr) || (opcode == `ALU_I_type) || zicsr;
   assign S_type = (opcode == `S_type);
   assign B_type = (opcode == `B_type);
   assign U_type = (opcode == `lui) || (opcode == `auipc);
@@ -101,9 +103,16 @@ module ysyx_24110015_IDU (
   /*-----Mem control single generation-----*/
   assign MemWrite = (opcode == `S_type);
   assign MemRead = (opcode == `load);
-  assign MemOp = func3;
 
-  /*-----ebreak single-----*/
+  /*-----zicsr control-----*/
+  assign zicsr = (opcode == `zicsr);
+  assign zimm = inst[19:15];
+
+  /*-----ebreak&ecall single-----*/
   assign ebreak = (inst==32'h00100073);
+  assign ecall = (inst==32'h00000073);
+
+  /*-----mret single-----*/
+  assign mret = (inst==32'h30200073);
 
 endmodule

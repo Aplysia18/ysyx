@@ -5,14 +5,62 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
+// 辅助函数：输出整数（包括正负数）
+static void output_number(void (*output_func)(char, void*, int), void *output_arg, int *j, uint64_t num, int base, bool is_signed, bool zero_flag, int width) {
+  char num3[22];
+  int len = 0;
+  uint64_t num2 = num;
+  int64_t num4 = (int64_t)num;
+
+  // 计算数字长度
+  if (num == 0) {
+    len = 1;
+  } else {
+    if(is_signed) {
+      while (num4) {
+        num4 /= base;
+        len++;
+      }
+    }else{
+      while (num2) {
+        num2 /= base;
+        len++;
+      }
+    }
+  }
+
+  // 对负数进行处理
+  if (is_signed && (int64_t)num < 0) {
+    output_func('-', output_arg, (*j)++);
+    num = (uint64_t)(-(int64_t)num); // 转为正数
+    width--;
+  }
+
+  // 处理宽度
+  if (zero_flag) {
+    for (int k = len; k < width; k++) {
+      output_func('0', output_arg, (*j)++);
+    }
+  }
+
+  // 输出数字
+  for (int k = len - 1; k >= 0; k--) {
+    int digit = num % base;
+    num3[k] = (digit < 10) ? digit + '0' : digit - 10 + 'a';
+    num /= base;
+  }
+  for (int k = 0; k < len; k++) {
+    output_func(num3[k], output_arg, (*j)++);
+  }
+}
+
 // 辅助函数，用于格式化输出
 static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_arg, const char *fmt, va_list args) {
   int i, j = 0;
-  int num, len, num2;
-  uint32_t unum, unum2;
-  char num3[16];
   bool conver = false;
   bool zero_flag = false;
+  bool l_flag = false;
+  bool ll_flag = false;
   int width = 0;
   for (i = 0; fmt[i] != '\0'; i++) {
     if (conver) {
@@ -24,6 +72,16 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
         }
       } else {
         switch (fmt[i]) {
+          case 'l':
+            if(l_flag) {
+              ll_flag = true;
+              l_flag = false;
+            } else if(ll_flag) {
+              assert(0);
+            } else {
+              l_flag = true;
+            }
+            break;
           case 's': 
             conver = false;
             char *str = va_arg(args, char*);
@@ -44,64 +102,42 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             break;
           case 'd': 
             conver = false;
-            num = va_arg(args, int);
-            if (num < 0) {
-              output_func('-', output_arg, j);
-              j++;
-              num = -num;
-              width--;
-            } 
-            len = 0;
-            num2 = num;
-            while (num2) {
-              num2 /= 10;
-              len++;
+            if(l_flag){
+              output_number(output_func, output_arg, &j, va_arg(args, long), 10, true, zero_flag, width);
+              l_flag = false;
+            }else if(ll_flag){
+              output_number(output_func, output_arg, &j, va_arg(args, long long), 10, true, zero_flag, width);
+              ll_flag = false;
+            }else{
+              output_number(output_func, output_arg, &j, va_arg(args, int), 10, true, zero_flag, width);
             }
-            if(num==0) len=1;
-            if(zero_flag) {
-              for(int k = len; k < width; k++) {
-                output_func('0', output_arg, j);
-                j++;
-              }
+            zero_flag = false;
+            break;
+          case 'u':
+            conver = false;
+            if(l_flag){
+              output_number(output_func, output_arg, &j, va_arg(args, unsigned long), 10, false, zero_flag, width);
+              l_flag = false;
+            }else if(ll_flag){
+              output_number(output_func, output_arg, &j, va_arg(args, unsigned long long), 10, false, zero_flag, width);
+              ll_flag = false;
+            }else{
+              output_number(output_func, output_arg, &j, va_arg(args, uint32_t), 10, false, zero_flag, width);
             }
-            for (int k = len - 1; k >= 0; k--) {
-              if(k>=16) assert(0);
-              num3[k] = num % 10 + '0';
-              num /= 10;
-            }
-            for (int k = 0; k < len; k++) {
-              output_func(num3[k], output_arg, j);
-              j++;
-            }
-            width = 0;
             zero_flag = false;
             break;
           case 'x':
+          case 'X':
             conver = false;
-            unum = va_arg(args, uint32_t);
-            len = 0;
-            unum2 = unum;
-            while (unum2) {
-              unum2 /= 16;
-              len++;
+            if(l_flag){
+              output_number(output_func, output_arg, &j, va_arg(args, unsigned long), 16, false, zero_flag, width);
+              l_flag = false;
+            }else if(ll_flag){
+              output_number(output_func, output_arg, &j, va_arg(args, unsigned long long), 16, false, zero_flag, width);
+              ll_flag = false;
+            }else{
+              output_number(output_func, output_arg, &j, va_arg(args, uint32_t), 16, false, zero_flag, width);
             }
-            if(unum==0) len=1;
-            if(zero_flag) {
-              for(int k = len; k < width; k++) {
-                output_func('0', output_arg, j);
-                j++;
-              }
-            }
-            for (int k = len - 1; k >= 0; k--) {
-              if(k>=16) assert(0);
-              num3[k] = ((unum % 16) < 10) ? unum % 16 + '0' : unum % 16 - 10 + 'a';
-              unum /= 16;
-            }
-            for (int k = 0; k < len; k++) {
-              output_func(num3[k], output_arg, j);
-              j++;
-            }
-            width = 0;
             zero_flag = false;
             break;
           case '%': 
@@ -112,6 +148,7 @@ static int vsnprintf_helper(void (*output_func)(char, void*, int), void *output_
             zero_flag = false;
             break;
           default: {
+            printf("Unhandled format specifier: %c\n", fmt[i]);
             assert(0);
           }
         }
