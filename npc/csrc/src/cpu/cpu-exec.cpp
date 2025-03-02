@@ -13,7 +13,6 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint32_t npc_inst = 0;
 static uint32_t npc_pc = 0;
-static uint64_t cycles_num = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
@@ -21,16 +20,11 @@ static void single_cycle() {
   top->clk = 1;
   top->eval();
   contextp->timeInc(1);
-#ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
-#endif
   top->clk = 0;
   top->eval();
   contextp->timeInc(1);
-#ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
-#endif
-  cycles_num++;
 }
 
 static void reset(int n){
@@ -50,12 +44,11 @@ void init_cpu(int argc, char* argv[]) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   top = new Vysyx_24110015_top{contextp};
-#ifdef CONFIG_FST_TRACE
+
   tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
   tfp->open("./build/simx.fst");
-#endif
   
   reset(5);
   single_cycle();
@@ -162,7 +155,6 @@ void cpu_exec(uint64_t n) {
       int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];
       if(code!=0) bad_trap_flag = 1;
       Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
-      Log("run cycles: %ld\n", cycles_num);
       
       // Log("ftrace:");
       // ftrace_log();
@@ -178,9 +170,7 @@ void cpu_exec(uint64_t n) {
 }
 
 void exit_cpu() {
-#ifdef CONFIG_FST_TRACE
   tfp->close();
-#endif
   delete top;
   delete contextp;
   if(abort_flag || bad_trap_flag) assert(0);
