@@ -103,9 +103,29 @@ module ysyx_24110015_EXU (
   /*-----Memory Access-----*/
   reg [31:0] rdata;
 
+  wire[31:0] dmem_rdata1, dmem_rdata2;
+  reg[31:0] dmem_wdata;
+  wire[7:0] dmem_waddr, dmem_raddr1, dmem_raddr2;
+  wire dmem_wen;
+
+  ysyx_24110015_RegisterFile #(8, 32) dmem (
+    .clk(clk),
+    .wdata(dmem_wdata),
+    .waddr(dmem_waddr),
+    .wen(dmem_wen),
+    .raddr1(dmem_raddr1),
+    .raddr2(dmem_raddr2),
+    .rdata1(dmem_rdata1),
+    .rdata2(dmem_rdata2)
+);
+
+  assign dmem_raddr1 = ALUout[7:0];
+  assign dmem_raddr2 = ALUout[7:0];
+
   always @(*) begin
     if (MemRead) begin
-      rdata = pmem_read(ALUout);
+      // rdata = pmem_read(ALUout);
+      rdata = dmem_rdata1;
     end else begin
       rdata = 32'b0;
     end
@@ -132,13 +152,20 @@ module ysyx_24110015_EXU (
     end
   end
 
+  assign dmem_wen = MemWrite;
+  assign dmem_waddr = ALUout[7:0];
+
   always @(posedge clk) begin
     if(MemWrite) begin
       case (func3)
-        3'b000: pmem_write(ALUout, data2, 8'b0001);
-        3'b001: pmem_write(ALUout, data2, 8'b0011);
-        3'b010: pmem_write(ALUout, data2, 8'b1111);
-        default: pmem_write(ALUout, data2, 8'b0000);
+        // 3'b000: pmem_write(ALUout, data2, 8'b0001);
+        // 3'b001: pmem_write(ALUout, data2, 8'b0011);
+        // 3'b010: pmem_write(ALUout, data2, 8'b1111);
+        // default: pmem_write(ALUout, data2, 8'b0000);
+        3'b000: dmem_wdata = (dmem_rdata1&32'hfff0) | (data2 & 32'h000f);
+        3'b001: dmem_wdata = (dmem_rdata1&32'hff00) | (data2 & 32'h00ff);
+        3'b010: dmem_wdata = data2;
+        default: dmem_wdata = dmem_rdata1;
       endcase
     end
   end
@@ -206,11 +233,11 @@ module ysyx_24110015_EXU (
   );
 
 /*-----ebreak-----*/
-  always @(ebreak) begin
-    if(ebreak) begin
-      npc_trap();
-    end
-  end
+  // always @(ebreak) begin
+  //   if(ebreak) begin
+  //     npc_trap();
+  //   end
+  // end
   
 
 endmodule
