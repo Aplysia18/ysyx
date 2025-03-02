@@ -7,7 +7,7 @@
 
 Vysyx_24110015_top* top;
 VerilatedContext* contextp;
-VerilatedFstC* tfp;
+// VerilatedFstC* tfp;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -20,11 +20,11 @@ static void single_cycle() {
   top->clk = 1;
   top->eval();
   contextp->timeInc(1);
-  tfp->dump(contextp->time());
+  // tfp->dump(contextp->time());
   top->clk = 0;
   top->eval();
   contextp->timeInc(1);
-  tfp->dump(contextp->time());
+  // tfp->dump(contextp->time());
 }
 
 static void reset(int n){
@@ -45,10 +45,10 @@ void init_cpu(int argc, char* argv[]) {
   contextp->commandArgs(argc, argv);
   top = new Vysyx_24110015_top{contextp};
 
-  tfp = new VerilatedFstC;
+  // tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
-  top->trace(tfp, 99);
-  tfp->open("./build/simx.fst");
+  // top->trace(tfp, 99);
+  // tfp->open("./build/simx.fst");
   
   reset(5);
   single_cycle();
@@ -170,7 +170,7 @@ void cpu_exec(uint64_t n) {
 }
 
 void exit_cpu() {
-  tfp->close();
+  // tfp->close();
   delete top;
   delete contextp;
   if(abort_flag || bad_trap_flag) assert(0);
