@@ -24,12 +24,12 @@ module ysyx_24110015_IFU (
   );
 
   always @(*) begin
-    if(rst) begin
-      inst = 32'h0;
-    end else begin
+    if(!rst) begin
       inst = rdata;
       // get_pc(pc);
-      get_inst(inst);
+      // get_inst(inst);
+    end else begin
+      inst = 32'h0;
     end
   end
 

@@ -3,7 +3,7 @@ module ysyx_24110015_top(
   input rst,
   output [31:0] pc,
   output [31:0] pc_next,
-  // output reg [31:0] inst,
+  output reg [31:0] inst,
   output [31:0] imm,
   output [2:0] func3,
   output [31:0] rdata1,
@@ -18,7 +18,7 @@ module ysyx_24110015_top(
   output [31:0] dout_mepc,
   output [31:0] dout_mcause
 );
-  wire [31:0] inst;
+  // wire [31:0] inst;
   // wire [31:0] pc;
   // wire [31:0] pc_next;
   // wire [31:0] imm;
