@@ -21,7 +21,7 @@ int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
-  // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
+  printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     // difftest_skip_ref();
     difftest_skip_next = true;
@@ -53,7 +53,6 @@ int pmem_read(int raddr) {
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
-  printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
   if(!in_pmem(waddr)) {
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {
