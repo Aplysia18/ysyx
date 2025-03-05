@@ -25,7 +25,7 @@ int pmem_read(int raddr) {
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     // difftest_skip_ref();
     difftest_skip_next = true;
-    // printf("difftest skip ref\n");
+    printf("difftest skip ref\n");
     if(raddr == CONFIG_RTC_MMIO + 4){
       us = get_time();
       return us >> 32;
