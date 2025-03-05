@@ -21,21 +21,21 @@ always @(posedge clk or posedge rst) begin
     end
 end
 
-always @(posedge clk) begin
-        case(state)
-            init: begin
-                next_state <= sIF;
-            end
-            sIF: begin
-                next_state <= sID;
-            end
-            sID: begin
-                next_state <= sIF;
-            end
-            default: begin
-                next_state <= init;
-            end
-        endcase
+always @(*) begin
+    case(state)
+        init: begin
+            next_state = sIF;
+        end
+        sIF: begin
+            next_state = sID;
+        end
+        sID: begin
+            next_state = sIF;
+        end
+        default: begin
+            next_state = init;
+        end
+    endcase
 end
 
 always @(*) begin
