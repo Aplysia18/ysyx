@@ -66,6 +66,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #endif
 #ifdef CONFIG_RTC_MMIO
   if(waddr == CONFIG_RTC_MMIO || waddr == CONFIG_RTC_MMIO + 4) {
+    printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
     difftest_skip_ref();
     return;
   }
