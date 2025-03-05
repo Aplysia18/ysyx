@@ -108,7 +108,7 @@ static void execute_once(Decode *s){
   s->dnpc = top->pc;
 
   //update cpu state
-  cpu.pc = top->pc_next;
+  cpu.pc = top->pc;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
