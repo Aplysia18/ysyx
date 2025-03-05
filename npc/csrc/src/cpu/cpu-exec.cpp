@@ -91,13 +91,16 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
-  s->inst = top->inst;
-  printf("inst = 0x%08x\n", s->inst);
+
   s->pc = top->pc;
   s->snpc = top->pc + 4;
   // execute
   do{
     single_cycle();
+    if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==2){
+      s->inst = top->inst;
+      printf("inst = 0x%08x\n", s->inst);
+    }
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
   // single_cycle();
   printf("single cycle, pc = 0x%08x\n", s->pc);
