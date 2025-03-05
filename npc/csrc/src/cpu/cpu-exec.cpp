@@ -11,8 +11,8 @@ VerilatedFstC* tfp;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
-static uint32_t npc_inst = 0;
-static uint32_t npc_pc = 0;
+// static uint32_t npc_inst = 0;
+// static uint32_t npc_pc = 0;
 static uint64_t cycles_num = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
@@ -70,13 +70,13 @@ void npc_trap(){
   end_flag = 1;
 } 
 
-void get_inst(int inst){
-  npc_inst = (uint32_t)inst;
-}
+// void get_inst(int inst){
+//   npc_inst = (uint32_t)inst;
+// }
 
-void get_pc(int pc){
-  npc_pc = (uint32_t)pc;
-}
+// void get_pc(int pc){
+//   npc_pc = (uint32_t)pc;
+// }
 
 bool difftest_skip_next = false;
 
@@ -91,17 +91,17 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
-  s->inst = npc_inst;
-  s->pc = npc_pc;
-  s->snpc = npc_pc + 4;
+  s->inst = top->inst;
+  s->pc = top->pc_next;
+  s->snpc = top->pc_next + 4;
   // execute
   single_cycle();
   // printf("single cycle, pc = 0x%08x\n", s->pc);
   
-  s->dnpc = npc_pc;
+  s->dnpc = top->pc_next;
 
   //update cpu state
-  cpu.pc = npc_pc;
+  cpu.pc = top->pc_next;
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }

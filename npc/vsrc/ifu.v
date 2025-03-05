@@ -1,7 +1,7 @@
 // import "DPI-C" function int pmem_read(input int addr);
 // import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
-import "DPI-C" function void get_pc(input int pc);
-import "DPI-C" function void get_inst(input int inst);
+// import "DPI-C" function void get_pc(input int pc);
+// import "DPI-C" function void get_inst(input int inst);
 
 module ysyx_24110015_IFU (
   input clk,
