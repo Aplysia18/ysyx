@@ -63,7 +63,8 @@ module ysyx_24110015_top(
 
   ysyx_24110015_IFU ifu (
     .clk(clk), 
-    .rst(rst), 
+    .rst(rst),
+    .ren(control_iMemRead),
     .pc(pc_next), 
     .inst(inst)
     );

@@ -6,6 +6,7 @@ import "DPI-C" function void get_inst(input int inst);
 module ysyx_24110015_IFU (
   input clk,
   input rst,
+  input ren,
   input [31:0] pc,
   output reg [31:0] inst
 );
@@ -15,7 +16,7 @@ module ysyx_24110015_IFU (
   ysyx_24110015_SRAM #(32, 32) ifu_sram(
     .clk(clk),
     .raddr(pc),
-    .ren(1'b1),
+    .ren(ren),
     .waddr(32'h0),
     .wdata(32'h0),
     .wen(1'b0),
