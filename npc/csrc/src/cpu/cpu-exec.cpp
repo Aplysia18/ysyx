@@ -97,7 +97,7 @@ static void execute_once(Decode *s){
   // execute
   do{
     single_cycle();
-    if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==2){
+    if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==3){
       s->inst = top->inst;
       printf("inst = 0x%08x\n", s->inst);
     }
