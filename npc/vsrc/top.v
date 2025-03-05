@@ -130,7 +130,7 @@ module ysyx_24110015_top(
     .dout_mstatus(dout_mstatus),
     .dout_mtvec(dout_mtvec),
     .dout_mepc(dout_mepc),
-    .dout_mcause(dout_mepc)
+    .dout_mcause(dout_mcause)
     );
 
 
