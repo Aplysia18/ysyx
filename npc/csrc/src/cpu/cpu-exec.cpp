@@ -96,7 +96,7 @@ static void execute_once(Decode *s){
   s->snpc = top->pc_next + 4;
   // execute
   single_cycle();
-  // printf("single cycle, pc = 0x%08x\n", s->pc);
+  printf("single cycle, pc = 0x%08x\n", s->pc);
   
   s->dnpc = top->pc_next;
 
