@@ -15,8 +15,6 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
-extern bool difftest_skip_next;
-
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
 #ifdef CONFIG_RTC_MMIO
@@ -24,8 +22,6 @@ int pmem_read(int raddr) {
   // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
-    // difftest_skip_next = true;
-    // printf("difftest skip ref\n");
     if(raddr == CONFIG_RTC_MMIO + 4){
       us = get_time();
       return us >> 32;

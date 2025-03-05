@@ -70,23 +70,9 @@ void npc_trap(){
   end_flag = 1;
 } 
 
-// void get_inst(int inst){
-//   npc_inst = (uint32_t)inst;
-// }
-
-// void get_pc(int pc){
-//   npc_pc = (uint32_t)pc;
-// }
-
-bool difftest_skip_next = false;
-
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);
-    if(difftest_skip_next){
-      difftest_skip_next = false;
-      difftest_skip_ref();
-    }
     check_watchpoints();
 }
 
