@@ -7,12 +7,13 @@
 
 Vysyx_24110015_top* top;
 VerilatedContext* contextp;
-// VerilatedFstC* tfp;
+VerilatedFstC* tfp;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint32_t npc_inst = 0;
 static uint32_t npc_pc = 0;
+static uint64_t cycles_num = 0;
 
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
@@ -20,11 +21,16 @@ static void single_cycle() {
   top->clk = 1;
   top->eval();
   contextp->timeInc(1);
-  // tfp->dump(contextp->time());
+#ifdef CONFIG_FST_TRACE
+  tfp->dump(contextp->time());
+#endif
   top->clk = 0;
   top->eval();
   contextp->timeInc(1);
-  // tfp->dump(contextp->time());
+#ifdef CONFIG_FST_TRACE
+  tfp->dump(contextp->time());
+#endif
+  cycles_num++;
 }
 
 static void reset(int n){
@@ -33,10 +39,10 @@ static void reset(int n){
   top->rst = 0;
   cpu.pc = 0x80000000;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
-  cpu.csr.mstatus = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mstatus;
-  cpu.csr.mepc = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mepc;
-  cpu.csr.mcause = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mcause;
-  cpu.csr.mtvec = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mtvec;
+  cpu.csr.mstatus = top->dout_mstatus;
+  cpu.csr.mepc = top->dout_mepc;
+  cpu.csr.mcause = top->dout_mcause;
+  cpu.csr.mtvec = top->dout_mtvec;
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -44,11 +50,12 @@ void init_cpu(int argc, char* argv[]) {
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
   top = new Vysyx_24110015_top{contextp};
-
-  // tfp = new VerilatedFstC;
+#ifdef CONFIG_FST_TRACE
+  tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
-  // top->trace(tfp, 99);
-  // tfp->open("./build/simx.fst");
+  top->trace(tfp, 99);
+  tfp->open("./build/simx.fst");
+#endif
   
   reset(5);
   single_cycle();
@@ -98,10 +105,10 @@ static void execute_once(Decode *s){
   for(int i = 0; i < 16; i++) {
     cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
   }
-  cpu.csr.mstatus = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mstatus;
-  cpu.csr.mepc = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mepc;
-  cpu.csr.mcause = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mcause;
-  cpu.csr.mtvec = top->rootp->ysyx_24110015_top__DOT__exu__DOT__dout_mtvec;
+  cpu.csr.mstatus = top->dout_mstatus;
+  cpu.csr.mepc = top->dout_mepc;
+  cpu.csr.mcause = top->dout_mcause;
+  cpu.csr.mtvec = top->dout_mtvec;
 
   //itrace
   char *p = s->logbuf;
@@ -155,6 +162,7 @@ void cpu_exec(uint64_t n) {
       int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];
       if(code!=0) bad_trap_flag = 1;
       Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
+      Log("run cycles: %ld\n", cycles_num);
       
       // Log("ftrace:");
       // ftrace_log();
@@ -170,7 +178,9 @@ void cpu_exec(uint64_t n) {
 }
 
 void exit_cpu() {
-  // tfp->close();
+#ifdef CONFIG_FST_TRACE
+  tfp->close();
+#endif
   delete top;
   delete contextp;
   if(abort_flag || bad_trap_flag) assert(0);

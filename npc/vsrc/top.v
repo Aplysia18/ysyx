@@ -1,16 +1,32 @@
 module ysyx_24110015_top(
   input clk,
-  input rst
+  input rst,
+  output [31:0] pc,
+  output [31:0] pc_next,
+  // output reg [31:0] inst,
+  output [31:0] imm,
+  output [2:0] func3,
+  output [31:0] rdata1,
+  output [31:0] rdata2,
+  output [31:0] wdata,
+  output RegWrite,
+  output ebreak,
+  output ecall,
+  output mret,
+  output [31:0] dout_mstatus,
+  output [31:0] dout_mtvec,
+  output [31:0] dout_mepc,
+  output [31:0] dout_mcause
 );
   wire [31:0] inst;
-  wire [31:0] pc;
-  wire [31:0] pc_next;
-  wire [31:0] imm;
-  wire [2:0] func3;
+  // wire [31:0] pc;
+  // wire [31:0] pc_next;
+  // wire [31:0] imm;
+  // wire [2:0] func3;
 
-  wire [31:0] rdata1, rdata2, wdata;
+  // wire [31:0] rdata1, rdata2, wdata;
   
-  wire RegWrite;
+  // wire RegWrite;
   wire [1:0] ALUAsrc;
   wire [1:0] ALUBsrc;
   wire [3:0] ALUop;
@@ -21,13 +37,26 @@ module ysyx_24110015_top(
   wire branch;
   wire zicsr;
   wire [4:0] zimm;
-  wire ebreak;
-  wire ecall;
-  wire mret;
+  // wire ebreak;
+  // wire ecall;
+  // wire mret;
+
+  wire control_RegWrite;
+  wire control_iMemRead;
+  wire control_dMemWrite;
+
+  ysyx_24110015_Controller controller (
+    .clk(clk), 
+    .rst(rst),
+    .RegWrite(control_RegWrite),
+    .iMemRead(control_iMemRead),
+    .dMemWrite(control_dMemWrite)
+  );
   
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
     .rst(rst), 
+    .wen(control_RegWrite),
     .din(pc_next), 
     .pc(pc)
     );
@@ -65,7 +94,7 @@ module ysyx_24110015_top(
     .clk(clk), 
     .wdata(wdata),
     .waddr(inst[10:7]),
-    .wen(RegWrite),
+    .wen(RegWrite & control_RegWrite),
     .raddr1(inst[18:15]),
     .raddr2(inst[23:20]),
     .rdata1(rdata1),
@@ -93,8 +122,14 @@ module ysyx_24110015_top(
     .ebreak(ebreak),
     .ecall(ecall),
     .mret(mret),
+    .control_RegWrite(control_RegWrite),
+    .control_dMemWrite(control_dMemWrite),
     .data_out(wdata), 
-    .pc_next(pc_next)
+    .pc_next(pc_next),
+    .dout_mstatus(dout_mstatus),
+    .dout_mtvec(dout_mtvec),
+    .dout_mepc(dout_mepc),
+    .dout_mcause(dout_mepc)
     );
 
 

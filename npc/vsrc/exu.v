@@ -1,7 +1,7 @@
 `include "macros.v"
 import "DPI-C" function void npc_trap();
 // import "DPI-C" function int pmem_read(input int addr);
-// import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
 
 module ysyx_24110015_EXU (
   input clk,
@@ -24,8 +24,14 @@ module ysyx_24110015_EXU (
   input ebreak,
   input ecall,
   input mret,
+  input control_RegWrite,
+  input control_dMemWrite,
   output reg [31:0] data_out,
-  output [31:0] pc_next
+  output [31:0] pc_next,
+  output [31:0] dout_mstatus,
+  output [31:0] dout_mtvec,
+  output [31:0] dout_mepc,
+  output [31:0] dout_mcause
 );
 
   wire [31:0] ALUout;
@@ -33,7 +39,7 @@ module ysyx_24110015_EXU (
   reg [31:0] csr_rdata, csr_wdata;
   wire [31:0] din_mstatus, din_mtvec, din_mepc, din_mcause;
   wire wen_mstatus, wen_mtvec, wen_mepc, wen_mcause;
-  wire [31:0] dout_mstatus, dout_mtvec, dout_mepc, dout_mcause;
+  // wire [31:0] dout_mstatus, dout_mtvec, dout_mepc, dout_mcause;
 
   /*-----Next PC Calculate-----*/
   wire [31:0] PCAdata, PCBdata;
@@ -133,7 +139,7 @@ module ysyx_24110015_EXU (
   end
 
   always @(posedge clk) begin
-    if(MemWrite) begin
+    if(MemWrite & control_dMemWrite) begin
       case (func3)
         3'b000: pmem_write(ALUout, data2, 8'b0001);
         3'b001: pmem_write(ALUout, data2, 8'b0011);
@@ -172,20 +178,20 @@ module ysyx_24110015_EXU (
   assign din_mstatus_ecall = (((dout_mstatus & 32'hffffff7f) | (((dout_mstatus >> 3) & 32'b1) << 7)) & 32'hfffffff7) | 32'h00001800;
   assign din_mstatus_mret = (((dout_mstatus & 32'hfffffff7) | (((dout_mstatus >> 7) & 32'b1) << 3)) | 32'h80) & 32'hffffe7ff;
   assign din_mstatus = (zicsr&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
-  assign wen_mstatus = (zicsr&(imm[11:0]==12'h300)) | ecall | mret;
+  assign wen_mstatus = ((zicsr&(imm[11:0]==12'h300)) | ecall | mret) & control_RegWrite;
 
   assign din_mtvec = (zicsr&(imm[11:0]==12'h305)) ? csr_wdata : dout_mtvec;
-  assign wen_mtvec = (zicsr&(imm[11:0]==12'h305));
+  assign wen_mtvec = (zicsr&(imm[11:0]==12'h305)) & control_RegWrite;
 
   wire [31:0] din_mepc_ecall;
   assign din_mepc_ecall = pc;
   assign din_mepc = (zicsr&(imm[11:0]==12'h341)) ? csr_wdata : ecall ? din_mepc_ecall : dout_mepc;
-  assign wen_mepc = (zicsr&(imm[11:0]==12'h341)) | ecall;
+  assign wen_mepc = ((zicsr&(imm[11:0]==12'h341)) | ecall) & control_RegWrite;
 
   wire [31:0] din_mcause_ecall;
   assign din_mcause_ecall = 32'h0000000b;
   assign din_mcause = (zicsr&(imm[11:0]==12'h342)) ? csr_wdata : ecall ? din_mcause_ecall : dout_mcause;
-  assign wen_mcause = (zicsr&(imm[11:0]==12'h342)) | ecall;
+  assign wen_mcause = ((zicsr&(imm[11:0]==12'h342)) | ecall) & control_RegWrite;
 
 
   ysyx_24110015_CSR csr (
