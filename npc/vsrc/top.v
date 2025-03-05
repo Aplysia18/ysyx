@@ -65,7 +65,7 @@ module ysyx_24110015_top(
     .clk(clk), 
     .rst(rst),
     .ren(control_iMemRead),
-    .pc(pc_next), 
+    .pc(pc), 
     .inst(inst)
     );
 
