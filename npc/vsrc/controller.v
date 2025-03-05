@@ -38,29 +38,35 @@ always @(*) begin
     endcase
 end
 
-always @(*) begin
-    case(state)
-        init: begin
-            RegWrite = 1'b0;
-            iMemRead = 1'b0;
-            dMemWrite = 1'b0;
-        end
-        sIF: begin
-            RegWrite = 1'b0;
-            iMemRead = 1'b1;
-            dMemWrite = 1'b0;
-        end
-        sID: begin
-            RegWrite = 1'b1;
-            iMemRead = 1'b0;
-            dMemWrite = 1'b1;
-        end
-        default: begin
-            RegWrite = 1'b0;
-            iMemRead = 1'b0;
-            dMemWrite = 1'b0;
-        end
-    endcase
+always @(posedge clk or posedge rst) begin
+    if (rst) begin
+        RegWrite <= 1'b0;
+        iMemRead <= 1'b0;
+        dMemWrite <= 1'b0;
+    end else begin
+        case(next_state)
+            init: begin
+                RegWrite <= 1'b0;
+                iMemRead <= 1'b0;
+                dMemWrite <= 1'b0;
+            end
+            sIF: begin
+                RegWrite <= 1'b0;
+                iMemRead <= 1'b1;
+                dMemWrite <= 1'b0;
+            end
+            sID: begin
+                RegWrite <= 1'b1;
+                iMemRead <= 1'b0;
+                dMemWrite <= 1'b1;
+            end
+            default: begin
+                RegWrite <= 1'b0;
+                iMemRead <= 1'b0;
+                dMemWrite <= 1'b0;
+            end
+        endcase
+    end
 end
 
 endmodule
