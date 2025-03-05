@@ -110,7 +110,7 @@ module ysyx_24110015_EXU (
   reg [31:0] rdata;
 
   always @(*) begin
-    if (MemRead) begin
+    if (MemRead & control_dMemWrite) begin
       rdata = pmem_read(ALUout);
     end else begin
       rdata = 32'b0;
@@ -118,7 +118,7 @@ module ysyx_24110015_EXU (
   end
 
   always @(negedge clk) begin
-    if (MemRead) begin
+    if (MemRead & control_dMemWrite) begin
       case (func3)
         3'b000: data_out <= {{24{rdata[7]}}, rdata[7:0]};
         3'b001: data_out <= {{16{rdata[15]}}, rdata[15:0]};
