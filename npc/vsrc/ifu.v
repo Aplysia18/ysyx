@@ -6,20 +6,34 @@
 module ysyx_24110015_IFU (
   input clk,
   input rst,
-  input ren,
-  input [31:0] pc,
-  output reg [31:0] inst
+  //from controller
+  input control_RegWrite,
+  input control_iMemRead,
+  //from wbu
+  input [31:0] pc_next,
+  //to idu
+  output reg [31:0] inst,
+  output [31:0] pc
 );
 
   wire [31:0] rdata;
 
+  ysyx_24110015_Pc pc_reg (
+    .clk(clk), 
+    .rst(rst), 
+    .wen(control_RegWrite),
+    .din(pc_next), 
+    .pc(pc)
+  );
+
   ysyx_24110015_SRAM #(32, 32) ifu_sram(
     .clk(clk),
     .raddr(pc),
-    .ren(ren),
+    .ren(control_iMemRead),
     .waddr(32'h0),
     .wdata(32'h0),
     .wen(1'b0),
+    .wmask(4'h0),
     .rdata(rdata)
   );
 

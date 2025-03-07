@@ -38,7 +38,7 @@ static void reset(int n){
   while(n--) single_cycle();
   top->rst = 0;
   cpu.pc = 0x80000000;
-  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__idu__DOT__rf__DOT__rf[i];
   cpu.csr.mstatus = top->dout_mstatus;
   cpu.csr.mepc = top->dout_mepc;
   cpu.csr.mcause = top->dout_mcause;
@@ -96,7 +96,7 @@ static void execute_once(Decode *s){
   //update cpu state
   cpu.pc = top->pc;
   for(int i = 0; i < 16; i++) {
-    cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[i];
+    cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__idu__DOT__rf__DOT__rf[i];
   }
   cpu.csr.mstatus = top->dout_mstatus;
   cpu.csr.mepc = top->dout_mepc;
@@ -152,7 +152,7 @@ void cpu_exec(uint64_t n) {
     }
 
     if(end_flag) {
-      int code = top->rootp->ysyx_24110015_top__DOT__rf__DOT__rf[10];
+      int code = top->rootp->ysyx_24110015_top__DOT__idu__DOT__rf__DOT__rf[10];
       if(code!=0) bad_trap_flag = 1;
       Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
       Log("run cycles: %ld\n", cycles_num);

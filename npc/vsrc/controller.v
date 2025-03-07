@@ -1,17 +1,21 @@
 module ysyx_24110015_Controller(
     input clk,
     input rst,
-    // input [31:0] pc,
-    // input [31:0] inst,
-    output reg RegWrite,
-    output reg iMemRead,
-    output reg dMemWrite
+    //from idu
+    input control_load,
+    //to idu & ifu
+    output control_RegWrite,
+    //to ifu
+    output control_iMemRead,
+    //to lsu
+    output control_dMemRW
 );
 reg [2:0] state, next_state;
 
 parameter [2:0] init = 3'b000;
 parameter [2:0] sIF = 3'b001;
 parameter [2:0] sID = 3'b011;
+parameter [2:0] sLS = 3'b010;
 
 always @(posedge clk or posedge rst) begin
     if(rst) begin
@@ -30,7 +34,11 @@ always @(*) begin
             next_state = sID;
         end
         sID: begin
-            next_state = sIF;
+            if(control_load) begin
+                next_state = sLS;
+            end else begin
+                next_state = sIF;
+            end
         end
         default: begin
             next_state = init;
@@ -38,35 +46,8 @@ always @(*) begin
     endcase
 end
 
-always @(posedge clk or posedge rst) begin
-    if (rst) begin
-        RegWrite <= 1'b0;
-        iMemRead <= 1'b0;
-        dMemWrite <= 1'b0;
-    end else begin
-        case(next_state)
-            init: begin
-                RegWrite <= 1'b0;
-                iMemRead <= 1'b0;
-                dMemWrite <= 1'b0;
-            end
-            sIF: begin
-                RegWrite <= 1'b0;
-                iMemRead <= 1'b1;
-                dMemWrite <= 1'b0;
-            end
-            sID: begin
-                RegWrite <= 1'b1;
-                iMemRead <= 1'b0;
-                dMemWrite <= 1'b1;
-            end
-            default: begin
-                RegWrite <= 1'b0;
-                iMemRead <= 1'b0;
-                dMemWrite <= 1'b0;
-            end
-        endcase
-    end
-end
+    assign control_RegWrite = (state == sLS) | ((state == sID) & (~control_load));
+    assign control_iMemRead = (state == sIF);
+    assign control_dMemRW = (state == sID);
 
 endmodule
