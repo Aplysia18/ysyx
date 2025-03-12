@@ -2,11 +2,16 @@ module ysyx_24110015_Controller(
     input clk,
     input rst,
     //from idu
-    input control_load,
+    input control_ls,
     //to idu & ifu
     output control_RegWrite,
+    // from ifu
+    input control_iMemRead_end,
     //to ifu
     output control_iMemRead,
+    //from lsu
+    input control_dmemR_end,
+    input control_dmemW_end,
     //to lsu
     output control_dMemRW
 );
@@ -31,13 +36,24 @@ always @(*) begin
             next_state = sIF;
         end
         sIF: begin
-            next_state = sID;
+            if(control_iMemRead_end) begin
+                next_state = sID;
+            end else begin
+                next_state = sIF;
+            end
         end
         sID: begin
-            if(control_load) begin
+            if(control_ls) begin
                 next_state = sLS;
             end else begin
                 next_state = sIF;
+            end
+        end
+        sLS: begin
+            if(control_dmemR_end | control_dmemW_end) begin
+                next_state = sIF;
+            end else begin
+                next_state = sLS;
             end
         end
         default: begin
@@ -46,8 +62,8 @@ always @(*) begin
     endcase
 end
 
-    assign control_RegWrite = (state == sLS) | ((state == sID) & (~control_load));
+    assign control_RegWrite = (state == sLS) | ((state == sID) & (~control_ls));
     assign control_iMemRead = (state == sIF);
-    assign control_dMemRW = (state == sID);
+    assign control_dMemRW = (state == sID) | (state == sLS);
 
 endmodule

@@ -40,7 +40,10 @@ module ysyx_24110015_LSU (
     output wen_mcause_o,
     output [2:0] func3_o,
     output MemRead_o,
-    output [31:0] mem_rdata
+    output [31:0] mem_rdata,
+    //to controller
+    output control_dmemR_end,
+    output control_dmemW_end
 );
 
     assign alu_out_o = alu_out_i;
@@ -60,16 +63,42 @@ module ysyx_24110015_LSU (
     assign func3_o = func3_i;
     assign MemRead_o = MemRead_i;
 
-    ysyx_24110015_SRAM #(32, 32) lsu_sram
-    (   
+    wire arvalid, arready, rvalid, rready, awvalid, awready, wvalid, wready, bvalid, bready;
+    wire [1:0] rresp, bresp;
+
+    assign arvalid = MemRead_o & control_dMemRW;
+    assign rready = MemRead_o & control_dMemRW;
+    assign awvalid = MemWrite & control_dMemRW;
+    assign wvalid = MemWrite & control_dMemRW;
+
+    assign control_dmemR_end = rvalid & rready;
+    assign control_dmemW_end = bvalid & bready;
+
+    ysyx_24110015_AXI2MEM LSU_AXI2MEM(
         .clk(clk),
-        .raddr(alu_out_i),
-        .ren(MemRead_o & control_dMemRW),
-        .waddr(alu_out_i),
+        .rst(rst),
+        // AR channel
+        .araddr(alu_out_i),
+        .arvalid(arvalid),
+        .arready(arready),
+        // R channel
+        .rdata(mem_rdata),
+        .rresp(rresp),
+        .rvalid(rvalid),
+        .rready(rready), 
+        // AW channel
+        .awaddr(alu_out_i),
+        .awvalid(awvalid),
+        .awready(),
+        // W channel
         .wdata(mem_wdata),
-        .wen(MemWrite & control_dMemRW),
-        .wmask(mem_wmask),
-        .rdata(mem_rdata)
+        .wstrb(mem_wmask),
+        .wvalid(wvalid),
+        .wready(),
+        // B channel
+        .bresp(bresp),
+        .bvalid(bvalid),
+        .bready(MemWrite & control_dMemRW)
     );
 
 endmodule

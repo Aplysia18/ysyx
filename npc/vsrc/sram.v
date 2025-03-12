@@ -4,21 +4,50 @@ import "DPI-C" function void pmem_write(input int waddr, input int wdata, input 
 module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
 (   
     input clk,
-    input [ADDR_WIDTH-1:0] raddr,
+    input rst,
+    //read
+    input [ADDR_WIDTH-1:0] araddr,
     input ren,
-    input [ADDR_WIDTH-1:0] waddr,
+    output reg [DATA_WIDTH-1:0] rdata,
+    output reg [1:0] rresp,
+    output reg rvalid,
+    //write
+    input [ADDR_WIDTH-1:0] awaddr,
     input [DATA_WIDTH-1:0] wdata,
     input wen,
-    input [DATA_WIDTH/8-1:0] wmask,
-    output reg [DATA_WIDTH-1:0] rdata
+    input [DATA_WIDTH/8-1:0] wstrb,
+    output reg [1:0] bresp,
+    output reg bvalid
 );
 
-    always @(posedge clk) begin
+    parameter DELAY_CYCLES = 1;
+
+    reg [31:0] delay_counters;
+    reg in_process;
+
+    always @(posedge clk or posedge rst) begin
+        // if(rst) begin
+        //     delay_counters <= DELAY_CYCLES-1;
+        //     in_process <= 0;
+        //     rdata <= 0;
+        //     rresp <= 0;
+        //     rready <= 0;
+        //     bresp <= 0;
+        //     bvalid <= 0;
+        // end else if(wen & !in_process) begin
+        //     in_process <= 1;
+        //     delay_counters <= DELAY_CYCLES-1;
+        // end 
+
         if (wen) begin
-            pmem_write(waddr, wdata, {4'b0000,wmask});
+            pmem_write(awaddr, wdata, {4'b0000,wstrb});
+            bresp <= 0;
+            bvalid <= 1;
         end
         if(ren) begin
-            rdata <= pmem_read(raddr);
+            rdata <= pmem_read(araddr);
+            rresp <= 0;
+            rvalid <= 1;
         end
     end
 

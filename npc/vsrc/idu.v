@@ -46,7 +46,7 @@ module ysyx_24110015_IDU (
   output ecall,
   output mret,
   //to controller
-  output control_load
+  output control_ls
 );
 
   assign pc_o = pc_i;
@@ -164,7 +164,7 @@ module ysyx_24110015_IDU (
   /*-----Mem control single generation-----*/
   assign MemWrite = (opcode == `S_type);
   assign MemRead = (opcode == `load);
-  assign control_load = MemRead;
+  assign control_ls = MemRead | MemWrite;
 
   /*-----zicsr control-----*/
   assign zicsr = (opcode == `zicsr);

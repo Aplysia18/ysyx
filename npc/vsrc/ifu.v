@@ -13,7 +13,9 @@ module ysyx_24110015_IFU (
   input [31:0] pc_next,
   //to idu
   output reg [31:0] inst,
-  output [31:0] pc
+  output [31:0] pc,
+  //to controller
+  output control_iMemRead_end
 );
 
   wire [31:0] rdata;
@@ -26,16 +28,37 @@ module ysyx_24110015_IFU (
     .pc(pc)
   );
 
-  ysyx_24110015_SRAM #(32, 32) ifu_sram(
+  wire arready, rvalid, awready, wready, bvalid;
+  wire [1:0] rresp, bresp;
+
+  assign control_iMemRead_end = control_iMemRead & rvalid;
+
+  ysyx_24110015_AXI2MEM IFU_AXI2MEM (
     .clk(clk),
-    .raddr(pc),
-    .ren(control_iMemRead),
-    .waddr(32'h0),
-    .wdata(32'h0),
-    .wen(1'b0),
-    .wmask(4'h0),
-    .rdata(rdata)
-  );
+    .rst(rst),
+    // AR channel
+    .araddr(pc),
+    .arvalid(control_iMemRead),
+    .arready(arready),
+    // R channel
+    .rdata(rdata),
+    .rresp(rresp),
+    .rvalid(rvalid),
+    .rready(control_iMemRead), 
+    // AW channel
+    .awaddr(0),
+    .awvalid(0),
+    .awready(awready),
+    // W channel
+    .wdata(0),
+    .wstrb(0),
+    .wvalid(0),
+    .wready(wready),
+    // B channel
+    .bresp(bresp),
+    .bvalid(bvalid),
+    .bready(0)
+);
 
   always @(*) begin
     if(!rst) begin

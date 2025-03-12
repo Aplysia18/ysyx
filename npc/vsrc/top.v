@@ -19,17 +19,23 @@ module ysyx_24110015_top(
   output [31:0] dout_mcause
 );
 
-  wire control_load;
+  wire control_ls;
   wire control_RegWrite;
+  wire control_iMemRead_end;
   wire control_iMemRead;
+  wire control_dmemR_end;
+  wire control_dmemW_end;
   wire control_dMemRW;
 
   ysyx_24110015_Controller controller (
     .clk(clk), 
     .rst(rst),
-    .control_load(control_load),
+    .control_ls(control_ls),
     .control_RegWrite(control_RegWrite),
+    .control_iMemRead_end(control_iMemRead_end),
     .control_iMemRead(control_iMemRead),
+    .control_dmemR_end(control_dmemR_end),
+    .control_dmemW_end(control_dmemW_end),
     .control_dMemRW(control_dMemRW)
   );
 
@@ -48,7 +54,9 @@ module ysyx_24110015_top(
     .pc_next(pc_next_wbu),
     //to idu
     .inst(inst),
-    .pc(pc_ifu)
+    .pc(pc_ifu),
+    //to controller
+    .control_iMemRead_end(control_iMemRead_end)
   );
 
   wire [31:0] pc_idu;
@@ -119,7 +127,7 @@ module ysyx_24110015_top(
     .ecall(ecall),
     .mret(mret),
     //to controller
-    .control_load(control_load)
+    .control_ls(control_ls)
 );
 
   wire [31:0] alu_out_exu, alu_out_lsu;
@@ -221,7 +229,10 @@ module ysyx_24110015_top(
     .wen_mcause_o(wen_mcause_lsu),
     .func3_o(func3_lsu),
     .MemRead_o(MemRead_lsu),
-    .mem_rdata(mem_rdata)
+    .mem_rdata(mem_rdata),
+    //to controller
+    .control_dmemR_end(control_dmemR_end),
+    .control_dmemW_end(control_dmemW_end)
   );
 
   ysyx_24110015_WBU wbu(
