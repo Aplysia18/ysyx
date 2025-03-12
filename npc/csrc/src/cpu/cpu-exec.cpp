@@ -88,6 +88,9 @@ static void execute_once(Decode *s){
       // printf("inst = 0x%08x\n", s->inst);
     }
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
+  while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
+    single_cycle();
+  }
   // single_cycle();
   // printf("single cycle, pc = 0x%08x\n", s->pc);
   
