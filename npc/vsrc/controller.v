@@ -62,7 +62,7 @@ always @(*) begin
     endcase
 end
 
-    assign control_RegWrite = (state == sLS) | ((state == sID) & (~control_ls));
+    assign control_RegWrite = ((state == sLS) & (control_dmemR_end | control_dmemW_end)) | ((state == sID) & (~control_ls));
     assign control_iMemRead = (state == sIF);
     assign control_dMemRW = (state == sID) | (state == sLS);
 
