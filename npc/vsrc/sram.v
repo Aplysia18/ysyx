@@ -20,7 +20,7 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
     output reg bvalid
 );
 
-    parameter DELAY_CYCLES = 5;
+    parameter DELAY_CYCLES = 10;
 
     reg [31:0] delay_counters;
 
