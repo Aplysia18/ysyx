@@ -30,15 +30,38 @@ module ysyx_24110015_IFU (
 
   wire arready, rvalid, awready, wready, bvalid;
   wire [1:0] rresp, bresp;
+  reg arvalid;
 
   assign control_iMemRead_end = control_iMemRead & rvalid;
+
+  wire [7:0] delay_cycles;
+  ysyx_24110015_shiftRegister delay_counter_ifu (
+    .clk(clk),
+    .rst(rst),
+    .y(delay_cycles)
+  );
+  reg [7:0] delay_counters;
+
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      delay_counters <= delay_cycles;
+      arvalid <= 0;
+    end else if (control_iMemRead) begin
+      if(delay_counters == 0) begin
+        delay_counters <= delay_cycles;
+        arvalid <= 1;
+      end else begin
+        delay_counters <= delay_counters - 1;
+      end
+    end
+  end
 
   ysyx_24110015_AXI2MEM IFU_AXI2MEM (
     .clk(clk),
     .rst(rst),
     // AR channel
     .araddr(pc),
-    .arvalid(control_iMemRead),
+    .arvalid(arvalid),
     .arready(arready),
     // R channel
     .rdata(rdata),
@@ -60,16 +83,6 @@ module ysyx_24110015_IFU (
     .bready(0)
 );
 
-  // always @(*) begin
-  //   if(!rst) begin
-  //     inst = rdata;
-  //     // get_pc(pc);
-  //     // get_inst(inst);
-  //   end else begin
-  //     inst = 32'h0;
-  //   end
-  // end
-
   ysyx_24110015_Reg #(32, 0) inst_reg (
     .clk(clk),
     .rst(rst),
@@ -77,14 +90,5 @@ module ysyx_24110015_IFU (
     .dout(inst),
     .wen(control_iMemRead_end)
   );
-
-  // always @(posedge clk or posedge rst) begin
-  //   if(rst) begin
-  //     inst = 0;
-  //   end else if(control_iMemRead_end) begin
-  //     inst = rdata;
-  //   end else begin
-
-  // end
 
 endmodule
