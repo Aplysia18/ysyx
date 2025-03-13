@@ -52,7 +52,10 @@ module ysyx_24110015_IFU (
         arvalid <= 1;
       end else begin
         delay_counters <= delay_counters - 1;
+        arvalid <= 0;
       end
+    end else begin
+      arvalid <= 0;
     end
   end
 
