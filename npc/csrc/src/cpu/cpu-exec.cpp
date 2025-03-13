@@ -90,10 +90,19 @@ static void execute_once(Decode *s){
   s->pc = top->pc;
   s->snpc = top->pc + 4;
   // execute
+  int cnt = 0;
   do{
     if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==3){
       s->inst = top->inst;
       printf("inst = 0x%08x\n", s->inst);
+    }
+
+    if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==2){
+      cnt++;
+      if(cnt >= 10) {
+        abort_flag = 1;
+        break;
+      }
     }
     single_cycle();
     printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
