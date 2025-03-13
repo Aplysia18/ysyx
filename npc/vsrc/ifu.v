@@ -40,21 +40,21 @@ module ysyx_24110015_IFU (
     .rst(rst),
     .y(delay_cycles)
   );
-  reg [7:0] delay_counters_arvalid;
+  reg [7:0] delay_counters;
   reg [7:0] delay_counters_rready;
 
   always @(posedge clk or posedge rst) begin
     if(rst) begin
-      delay_counters_arvalid <= delay_cycles;
+      delay_counters <= delay_cycles;
       arvalid <= 0;
       rready <= 0;
     end else if (control_iMemRead) begin
-      if(delay_counters_arvalid == 0) begin
-        delay_counters_arvalid <= delay_cycles;
+      if(delay_counters == 0) begin
+        delay_counters <= delay_cycles;
         arvalid <= 1;
         rready <= 1;
       end else begin
-        delay_counters_arvalid <= delay_counters_arvalid - 1;
+        delay_counters <= delay_counters - 1;
         arvalid <= 0;
         rready <= 0;
       end

@@ -63,14 +63,60 @@ module ysyx_24110015_LSU (
     assign func3_o = func3_i;
     assign MemRead_o = MemRead_i;
 
-    wire arvalid, arready, rvalid, rready, awvalid, awready, wvalid, wready, bvalid, bready;
+    wire arready, rvalid, awready, wready, bvalid;
+    reg arvalid, rready, awvalid, wvalid, bready;
     wire [1:0] rresp, bresp;
 
-    assign arvalid = MemRead_o & control_dMemRW;
-    assign rready = MemRead_o & control_dMemRW;
-    assign awvalid = MemWrite & control_dMemRW;
-    assign wvalid = MemWrite & control_dMemRW;
-    assign bready = MemWrite & control_dMemRW;
+    // test latency
+    wire [7:0] delay_cycles;
+    ysyx_24110015_shiftRegister delay_counter_ifu (
+        .clk(clk),
+        .rst(rst),
+        .y(delay_cycles)
+    );
+    reg [7:0] delay_counters;
+
+    always @(posedge clk or posedge rst) begin
+        if(rst) begin
+            delay_counters <= delay_cycles;
+            arvalid <= 0;
+            rready <= 0;
+            awvalid <= 0;
+            wvalid <= 0;
+            bready <= 0;
+        end else if (control_dMemRW) begin
+            if(delay_counters == 0) begin
+                delay_counters <= delay_cycles;
+                if(MemRead_o & control_dMemRW) begin
+                    arvalid <= 1;
+                    rready <= 1;
+                end else if(MemWrite & control_dMemRW) begin
+                    awvalid <= 1;
+                    wvalid <= 1;
+                    bready <= 1;
+                end
+        end else begin
+            delay_counters <= delay_counters - 1;
+            arvalid <= 0;
+            rready <= 0;
+            awvalid <= 0;
+            wvalid <= 0;
+            bready <= 0;
+        end
+        end else begin
+            arvalid <= 0;
+            rready <= 0;
+            awvalid <= 0;
+            wvalid <= 0;
+            bready <= 0;
+        end
+    end
+
+    // assign arvalid = MemRead_o & control_dMemRW;
+    // assign rready = MemRead_o & control_dMemRW;
+    // assign awvalid = MemWrite & control_dMemRW;
+    // assign wvalid = MemWrite & control_dMemRW;
+    // assign bready = MemWrite & control_dMemRW;
 
     assign control_dmemR_end = rvalid & rready;
     assign control_dmemW_end = bvalid & bready;
