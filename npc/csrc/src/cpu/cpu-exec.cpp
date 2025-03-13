@@ -58,7 +58,7 @@ void init_cpu(int argc, char* argv[]) {
 #endif
   
   reset(5);
-  printf("reset done\n");
+  // printf("reset done\n");
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
@@ -82,7 +82,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
-
+  printf("execute once\n");
   s->pc = top->pc;
   s->snpc = top->pc + 4;
   // execute
