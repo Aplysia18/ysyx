@@ -30,7 +30,7 @@ module ysyx_24110015_IFU (
 
   wire arready, rvalid, awready, wready, bvalid;
   wire [1:0] rresp, bresp;
-  reg arvalid;
+  reg arvalid, rready;
 
   assign control_iMemRead_end = control_iMemRead & rvalid;
 
@@ -40,19 +40,23 @@ module ysyx_24110015_IFU (
     .rst(rst),
     .y(delay_cycles)
   );
-  reg [7:0] delay_counters;
+  reg [7:0] delay_counters_arvalid;
+  reg [7:0] delay_counters_rready;
 
   always @(posedge clk or posedge rst) begin
     if(rst) begin
-      delay_counters <= delay_cycles;
+      delay_counters_arvalid <= delay_cycles;
       arvalid <= 0;
+      rready <= 0;
     end else if (control_iMemRead) begin
-      if(delay_counters == 0) begin
-        delay_counters <= delay_cycles;
+      if(delay_counters_arvalid == 0) begin
+        delay_counters_arvalid <= delay_cycles;
         arvalid <= 1;
+        rready <= 1;
       end else begin
-        delay_counters <= delay_counters - 1;
+        delay_counters_arvalid <= delay_counters_arvalid - 1;
         arvalid <= 0;
+        rready <= 0;
       end
     end else begin
       arvalid <= 0;
@@ -70,7 +74,7 @@ module ysyx_24110015_IFU (
     .rdata(rdata),
     .rresp(rresp),
     .rvalid(rvalid),
-    .rready(control_iMemRead), 
+    .rready(rready), 
     // AW channel
     .awaddr(0),
     .awvalid(0),
