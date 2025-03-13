@@ -80,6 +80,7 @@ module ysyx_24110015_AXI2MEM (
     reg sram_wen_flag, sram_ren_flag;
     reg [31:0] sram_aradder, sram_awadder, sram_wdata;
     reg sram_araddr_flag, sram_awaddr_flag, sram_wdata_flag;
+    reg [3:0] sram_wstrb;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
@@ -93,6 +94,7 @@ module ysyx_24110015_AXI2MEM (
             sram_araddr_flag <= 0;
             sram_awaddr_flag <= 0;
             sram_wdata_flag <= 0;
+            sram_wstrb <= 0;
         end else
         case(next_state)
             IDLE: begin
@@ -123,6 +125,7 @@ module ysyx_24110015_AXI2MEM (
             WRITE_WAIT_DATA: begin
                 if(~sram_wdata_flag) begin
                     sram_wdata <= wdata;
+                    sram_wstrb <= wstrb;
                     sram_wdata_flag <= 1;
                 end
             end
@@ -137,6 +140,7 @@ module ysyx_24110015_AXI2MEM (
                 end
                 if(~sram_wdata_flag) begin
                     sram_wdata <= wdata;
+                    sram_wstrb <= wstrb;
                     sram_wdata_flag <= 1;
                 end
             end
@@ -165,7 +169,7 @@ module ysyx_24110015_AXI2MEM (
         .awaddr(sram_awadder),
         .wdata(sram_wdata),
         .wen(sram_wen),
-        .wstrb(wstrb),
+        .wstrb(sram_wstrb),
         .bresp(bresp),
         .bvalid(bvalid)
     );
