@@ -58,7 +58,10 @@ void init_cpu(int argc, char* argv[]) {
 #endif
   
   reset(5);
-  single_cycle();
+  while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
+    single_cycle();
+  }
+  // single_cycle();
 }
 
 bool abort_flag = 0;
