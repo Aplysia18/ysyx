@@ -90,19 +90,24 @@ module ysyx_24110015_LSU (
                 if(MemRead_o & control_dMemRW) begin
                     arvalid <= 1;
                     rready <= 1;
+                    awvalid <= 0;
+                    wvalid <= 0;
+                    bready <= 0;
                 end else if(MemWrite & control_dMemRW) begin
+                    arvalid <= 0;
+                    rready <= 0;
                     awvalid <= 1;
                     wvalid <= 1;
                     bready <= 1;
                 end
-        end else begin
-            delay_counters <= delay_counters - 1;
-            arvalid <= 0;
-            rready <= 0;
-            awvalid <= 0;
-            wvalid <= 0;
-            bready <= 0;
-        end
+            end else begin
+                delay_counters <= delay_counters - 1;
+                arvalid <= 0;
+                rready <= 0;
+                awvalid <= 0;
+                wvalid <= 0;
+                bready <= 0;
+            end
         end else begin
             arvalid <= 0;
             rready <= 0;
