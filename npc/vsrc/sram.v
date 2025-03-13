@@ -20,10 +20,10 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
     output reg bvalid
 );
 
-    // parameter DELAY_CYCLES = 1;
+    parameter DELAY_CYCLES = 1;
 
-    // reg [31:0] delay_counters;
-    // reg in_process;
+    reg [31:0] delay_counters;
+    reg in_process;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
@@ -32,21 +32,33 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
             rvalid <= 0;
             bresp <= 0;
             bvalid <= 0;
+            delay_counters <= DELAY_CYCLES-1;
         end else if (wen) begin
-            pmem_write(awaddr, wdata, {4'b0000,wstrb});
-            bresp <= 0;
-            bvalid <= 1;
+            if(delay_counters == 0) begin
+                pmem_write(awaddr, wdata, {4'b0000,wstrb});
+                bresp <= 0;
+                bvalid <= 1;
+                delay_counters <= DELAY_CYCLES-1;
+            end else begin
+                delay_counters <= delay_counters - 1;
+            end
         end
         else if(ren) begin
-            rdata <= pmem_read(araddr);
-            rresp <= 0;
-            rvalid <= 1;
+            if(delay_counters == 0) begin
+                rdata <= pmem_read(araddr);
+                rresp <= 0;
+                rvalid <= 1;
+                delay_counters <= DELAY_CYCLES-1;
+            end else begin
+                delay_counters <= delay_counters - 1;
+            end
         end else begin
             rdata <= 0;
             rresp <= 0;
             rvalid <= 0;
             bresp <= 0;
             bvalid <= 0;
+            delay_counters <= DELAY_CYCLES-1;
         end
     end
 
