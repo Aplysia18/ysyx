@@ -63,8 +63,14 @@ void init_cpu(int argc, char* argv[]) {
     single_cycle();
     printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
+  int cnt = 0;
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     single_cycle();
+    cnt++;
+    if(cnt > 10) {
+      abort_flag = 1;
+      break;
+    }
     printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }
   printf("init cpu done\n");
@@ -148,6 +154,10 @@ void cpu_exec(uint64_t n) {
 
   Decode s;
   while(n--) {
+    if(abort_flag){
+      end_flag = 1;
+      break;
+    }
 
     execute_once(&s);
     g_nr_guest_inst ++;
