@@ -70,6 +70,7 @@ module ysyx_24110015_LSU (
     assign rready = MemRead_o & control_dMemRW;
     assign awvalid = MemWrite & control_dMemRW;
     assign wvalid = MemWrite & control_dMemRW;
+    assign bready = MemWrite & control_dMemRW;
 
     assign control_dmemR_end = rvalid & rready;
     assign control_dmemW_end = bvalid & bready;
@@ -98,7 +99,7 @@ module ysyx_24110015_LSU (
         // B channel
         .bresp(bresp),
         .bvalid(bvalid),
-        .bready(MemWrite & control_dMemRW)
+        .bready(bready)
     );
 
 endmodule
