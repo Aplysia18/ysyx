@@ -105,9 +105,7 @@ module ysyx_24110015_AXI2MEM (
                 sram_wdata_flag <= 0;
             end
             READ: begin
-                if(sram_ren_flag) begin
-                    sram_ren <= 0;
-                end else begin
+                if(~sram_ren_flag) begin
                     sram_ren <= 1;
                     sram_ren_flag <= 1;
                 end
@@ -129,9 +127,7 @@ module ysyx_24110015_AXI2MEM (
                 end
             end
             WRITE: begin
-                if(sram_wen_flag) begin
-                    sram_wen <= 0;
-                end else begin
+                if(~sram_wen_flag) begin
                     sram_wen <= 1;
                     sram_wen_flag <= 1;
                 end
