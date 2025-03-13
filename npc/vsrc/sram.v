@@ -51,7 +51,7 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
         else if(ren) begin
             if(delay_counters == 0) begin
                 rdata <= pmem_read(araddr);
-                // $display("read addr:%x data:%x", araddr, pmem_read(araddr));
+                $display("read addr:%x data:%x", araddr, pmem_read(araddr));
                 rresp <= 0;
                 rvalid <= 1;
                 delay_counters <= delay_cycles;
