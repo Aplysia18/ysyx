@@ -56,7 +56,7 @@ void init_cpu(int argc, char* argv[]) {
   top->trace(tfp, 99);
   tfp->open("./build/simx.fst");
 #endif
-  
+  printf("init cpu\n");
   reset(5);
   //跳过第一个周期的ifu
   do{
