@@ -60,14 +60,31 @@ module ysyx_24110015_IFU (
     .bready(0)
 );
 
-  always @(*) begin
-    if(!rst) begin
-      inst = rdata;
-      // get_pc(pc);
-      // get_inst(inst);
-    end else begin
-      inst = 32'h0;
-    end
-  end
+  // always @(*) begin
+  //   if(!rst) begin
+  //     inst = rdata;
+  //     // get_pc(pc);
+  //     // get_inst(inst);
+  //   end else begin
+  //     inst = 32'h0;
+  //   end
+  // end
+
+  ysyx_24110015_Reg #(32, 0) inst_reg (
+    .clk(clk),
+    .rst(rst),
+    .din(rdata),
+    .dout(inst),
+    .wen(control_iMemRead_end)
+  );
+
+  // always @(posedge clk or posedge rst) begin
+  //   if(rst) begin
+  //     inst = 0;
+  //   end else if(control_iMemRead_end) begin
+  //     inst = rdata;
+  //   end else begin
+
+  // end
 
 endmodule
