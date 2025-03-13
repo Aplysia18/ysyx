@@ -60,14 +60,11 @@ void init_cpu(int argc, char* argv[]) {
   reset(5);
   //跳过第一个周期的ifu
   do{
-    printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
-    printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
   }
-  printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
 }
 
 bool abort_flag = 0;
@@ -86,33 +83,19 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
-  printf("execute once\n");
   s->pc = top->pc;
   s->snpc = top->pc + 4;
   // execute
-  int cnt = 0;
   do{
     if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==3){
       s->inst = top->inst;
-      printf("inst = 0x%08x\n", s->inst);
-    }
-
-    if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==2){
-      cnt++;
-      if(cnt >= 10) {
-        abort_flag = 1;
-        break;
-      }
+      // printf("inst = 0x%08x\n", s->inst);
     }
     single_cycle();
-    printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     single_cycle();
-    printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }
-  // single_cycle();
-  // printf("single cycle, pc = 0x%08x\n", s->pc);
   
   s->dnpc = top->pc;
 
