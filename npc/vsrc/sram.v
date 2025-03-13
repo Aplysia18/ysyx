@@ -40,7 +40,7 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
         end else if (wen) begin
             if(delay_counters == 0) begin
                 pmem_write(awaddr, wdata, {4'b0000,wstrb});
-                $display("write addr:%x data:%x wstrb:%x", awaddr, wdata, wstrb);
+                // $display("write addr:%x data:%x wstrb:%x", awaddr, wdata, wstrb);
                 bresp <= 0;
                 bvalid <= 1;
                 delay_counters <= delay_cycles;
@@ -51,7 +51,7 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
         else if(ren) begin
             if(delay_counters == 0) begin
                 rdata <= pmem_read(araddr);
-                $display("read addr:%x data:%x", araddr, pmem_read(araddr));
+                // $display("read addr:%x data:%x", araddr, pmem_read(araddr));
                 rresp <= 0;
                 rvalid <= 1;
                 delay_counters <= delay_cycles;
