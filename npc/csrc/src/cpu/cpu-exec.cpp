@@ -85,7 +85,7 @@ static void execute_once(Decode *s){
     single_cycle();
     if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==3){
       s->inst = top->inst;
-      // printf("inst = 0x%08x\n", s->inst);
+      printf("inst = 0x%08x\n", s->inst);
     }
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
