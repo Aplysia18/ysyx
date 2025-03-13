@@ -63,7 +63,7 @@ void init_cpu(int argc, char* argv[]) {
     printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
-  while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1){
+  while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
   }
