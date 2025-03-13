@@ -32,7 +32,7 @@ module ysyx_24110015_IFU (
   wire [1:0] rresp, bresp;
   reg arvalid, rready;
 
-  assign control_iMemRead_end = control_iMemRead & rvalid;
+  assign control_iMemRead_end = rready & rvalid;
 
   wire [7:0] delay_cycles;
   ysyx_24110015_shiftRegister delay_counter_ifu (
@@ -60,6 +60,7 @@ module ysyx_24110015_IFU (
       end
     end else begin
       arvalid <= 0;
+      rready <= 0;
     end
   end
 
