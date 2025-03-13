@@ -21,13 +21,13 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
 );
 
     // parameter DELAY_CYCLES = 10;
-    wire [7:0] delay_cycles;
-    ysyx_24110015_shiftRegister delay_counter (
-        .clk(clk),
-        .rst(rst),
-        .y(delay_cycles)
-    );
-    reg [7:0] delay_counters;
+    // wire [7:0] delay_cycles;
+    // ysyx_24110015_shiftRegister delay_counter (
+    //     .clk(clk),
+    //     .rst(rst),
+    //     .y(delay_cycles)
+    // );
+    // reg [7:0] delay_counters;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
@@ -36,35 +36,41 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
             rvalid <= 0;
             bresp <= 0;
             bvalid <= 0;
-            delay_counters <= delay_cycles;
+            // delay_counters <= delay_cycles;
         end else if (wen) begin
-            if(delay_counters == 0) begin
-                pmem_write(awaddr, wdata, {4'b0000,wstrb});
-                // $display("write addr:%x data:%x wstrb:%x", awaddr, wdata, wstrb);
-                bresp <= 0;
-                bvalid <= 1;
-                delay_counters <= delay_cycles;
-            end else begin
-                delay_counters <= delay_counters - 1;
-            end
+            // if(delay_counters == 0) begin
+            //     pmem_write(awaddr, wdata, {4'b0000,wstrb});
+            //     // $display("write addr:%x data:%x wstrb:%x", awaddr, wdata, wstrb);
+            //     bresp <= 0;
+            //     bvalid <= 1;
+            //     delay_counters <= delay_cycles;
+            // end else begin
+            //     delay_counters <= delay_counters - 1;
+            // end
+            pmem_write(awaddr, wdata, {4'b0000,wstrb});
+            bresp <= 0;
+            bvalid <= 1;
         end
         else if(ren) begin
-            if(delay_counters == 0) begin
-                rdata <= pmem_read(araddr);
-                // $display("read addr:%x data:%x", araddr, pmem_read(araddr));
-                rresp <= 0;
-                rvalid <= 1;
-                delay_counters <= delay_cycles;
-            end else begin
-                delay_counters <= delay_counters - 1;
-            end
+            // if(delay_counters == 0) begin
+            //     rdata <= pmem_read(araddr);
+            //     // $display("read addr:%x data:%x", araddr, pmem_read(araddr));
+            //     rresp <= 0;
+            //     rvalid <= 1;
+            //     delay_counters <= delay_cycles;
+            // end else begin
+            //     delay_counters <= delay_counters - 1;
+            // end
+            rdata <= pmem_read(araddr);
+            rresp <= 0;
+            rvalid <= 1;
         end else begin
             rdata <= 0;
             rresp <= 0;
             rvalid <= 0;
             bresp <= 0;
             bvalid <= 0;
-            delay_counters <= delay_cycles;
+            // delay_counters <= delay_cycles;
         end
     end
 

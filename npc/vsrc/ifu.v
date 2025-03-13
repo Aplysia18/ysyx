@@ -34,35 +34,37 @@ module ysyx_24110015_IFU (
 
   assign control_iMemRead_end = rready & rvalid;
 
-  wire [7:0] delay_cycles;
-  ysyx_24110015_shiftRegister delay_counter_ifu (
-    .clk(clk),
-    .rst(rst),
-    .y(delay_cycles)
-  );
-  reg [7:0] delay_counters;
-  reg [7:0] delay_counters_rready;
+  // wire [7:0] delay_cycles;
+  // ysyx_24110015_shiftRegister delay_counter_ifu (
+  //   .clk(clk),
+  //   .rst(rst),
+  //   .y(delay_cycles)
+  // );
+  // reg [7:0] delay_counters;
+  // reg [7:0] delay_counters_rready;
 
-  always @(posedge clk or posedge rst) begin
-    if(rst) begin
-      delay_counters <= delay_cycles;
-      arvalid <= 0;
-      rready <= 0;
-    end else if (control_iMemRead) begin
-      if(delay_counters == 0) begin
-        delay_counters <= delay_cycles;
-        arvalid <= 1;
-        rready <= 1;
-      end else begin
-        delay_counters <= delay_counters - 1;
-        arvalid <= 0;
-        rready <= 0;
-      end
-    end else begin
-      arvalid <= 0;
-      rready <= 0;
-    end
-  end
+  // always @(posedge clk or posedge rst) begin
+  //   if(rst) begin
+  //     delay_counters <= delay_cycles;
+  //     arvalid <= 0;
+  //     rready <= 0;
+  //   end else if (control_iMemRead) begin
+  //     if(delay_counters == 0) begin
+  //       delay_counters <= delay_cycles;
+  //       arvalid <= 1;
+  //       rready <= 1;
+  //     end else begin
+  //       delay_counters <= delay_counters - 1;
+  //       arvalid <= 0;
+  //       rready <= 0;
+  //     end
+  //   end else begin
+  //     arvalid <= 0;
+  //     rready <= 0;
+  //   end
+  // end
+  assign arvalid = control_iMemRead;
+  assign rready = control_iMemRead;
 
   ysyx_24110015_AXI2MEM IFU_AXI2MEM (
     .clk(clk),
