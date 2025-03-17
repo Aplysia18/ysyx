@@ -1,39 +1,62 @@
 `include "macros.v"
 import "DPI-C" function void npc_trap();
-// import "DPI-C" function int pmem_read(input int addr);
-// import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
 
 module ysyx_24110015_EXU (
   input clk,
   input rst,
+  //from idu
   input [31:0] pc,
   input [2:0] func3,
   input [31:0] imm,
   input [31:0] data1,
   input [31:0] data2,
+  input RegWrite_i,
+  input [4:0] wb_addr_i,
   input [1:0] ALUAsrc,
   input [1:0] ALUBsrc,
   input [3:0] ALUop,
-  input MemWrite,
-  input MemRead,
+  input MemWrite_i,
+  input MemRead_i,
   input PCAsrc,
   input PCBsrc,
   input branch,
-  input zicsr,
+  input zicsr_i,
   input [4:0] zimm,
+  input [31:0] dout_mstatus,
+  input [31:0] dout_mtvec,
+  input [31:0] dout_mepc,
+  input [31:0] dout_mcause,
   input ebreak,
   input ecall,
   input mret,
-  output reg [31:0] data_out,
-  output [31:0] pc_next
+  //to lsu
+  output reg [31:0] alu_out,
+  output [31:0] pc_next,
+  output RegWrite_o,
+  output [4:0] wb_addr_o,
+  output [3:0] mem_wmask,
+  output zicsr_o,
+  output [31:0] csr_rdata,
+  output [31:0] din_mstatus,
+  output [31:0] din_mtvec,
+  output [31:0] din_mepc,
+  output [31:0] din_mcause,
+  output wen_mstatus,
+  output wen_mtvec,
+  output wen_mepc,
+  output wen_mcause,
+  output [2:0] func3_o,
+  output MemWrite_o,
+  output MemRead_o,
+  output [31:0] mem_wdata
 );
 
-  wire [31:0] ALUout;
-
-  reg [31:0] csr_rdata, csr_wdata;
-  wire [31:0] din_mstatus, din_mtvec, din_mepc, din_mcause;
-  wire wen_mstatus, wen_mtvec, wen_mepc, wen_mcause;
-  wire [31:0] dout_mstatus, dout_mtvec, dout_mepc, dout_mcause;
+  assign RegWrite_o = RegWrite_i;
+  assign wb_addr_o = wb_addr_i;
+  assign zicsr_o = zicsr_i;
+  assign func3_o = func3;
+  assign MemWrite_o = MemWrite_i;
+  assign MemRead_o = MemRead_i;
 
   /*-----Next PC Calculate-----*/
   wire [31:0] PCAdata, PCBdata;
@@ -67,7 +90,7 @@ module ysyx_24110015_EXU (
       pc_next_valid <= 1;
     end
   end
-  assign pc_next = pc_next_valid ? (branch && (ALUout==32'b1)) ? pc + imm : ecall ? dout_mtvec : mret ? dout_mepc : pc_default : 32'h80000000;
+  assign pc_next = pc_next_valid ? (branch && (alu_out==32'b1)) ? pc + imm : ecall ? dout_mtvec : mret ? dout_mepc : pc_default : 32'h80000000;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
@@ -97,54 +120,16 @@ module ysyx_24110015_EXU (
     .data1(ALUAdata),
     .data2(ALUBdata),
     .ALUop(ALUop),
-    .ALUout(ALUout)
+    .ALUout(alu_out)
   );
 
-  /*-----Memory Access-----*/
-  reg [31:0] rdata;
-
-  always @(*) begin
-    if (MemRead) begin
-      rdata = pmem_read(ALUout);
-    end else begin
-      rdata = 32'b0;
-    end
-  end
-
-  always @(negedge clk) begin
-    if (MemRead) begin
-      case (func3)
-        3'b000: data_out <= {{24{rdata[7]}}, rdata[7:0]};
-        3'b001: data_out <= {{16{rdata[15]}}, rdata[15:0]};
-        3'b010: data_out <= rdata;
-        3'b100: data_out <= {24'b0, rdata[7:0]};
-        3'b101: data_out <= {16'b0, rdata[15:0]};
-        default: data_out <= 32'b0;
-      endcase
-    end
-    else begin
-      if(zicsr) begin
-        data_out <= csr_rdata;
-      end
-      else begin
-        data_out <= ALUout;
-      end
-    end
-  end
-
-  always @(posedge clk) begin
-    if(MemWrite) begin
-      case (func3)
-        3'b000: pmem_write(ALUout, data2, 8'b0001);
-        3'b001: pmem_write(ALUout, data2, 8'b0011);
-        3'b010: pmem_write(ALUout, data2, 8'b1111);
-        default: pmem_write(ALUout, data2, 8'b0000);
-      endcase
-    end
-  end
+  /*-----Memory Access Signal-----*/
+  assign mem_wmask = (func3 == 3'b000)? 4'b0001 : (func3 == 3'b001)? 4'b0011 : (func3 == 3'b010)? 4'b1111 : 4'b0000;
+  assign mem_wdata = data2;
 
   /*-----CSR-----*/
 
+  reg [31:0] csr_wdata;
   wire [31:0] csr_data1;
   assign csr_data1 = func3[2] ? {27'b0, zimm} : data1;
   
@@ -171,39 +156,21 @@ module ysyx_24110015_EXU (
   wire [31:0] din_mstatus_ecall, din_mstatus_mret;
   assign din_mstatus_ecall = (((dout_mstatus & 32'hffffff7f) | (((dout_mstatus >> 3) & 32'b1) << 7)) & 32'hfffffff7) | 32'h00001800;
   assign din_mstatus_mret = (((dout_mstatus & 32'hfffffff7) | (((dout_mstatus >> 7) & 32'b1) << 3)) | 32'h80) & 32'hffffe7ff;
-  assign din_mstatus = (zicsr&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
-  assign wen_mstatus = (zicsr&(imm[11:0]==12'h300)) | ecall | mret;
+  assign din_mstatus = (zicsr_i&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
+  assign wen_mstatus = (zicsr_i&(imm[11:0]==12'h300)) | ecall | mret;
 
-  assign din_mtvec = (zicsr&(imm[11:0]==12'h305)) ? csr_wdata : dout_mtvec;
-  assign wen_mtvec = (zicsr&(imm[11:0]==12'h305));
+  assign din_mtvec = (zicsr_i&(imm[11:0]==12'h305)) ? csr_wdata : dout_mtvec;
+  assign wen_mtvec = zicsr_i&(imm[11:0]==12'h305);
 
   wire [31:0] din_mepc_ecall;
   assign din_mepc_ecall = pc;
-  assign din_mepc = (zicsr&(imm[11:0]==12'h341)) ? csr_wdata : ecall ? din_mepc_ecall : dout_mepc;
-  assign wen_mepc = (zicsr&(imm[11:0]==12'h341)) | ecall;
+  assign din_mepc = (zicsr_i&(imm[11:0]==12'h341)) ? csr_wdata : ecall ? din_mepc_ecall : dout_mepc;
+  assign wen_mepc = (zicsr_i&(imm[11:0]==12'h341)) | ecall;
 
   wire [31:0] din_mcause_ecall;
   assign din_mcause_ecall = 32'h0000000b;
-  assign din_mcause = (zicsr&(imm[11:0]==12'h342)) ? csr_wdata : ecall ? din_mcause_ecall : dout_mcause;
-  assign wen_mcause = (zicsr&(imm[11:0]==12'h342)) | ecall;
-
-
-  ysyx_24110015_CSR csr (
-    .clk(clk),
-    .rst(rst),
-    .din_mstatus(din_mstatus),
-    .din_mtvec(din_mtvec),
-    .din_mepc(din_mepc),
-    .din_mcause(din_mcause),
-    .wen_mstatus(wen_mstatus),
-    .wen_mtvec(wen_mtvec),
-    .wen_mepc(wen_mepc),
-    .wen_mcause(wen_mcause),
-    .dout_mstatus(dout_mstatus),
-    .dout_mtvec(dout_mtvec),
-    .dout_mepc(dout_mepc),
-    .dout_mcause(dout_mcause)
-  );
+  assign din_mcause = (zicsr_i&(imm[11:0]==12'h342)) ? csr_wdata : ecall ? din_mcause_ecall : dout_mcause;
+  assign wen_mcause = (zicsr_i&(imm[11:0]==12'h342)) | ecall;
 
 /*-----ebreak-----*/
   always @(ebreak) begin

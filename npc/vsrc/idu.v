@@ -3,10 +3,31 @@
 module ysyx_24110015_IDU (
   input clk,
   input rst, 
+  //from ifu
   input [31:0] inst,
+  input [31:0] pc_i,
+  //from wbu
+  input RegWrite_i,
+  input [4:0] wb_addr_i,
+  input [31:0] din_mstatus,
+  input [31:0] din_mtvec,
+  input [31:0] din_mepc,
+  input [31:0] din_mcause,
+  input wen_mstatus,
+  input wen_mtvec,
+  input wen_mepc,
+  input wen_mcause,
+  input [31:0] wb_data,
+  //from controller
+  input control_RegWrite,
+  //to exu
+  output [31:0] pc_o,
   output [2:0] func3,
   output [31:0] imm,
-  output RegWrite,
+  output [31:0] rdata1,
+  output [31:0] rdata2,
+  output RegWrite_o,
+  output [4:0] wb_addr_o,
   output [1:0] ALUAsrc,
   output [1:0] ALUBsrc,
   output reg [3:0] ALUop,
@@ -17,10 +38,18 @@ module ysyx_24110015_IDU (
   output branch,
   output zicsr,
   output [4:0] zimm,
+  output [31:0] dout_mstatus,
+  output [31:0] dout_mtvec,
+  output [31:0] dout_mepc,
+  output [31:0] dout_mcause,
   output ebreak,
   output ecall,
-  output mret
+  output mret,
+  //to controller
+  output control_ls
 );
+
+  assign pc_o = pc_i;
 
   /*-----imm gen-----*/
   wire [6:0] opcode, func7;
@@ -46,7 +75,20 @@ module ysyx_24110015_IDU (
   assign imm = I_type ? immI : S_type ? immS : B_type ? immB : U_type ? immU : J_type ? immJ : 32'b0;
 
   /*-----Reg Write Single Generation-----*/
-  assign RegWrite = R_type || I_type || U_type || J_type;
+  assign RegWrite_o = R_type || I_type || U_type || J_type;
+
+  /*-----Read Reg Data-----*/
+  assign wb_addr_o = {1'b0, inst[10:7]};
+  ysyx_24110015_RegisterFile #(4, 32) rf (
+    .clk(clk), 
+    .wdata(wb_data),
+    .waddr(wb_addr_i[3:0]),
+    .wen(RegWrite_i & control_RegWrite),
+    .raddr1(inst[18:15]),
+    .raddr2(inst[23:20]),
+    .rdata1(rdata1),
+    .rdata2(rdata2)
+  );
 
   /*-----ALU data select control signal generation-----*/
   wire ALUAsrc_rs1, ALUAsrc_pc, ALUAsrc_0;
@@ -98,11 +140,31 @@ module ysyx_24110015_IDU (
   assign PCAsrc = (opcode == `jalr) ? 1 : 0; //0: pc, 1:rs1
   assign PCBsrc = (opcode == `jal || opcode == `jalr) ? 1 : 0;  //0: 4, 1: imm 
 
+  /*-----csr control-----*/
+  ysyx_24110015_CSR csr (
+    .clk(clk),
+    .rst(rst),
+    .din_mstatus(din_mstatus),
+    .din_mtvec(din_mtvec),
+    .din_mepc(din_mepc),
+    .din_mcause(din_mcause),
+    .wen_mstatus(wen_mstatus & control_RegWrite),
+    .wen_mtvec(wen_mtvec & control_RegWrite),
+    .wen_mepc(wen_mepc & control_RegWrite),
+    .wen_mcause(wen_mcause & control_RegWrite),
+    .dout_mstatus(dout_mstatus),
+    .dout_mtvec(dout_mtvec),
+    .dout_mepc(dout_mepc),
+    .dout_mcause(dout_mcause)
+  );
+
+  /*-----branch signal-----*/
   assign branch = B_type;
 
   /*-----Mem control single generation-----*/
   assign MemWrite = (opcode == `S_type);
   assign MemRead = (opcode == `load);
+  assign control_ls = MemRead | MemWrite;
 
   /*-----zicsr control-----*/
   assign zicsr = (opcode == `zicsr);

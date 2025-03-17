@@ -1,7 +1,10 @@
 #include "memory/paddr.hpp"
 #include "common.hpp"
+#include "cpu/cpu.hpp"
 #include "cpu/difftest.hpp"
 #include "utils.hpp"
+
+extern bool abort_flag;
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 
@@ -12,17 +15,13 @@ static inline bool in_pmem(paddr_t addr) {
   return addr - CONFIG_MBASE < CONFIG_MSIZE;
 }
 
-extern bool difftest_skip_next;
-
 int pmem_read(int raddr) {
   if(!in_pmem(raddr)) {
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
-    // difftest_skip_ref();
-    difftest_skip_next = true;
-    // printf("difftest skip ref\n");
+    difftest_skip_ref();
     if(raddr == CONFIG_RTC_MMIO + 4){
       us = get_time();
       return us >> 32;
@@ -32,7 +31,8 @@ int pmem_read(int raddr) {
   }
 #endif
     printf("pmem_read: invalid address 0x%x\n", raddr);
-    assert(0);
+    // assert(0);
+    abort_flag = 1;
     return 0;
   }
   // if(raddr & 0x3) {
@@ -67,7 +67,8 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
 #endif
     printf("pmem_write: invalid address 0x%x\n", waddr);
-    assert(0);
+    // assert(0);
+    abort_flag = 1;
     return;
   }
   // if(waddr & 0x3) {
