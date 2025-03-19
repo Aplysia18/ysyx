@@ -22,6 +22,7 @@ int pmem_read(int raddr) {
   // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
+    printf("skip RTC\n");
     // if(raddr == CONFIG_RTC_MMIO + 4){
     //   us = get_time();
     //   return us >> 32;
