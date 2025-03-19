@@ -61,7 +61,7 @@ void init_cpu(int argc, char* argv[]) {
   //跳过第一个周期的ifu
   do{
     single_cycle();
-    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
+    printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     single_cycle();
