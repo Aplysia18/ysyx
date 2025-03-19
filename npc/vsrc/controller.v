@@ -75,7 +75,10 @@ module ysyx_24110015_Controller(
             case(next_state)
                 sIF: begin
                     dMemRW_flag <= 0;
-                    if(~iMemRead_flag) control_iMemRead <= 1;
+                    if(~iMemRead_flag) begin 
+                        control_iMemRead <= 1;
+                        iMemRead_flag <= 1;
+                    end
                     else control_iMemRead <= 0;
                     control_dMemRW <= 0;
                 end
@@ -88,7 +91,10 @@ module ysyx_24110015_Controller(
                 sLS: begin
                     iMemRead_flag <= 0;
                     control_iMemRead <= 0;
-                    if(~dMemRW_flag) control_dMemRW <= 1;
+                    if(~dMemRW_flag) begin 
+                        control_dMemRW <= 1;
+                        dMemRW_flag <= 1;
+                    end
                     else control_dMemRW <= 0;
                 end
                 default: begin
