@@ -56,7 +56,7 @@ void init_cpu(int argc, char* argv[]) {
   top->trace(tfp, 99);
   tfp->open("./build/simx.fst");
 #endif
-  // printf("init cpu\n");
+  printf("init cpu\n");
   reset(5);
   //跳过第一个周期的ifu
   do{
@@ -67,7 +67,7 @@ void init_cpu(int argc, char* argv[]) {
     single_cycle();
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }
-  // printf("init cpu done\n");
+  printf("init cpu done\n");
 }
 
 bool abort_flag = 0;
