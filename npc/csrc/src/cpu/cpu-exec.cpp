@@ -178,7 +178,7 @@ void cpu_exec(uint64_t n) {
     
     trace_and_difftest(&s, cpu.pc);
     
-    if(g_nr_guest_inst % 10000 == 0){
+    if(g_nr_guest_inst >= 5000){
       abort_flag = 1;
     }
 
