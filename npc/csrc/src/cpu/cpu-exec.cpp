@@ -175,7 +175,7 @@ void cpu_exec(uint64_t n) {
 
     execute_once(&s);
     g_nr_guest_inst ++;
-    if(g_nr_guest_inst % 1000000 == 0){
+    if(g_nr_guest_inst % 10000 == 0){
       Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("RUNNING", ANSI_FG_YELLOW), s.pc);
       Log("run cycles: %ld\n", cycles_num);
     }
