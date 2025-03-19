@@ -175,11 +175,12 @@ void cpu_exec(uint64_t n) {
 
     execute_once(&s);
     g_nr_guest_inst ++;
-    if(g_nr_guest_inst % 10000 == 0){
-      Log("npc: %s at pc = 0x%08x\n", ANSI_FMT("RUNNING", ANSI_FG_YELLOW), s.pc);
-      Log("run cycles: %ld\n", cycles_num);
-    }
+    
     trace_and_difftest(&s, cpu.pc);
+    
+    if(g_nr_guest_inst % 10000 == 0){
+      abort_flag = 1;
+    }
 
     if(abort_flag){
       end_flag = 1;
