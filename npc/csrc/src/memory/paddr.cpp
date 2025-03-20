@@ -22,7 +22,7 @@ int pmem_read(int raddr) {
   // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
-    printf("frequency = %d, us = %d, mtime = %d\n", us/top->rootp->ysyx_24110015_top__DOT__axi2clint__DOT__mtime, us, top->rootp->ysyx_24110015_top__DOT__axi2clint__DOT__mtime);
+    printf("frequency = %d, us = %d, mtime = %d\n", us/top->rootp->ysyx_24110015_top__DOT__axi2clint__DOT__mtime, get_time(), top->rootp->ysyx_24110015_top__DOT__axi2clint__DOT__mtime);
     return 0; 
     // if(raddr == CONFIG_RTC_MMIO + 4){
     //   us = get_time();
