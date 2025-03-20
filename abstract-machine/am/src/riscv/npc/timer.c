@@ -1,7 +1,10 @@
 #include <am.h>
 #include <riscv/riscv.h>
 
+uint64_t frequency = 0;
+
 void __am_timer_init() {
+  
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
