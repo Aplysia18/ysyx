@@ -22,12 +22,14 @@ int pmem_read(int raddr) {
   // printf("pmem_read: addr = " FMT_PADDR ", rfata = " FMT_PADDR "\n", raddr, us);
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
-    if(raddr == CONFIG_RTC_MMIO + 4){
-      us = get_time();
-      return us >> 32;
-    } else {
-      return us & 0xffffffff;
-    }
+    // printf("frequency = %d, us = %d, mtime = %d\n", get_time()/top->rootp->ysyx_24110015_top__DOT__axi2clint__DOT__mtime, get_time(), top->rootp->ysyx_24110015_top__DOT__axi2clint__DOT__mtime);
+    return 0; 
+    // if(raddr == CONFIG_RTC_MMIO + 4){
+    //   us = get_time();
+    //   return us >> 32;
+    // } else {
+    //   return us & 0xffffffff;
+    // }
   }
 #endif
     printf("pmem_read: invalid address 0x%x\n", raddr);
@@ -52,7 +54,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   if(!in_pmem(waddr)) {
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {
-    printf("%c", wdata&0xff);
+    // printf("%c", wdata&0xff);
     difftest_skip_ref();
     // printf("waddr = " FMT_PADDR ", wdata = " FMT_WORD ", wmask = %d\n", waddr, wdata, wmask);
     // printf("%c", wdata&0xff);
@@ -86,29 +88,3 @@ void pmem_write(int waddr, int wdata, char wmask) {
     }
   }
 }
-
-// word_t paddr_read(paddr_t addr) {
-//   if(!in_pmem(addr)) {
-//     printf("paddr_read: invalid address 0x%x\n", addr);
-//     assert(0);
-//   }else{
-//     if(addr & 0x3) {
-//       printf("paddr_read: unaligned address 0x%x\n", addr);
-//       assert(0);
-//     }
-//     return pmem_read(addr);
-//   }
-// }
-
-// void paddr_write(paddr_t addr, word_t data) {
-//   if(!in_pmem(addr)) {
-//     printf("paddr_write: invalid address 0x%x\n", addr);
-//     assert(0);
-//   }else{
-//     if(addr & 0x3) {
-//       printf("paddr_write: unaligned address 0x%x\n", addr);
-//       assert(0);
-//     }
-//     return pmem_write(addr, data, 0xff);
-//   }
-// }

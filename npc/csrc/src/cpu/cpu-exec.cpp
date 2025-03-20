@@ -63,8 +63,14 @@ void init_cpu(int argc, char* argv[]) {
     single_cycle();
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
+  int cnt = 0;
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     single_cycle();
+    cnt++;
+    if(cnt > 20){
+      abort_flag = 1;
+      break;
+    }
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }
   // printf("init cpu done\n");
@@ -89,15 +95,29 @@ static void execute_once(Decode *s){
   s->pc = top->pc;
   s->snpc = top->pc + 4;
   // execute
+  int cnt = 0;
   do{
     if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==3){
       s->inst = top->inst;
       // printf("inst = 0x%08x\n", s->inst);
     }
+    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
+    cnt++;
+    if(cnt > 20){
+      abort_flag = 1;
+      break;
+    }
+    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
+  cnt = 0;
   while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
     single_cycle();
+    cnt++;
+    if(cnt > 20){
+      abort_flag = 1;
+      break;
+    }
   }
   
   s->dnpc = top->pc;
@@ -155,7 +175,12 @@ void cpu_exec(uint64_t n) {
 
     execute_once(&s);
     g_nr_guest_inst ++;
+    
     trace_and_difftest(&s, cpu.pc);
+    
+    // if(g_nr_guest_inst >= 5000){
+    //   abort_flag = 1;
+    // }
 
     if(abort_flag){
       end_flag = 1;
