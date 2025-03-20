@@ -1,10 +1,10 @@
-TOPNAME = ysyx_24110015_top
+TOPNAME = ysyxSoCFull
 INC_PATH ?= 
 
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert --trace-fst \
-				-I./vsrc
+				-I./vsrc --timescale "1ns/1ps" --no-timing
 
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
@@ -15,11 +15,11 @@ default: $(BIN)
 $(shell mkdir -p $(BUILD_DIR))
 
 # project source
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.v" -or -name "*.sv")
+VSRCS = $(shell find $(abspath ./vsrc) $(abspath ../ysyxSoC/perip) -name "*.v" -or -name "*.sv")
 CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
 # rules for verilator
-INC_PATH += $(NPC_HOME)/csrc/include
+INC_PATH += $(NPC_HOME)/csrc/include $(NPC_HOME)/../ysyxSoC/perip/uart16550/rtl $(NPC_HOME)/../ysyxSoC/perip/spi/rtl
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\"" $(shell llvm-config --cxxflags) -fPIE
 LDFLAGS += -lreadline -ldl $(shell llvm-config --libs)
