@@ -114,11 +114,12 @@ static void execute_once(Decode *s){
   cnt = 0;
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
-    // cnt++;
-    // if(cnt > 20){
-    //   abort_flag = 1;
-    //   break;
-    // }
+    cnt++;
+    if(cnt > 20){
+      abort_flag = 1;
+      break;
+    }
+    printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }
   
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
