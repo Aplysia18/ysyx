@@ -52,6 +52,8 @@ module ysyx_24110015_IFU (
       end
     end
   end
+  
+  assign axiif.arsize = 3'b010;
   assign axiif.rready = 1;
   assign axiif.awaddr = 0;
   assign axiif.awvalid = 0;

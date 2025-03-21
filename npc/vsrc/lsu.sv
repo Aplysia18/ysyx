@@ -85,10 +85,14 @@ module ysyx_24110015_LSU (
             end
         end
     end
+    assign axiif.arsize = ((func3_i&3'b011)==3'b000) ? 3'b000 : ((func3_i&3'b011)==3'b001) ? 3'b001 : 3'b010;
 
     // assign axiif.rready = MemRead_o & control_dMemRW;
     assign axiif.rready = 1;
+
+
     // assign axiif.awvalid = MemWrite & control_dMemRW;
+    assign axiif.awsize = (mem_wmask == 4'b1111) ? 3'b010 : (mem_wmask == 4'b0011) ? 3'b001 : 3'b000;
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.awvalid <= 0;

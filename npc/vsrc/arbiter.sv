@@ -36,12 +36,21 @@ module ysyx_24110015_AXIArbiter (
         axi_master_lsu.bvalid = 0;
 
         axi_slave.araddr = 0;
+        axi_slave.arid = 0;
+        axi_slave.arlen = 0;
+        axi_slave.arsize = 0;
+        axi_slave.arburst = 0;
         axi_slave.arvalid = 0;
         axi_slave.rready = 0;
         axi_slave.awaddr = 0;
+        axi_slave.awid = 0;
+        axi_slave.awlen = 0;
+        axi_slave.awsize = 0;
+        axi_slave.awburst = 0;
         axi_slave.awvalid = 0;
         axi_slave.wdata = 0;
         axi_slave.wstrb = 0;
+        axi_slave.wlast = 0;
         axi_slave.wvalid = 0;
         axi_slave.bready = 0;
 
