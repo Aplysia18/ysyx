@@ -155,12 +155,12 @@ module ysyx_24110015(
   assign axiif_master.rlast = io_master_rlast;
   assign axiif_master.rid = io_master_rid;
 
-  ysyx_24110015_xbar xbar(
-    .clk(clock),
-    .rst(reset),
-    .axi_master(axiif_master),
-    .axi_slave_clint(axiif_slave_clint)
-  );
+  // ysyx_24110015_xbar xbar(
+  //   .clk(clock),
+  //   .rst(reset),
+  //   .axi_master(axiif_master),
+  //   .axi_slave_clint(axiif_slave_clint)
+  // );
   
   ysyx_24110015_AXI2Clint axi2clint (
     .clk(clock),
