@@ -38,13 +38,13 @@ interface axi_lite_if(
     logic bready;
 
     modport master(
-        output araddr, arvalid, rready, awaddr, awvalid, wdata, wstrb, wvalid, bready, 
-        input arready, rdata, rresp, rvalid, awready, wready, bresp, bvalid
+        output araddr, arid, arlen, arsize, arburst, arvalid, rready, awaddr, awid, awlen, awsize, awburst, awvalid, wdata, wstrb, wlast, wvalid, bready, 
+        input arready, rdata, rresp, rlast, rid, rvalid, awready, wready, bresp, bid, bvalid
     );
 
     modport slave(
-        input araddr, arvalid, rready, awaddr, awvalid, wdata, wstrb, wvalid, bready, 
-        output arready, rdata, rresp, rvalid, awready, wready, bresp, bvalid
+        input araddr, arid, arlen, arsize, arburst, arvalid, rready, awaddr, awid, awlen, awsize, awburst, awvalid, wdata, wstrb, wlast, wvalid, bready, 
+        output arready, rdata, rresp, rlast, rid, rvalid, awready, wready, bresp, bid, bvalid
     );
     
 endinterface
