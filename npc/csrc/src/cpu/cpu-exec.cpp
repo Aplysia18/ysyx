@@ -82,6 +82,7 @@ bool bad_trap_flag = 0;
 static bool end_flag = 0;
 
 void npc_trap(){
+  printf("npc trap\n");
   end_flag = 1;
 } 
 
@@ -103,21 +104,21 @@ static void execute_once(Decode *s){
     }
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
     single_cycle();
-    cnt++;
-    if(cnt > 20){
-      abort_flag = 1;
-      break;
-    }
+    // cnt++;
+    // if(cnt > 20){
+    //   abort_flag = 1;
+    //   break;
+    // }
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
   cnt = 0;
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
-    cnt++;
-    if(cnt > 20){
-      abort_flag = 1;
-      break;
-    }
+    // cnt++;
+    // if(cnt > 20){
+    //   abort_flag = 1;
+    //   break;
+    // }
   }
   
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
