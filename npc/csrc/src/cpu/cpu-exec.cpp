@@ -119,7 +119,7 @@ static void execute_once(Decode *s){
       abort_flag = 1;
       break;
     }
-    printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }
   
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
