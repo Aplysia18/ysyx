@@ -42,7 +42,7 @@ void init_isa() {
 #ifdef CONFIG_TARGET_SHARE
 // printf("size of mrom: %d\n", sizeof(mrom));
   printf("size of image %ld\n", sizeof(img));
-  printf("%d\n",mrom_guest_to_host(paddr_t paddr));
+  printf("%d\n",mrom_guest_to_host(CONFIG_MROM_BASE));
   memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
   printf("memcpy end\n");
 #else
