@@ -87,9 +87,9 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-#ifdef CONFIG_MTRACE
+// #ifdef CONFIG_MTRACE
   printf("paddr_read: addr = " FMT_PADDR ", len = %d\n", addr, len);
-#endif
+// #endif
 #ifdef CONFIG_TARGET_SHARE
   if (likely(in_mrom(addr))) return mrom_read(addr, len);
   if (likely(in_sram(addr))) return sram_read(addr, len);
@@ -102,9 +102,9 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-#ifdef CONFIG_MTRACE
+// #ifdef CONFIG_MTRACE
   printf("paddr_write: addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
-#endif
+// #endif
 #ifdef CONFIG_TARGET_SHARE
   if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }
   if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }
