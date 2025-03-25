@@ -10,7 +10,6 @@ extern "C" void mrom_read(int32_t addr, int32_t *data)
     assert(0);
   }
   *data = *(int32_t *)mrom_guest_to_host(addr);
-  printf("mrom_read: addr 0x%x, data 0x%x\n", addr, *data);
   // assert(0); 
 }
 
