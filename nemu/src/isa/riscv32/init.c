@@ -29,9 +29,9 @@ static const uint32_t img [] = {
 static void restart() {
   /* Set the initial program counter. */
   cpu.pc = RESET_VECTOR;
-  #ifdef CONFIG_TARGET_SHARE
+#ifdef CONFIG_TARGET_SHARE
   cpu.pc = CONFIG_MROM_BASE;
-  #endif
+#endif
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
