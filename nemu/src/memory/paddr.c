@@ -73,11 +73,13 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
+  printf("init_mem\n");
 #if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
 #endif
 #if defined(CONFIG_TARGET_SHARE)
+printf("init_mem: CONFIG_TARGET_SHARE\n");
   IFDEF(CONFIG_MEM_RANDOM, memset(mrom, rand(), CONFIG_MROM_SIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_MROM_BASE, (paddr_t)(CONFIG_MROM_BASE + CONFIG_MROM_SIZE - 1));
 #else
@@ -87,9 +89,9 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-// #ifdef CONFIG_MTRACE
+#ifdef CONFIG_MTRACE
   printf("paddr_read: addr = " FMT_PADDR ", len = %d\n", addr, len);
-// #endif
+#endif
 #ifdef CONFIG_TARGET_SHARE
   if (likely(in_mrom(addr))) return mrom_read(addr, len);
   if (likely(in_sram(addr))) return sram_read(addr, len);
@@ -102,9 +104,9 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-// #ifdef CONFIG_MTRACE
+#ifdef CONFIG_MTRACE
   printf("paddr_write: addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
-// #endif
+#endif
 #ifdef CONFIG_TARGET_SHARE
   if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }
   if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }
