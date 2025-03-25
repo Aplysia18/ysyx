@@ -26,6 +26,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
       // paddr_write(addr+i, 1, *((uint8_t*)buf+i));
       mrom_write_init(addr+i, 1, *((uint8_t*)buf+i));
     }
+    printf("difftest_memcpy: done\n");
   } else {
     assert(0);
   }
