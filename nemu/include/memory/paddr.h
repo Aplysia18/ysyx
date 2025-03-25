@@ -35,5 +35,6 @@ word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
 
 void mrom_write_init(paddr_t addr, int len, word_t data);
+uint8_t* mrom_guest_to_host(paddr_t paddr);
 
 #endif

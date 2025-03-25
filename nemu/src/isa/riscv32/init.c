@@ -38,9 +38,8 @@ static void restart() {
 
 void init_isa() {
   /* Load built-in image. */
-  printf("Load built-in image.\n");
+
 #ifdef CONFIG_TARGET_SHARE
-// printf("CONFIG_TARGET_SHARE\n");
   memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
 #else
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
