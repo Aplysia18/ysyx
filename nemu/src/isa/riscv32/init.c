@@ -40,9 +40,10 @@ void init_isa() {
   /* Load built-in image. */
 
 #ifdef CONFIG_TARGET_SHARE
+printf("size of mrom: %d\n", sizeof(mrom));
   printf("CONFIG_TARGET_SHARE\n");
   memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
-  printf("memcpy end");
+  printf("memcpy end\n");
 #else
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 #endif
