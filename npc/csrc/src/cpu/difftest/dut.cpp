@@ -78,9 +78,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
   ref_difftest_init(port);
   // ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
   ref_difftest_memcpy(MROM_BASE, mrom_guest_to_host(MROM_BASE), img_size, DIFFTEST_TO_REF);
-  printf("0");
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-  printf("1");
 }
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
