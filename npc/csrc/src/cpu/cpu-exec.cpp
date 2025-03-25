@@ -37,7 +37,7 @@ static void reset(int n){
   top->reset = 1;
   while(n--) single_cycle();
   top->reset = 0;
-  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;;
+  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[i];
   cpu.csr.mstatus = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mstatus;
   cpu.csr.mepc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mepc;
@@ -57,7 +57,7 @@ void init_cpu(int argc, char* argv[]) {
   tfp->open("./build/simx.fst");
 #endif
   // printf("init cpu\n");
-  reset(5);
+  reset(20);
   //跳过第一个周期的ifu
   do{
     single_cycle();
