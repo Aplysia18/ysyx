@@ -42,6 +42,7 @@ void init_isa() {
 #ifdef CONFIG_TARGET_SHARE
   printf("CONFIG_TARGET_SHARE\n");
   memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
+  printf("memcpy end");
 #else
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 #endif
