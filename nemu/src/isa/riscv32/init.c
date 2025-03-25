@@ -34,7 +34,6 @@ static void restart() {
 #else
   cpu.pc = RESET_VECTOR;
 #endif
-printf("pc = 0x%08x\n", cpu.pc);
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
