@@ -33,7 +33,9 @@ static word_t mrom_read(paddr_t addr, int len) {
   return ret;
 }
 static void mrom_write(paddr_t addr, int len, word_t data) {
-  panic("can not write to mrom: address = " FMT_PADDR ", pc = " FMT_WORD, addr, cpu.pc);
+  printf("mrom_write_init\n");
+  host_write(mrom_guest_to_host(addr), len, data);
+  // panic("can not write to mrom: address = " FMT_PADDR ", pc = " FMT_WORD, addr, cpu.pc);
 }
 void mrom_write_init(paddr_t addr, int len, word_t data) {
   printf("mrom_write_init\n");
