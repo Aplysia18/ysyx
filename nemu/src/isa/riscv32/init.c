@@ -51,4 +51,5 @@ void init_isa() {
   
   /* Initialize this virtual computer system. */
   restart();
+  printf("init_isa end\n");
 }
