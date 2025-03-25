@@ -31,10 +31,10 @@ static void restart() {
 
 #ifdef CONFIG_TARGET_SHARE
   cpu.pc = CONFIG_MROM_BASE;
-  printf("pc = 0x%08x\n", cpu.pc);
 #else
   cpu.pc = RESET_VECTOR;
 #endif
+printf("pc = 0x%08x\n", cpu.pc);
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
