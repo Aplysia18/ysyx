@@ -73,13 +73,11 @@ static void out_of_bound(paddr_t addr) {
 }
 
 void init_mem() {
-  printf("init_mem\n");
 #if   defined(CONFIG_PMEM_MALLOC)
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
 #endif
 #if defined(CONFIG_TARGET_SHARE)
-printf("init_mem: CONFIG_TARGET_SHARE\n");
   IFDEF(CONFIG_MEM_RANDOM, memset(mrom, rand(), CONFIG_MROM_SIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_MROM_BASE, (paddr_t)(CONFIG_MROM_BASE + CONFIG_MROM_SIZE - 1));
 #else
