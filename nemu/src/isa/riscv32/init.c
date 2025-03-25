@@ -40,16 +40,11 @@ void init_isa() {
   /* Load built-in image. */
 
 #ifdef CONFIG_TARGET_SHARE
-// printf("size of mrom: %d\n", sizeof(mrom));
-  printf("size of image %ld\n", sizeof(img));
-  // printf("%hhn\n",mrom_guest_to_host(CONFIG_MROM_BASE));
   memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
-  printf("memcpy end\n");
 #else
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 #endif
   
   /* Initialize this virtual computer system. */
   restart();
-  printf("init_isa end\n");
 }
