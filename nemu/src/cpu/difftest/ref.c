@@ -19,6 +19,7 @@
 #include <memory/paddr.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+  void mrom_write_init(paddr_t addr, int len, word_t data);
   if (direction == DIFFTEST_TO_REF) {
     for (size_t i = 0; i < n; i++) {
       // paddr_write(addr+i, 1, *((uint8_t*)buf+i));
