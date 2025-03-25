@@ -82,7 +82,7 @@ bool bad_trap_flag = 0;
 static bool end_flag = 0;
 
 void npc_trap(){
-  printf("npc trap\n");
+  // printf("npc trap\n");
   end_flag = 1;
 } 
 
