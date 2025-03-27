@@ -63,14 +63,42 @@ module ysyx_24110015(
   output io_slave_rlast,
   output [3:0] io_slave_rid
 );
+  //unused output ports
+  assign io_slave_awready = 0;
+  assign io_slave_wready = 0;
+  assign io_slave_bvalid = 0;
+  assign io_slave_bid = 0;
+  assign io_slave_bresp = 0;
+  assign io_slave_arready = 0;
+  assign io_slave_rvalid = 0;
+  assign io_slave_rid = 0;  
+  assign io_slave_rdata = 0;
+  assign io_slave_rresp = 0;
+  assign io_slave_rlast = 0;
 
-  // wire control_ls;
-  // wire control_RegWrite;
-  // wire control_iMemRead_end;
-  // wire control_iMemRead;
-  // wire control_dmemR_end;
-  // wire control_dmemW_end;
-  // wire control_dMemRW;
+  logic [31:0] pc;
+  logic [31:0] pc_next;
+  logic [31:0] inst;
+  logic [31:0] imm;
+  logic [2:0] func3;
+  logic [31:0] rdata1;
+  logic [31:0] rdata2;
+  logic [31:0] wdata;
+  logic RegWrite;
+  logic ebreak;
+  logic ecall;
+  logic mret;
+  logic [31:0] dout_mstatus;
+  logic [31:0] dout_mtvec;
+  logic [31:0] dout_mepc;
+  logic [31:0] dout_mcause;
+  logic control_ls;
+  logic control_RegWrite;
+  logic control_iMemRead_end;
+  logic control_iMemRead;
+  logic control_dmemR_end;
+  logic control_dmemW_end;
+  logic control_dMemRW;
 
   ysyx_24110015_Controller controller (
     .clk(clock), 
@@ -87,8 +115,6 @@ module ysyx_24110015(
   axi_lite_if axiif_master_ifu();
   axi_lite_if axiif_master_lsu();
   axi_lite_if axiif_master();
-  axi_lite_if axiif_slave_sram();
-  axi_lite_if axiif_slave_uart();
   axi_lite_if axiif_slave_clint();
 
   ysyx_24110015_AXIArbiter arbiter(
@@ -99,27 +125,43 @@ module ysyx_24110015(
     .axi_slave(axiif_master)
   );
 
-  ysyx_24110015_xbar xbar(
-    .clk(clock),
-    .rst(reset),
-    .axi_master(axiif_master),
-    .axi_slave_sram(axiif_slave_sram),
-    .axi_slave_uart(axiif_slave_uart),
-    .axi_slave_clint(axiif_slave_clint)
-  );
+  assign axiif_master.awready = io_master_awready;
+  assign io_master_awvalid = axiif_master.awvalid;
+  assign io_master_awaddr = axiif_master.awaddr;
+  assign io_master_awid = axiif_master.awid;
+  assign io_master_awlen = axiif_master.awlen;
+  assign io_master_awsize = axiif_master.awsize;
+  assign io_master_awburst = axiif_master.awburst;
+  assign axiif_master.wready = io_master_wready;
+  assign io_master_wvalid = axiif_master.wvalid;
+  assign io_master_wdata = axiif_master.wdata;
+  assign io_master_wstrb = axiif_master.wstrb;
+  assign io_master_wlast = axiif_master.wlast;
+  assign io_master_bready = axiif_master.bready;
+  assign axiif_master.bvalid = io_master_bvalid;
+  assign axiif_master.bresp = io_master_bresp;
+  assign axiif_master.bid = io_master_bid;
+  assign axiif_master.arready = io_master_arready;
+  assign io_master_arvalid = axiif_master.arvalid;
+  assign io_master_araddr = axiif_master.araddr;
+  assign io_master_arid = axiif_master.arid;
+  assign io_master_arlen = axiif_master.arlen;
+  assign io_master_arsize = axiif_master.arsize;
+  assign io_master_arburst = axiif_master.arburst;
+  assign io_master_rready = axiif_master.rready;
+  assign axiif_master.rvalid = io_master_rvalid;
+  assign axiif_master.rresp = io_master_rresp;
+  assign axiif_master.rdata = io_master_rdata;
+  assign axiif_master.rlast = io_master_rlast;
+  assign axiif_master.rid = io_master_rid;
+
+  // ysyx_24110015_xbar xbar(
+  //   .clk(clock),
+  //   .rst(reset),
+  //   .axi_master(axiif_master),
+  //   .axi_slave_clint(axiif_slave_clint)
+  // );
   
-  ysyx_24110015_AXI2MEM axi2mem(
-    .clk(clock),
-    .rst(reset),
-    .axi(axiif_slave_sram)
-  );
-
-  ysyx_24110015_AXI2Uart axi2uart (
-    .clk(clock),
-    .rst(reset),
-    .axi(axiif_slave_uart)
-  );
-
   ysyx_24110015_AXI2Clint axi2clint (
     .clk(clock),
     .rst(reset),

@@ -5,7 +5,7 @@
 #include <cpu/difftest.hpp>
 #include <common.hpp>
 
-Vysyx_24110015_top* top;
+VysyxSoCFull* top;
 VerilatedContext* contextp;
 VerilatedFstC* tfp;
 
@@ -18,13 +18,13 @@ static uint64_t cycles_num = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
-  top->clk = 1;
+  top->clock = 1;
   top->eval();
   contextp->timeInc(1);
 #ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
 #endif
-  top->clk = 0;
+  top->clock = 0;
   top->eval();
   contextp->timeInc(1);
 #ifdef CONFIG_FST_TRACE
@@ -34,22 +34,22 @@ static void single_cycle() {
 }
 
 static void reset(int n){
-  top->rst = 1;
+  top->reset = 1;
   while(n--) single_cycle();
-  top->rst = 0;
-  cpu.pc = 0x80000000;
-  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__idu__DOT__rf__DOT__rf[i];
-  cpu.csr.mstatus = top->dout_mstatus;
-  cpu.csr.mepc = top->dout_mepc;
-  cpu.csr.mcause = top->dout_mcause;
-  cpu.csr.mtvec = top->dout_mtvec;
+  top->reset = 0;
+  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
+  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[i];
+  cpu.csr.mstatus = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mstatus;
+  cpu.csr.mepc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mepc;
+  cpu.csr.mcause = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mcause;
+  cpu.csr.mtvec = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mtvec;
 }
 
 void init_cpu(int argc, char* argv[]) {
 
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
-  top = new Vysyx_24110015_top{contextp};
+  top = new VysyxSoCFull{contextp};
 #ifdef CONFIG_FST_TRACE
   tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
@@ -57,14 +57,14 @@ void init_cpu(int argc, char* argv[]) {
   tfp->open("./build/simx.fst");
 #endif
   // printf("init cpu\n");
-  reset(5);
+  reset(20);
   //跳过第一个周期的ifu
   do{
     single_cycle();
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
-  }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
+  }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
   int cnt = 0;
-  while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
+  while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
     if(cnt > 20){
@@ -82,6 +82,7 @@ bool bad_trap_flag = 0;
 static bool end_flag = 0;
 
 void npc_trap(){
+  // printf("npc trap\n");
   end_flag = 1;
 } 
 
@@ -92,13 +93,13 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
-  s->pc = top->pc;
-  s->snpc = top->pc + 4;
+  s->pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
+  s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu + 4;
   // execute
   int cnt = 0;
   do{
-    if(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state==3){
-      s->inst = top->inst;
+    if(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state==3){
+      s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
       // printf("inst = 0x%08x\n", s->inst);
     }
     // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
@@ -108,29 +109,30 @@ static void execute_once(Decode *s){
       abort_flag = 1;
       break;
     }
-    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
-  }while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state != 1);
+    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+  }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
   cnt = 0;
-  while(top->rootp->ysyx_24110015_top__DOT__controller__DOT__state == 1){
+  while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
     if(cnt > 20){
       abort_flag = 1;
       break;
     }
+    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }
   
-  s->dnpc = top->pc;
+  s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
 
   //update cpu state
-  cpu.pc = top->pc;
+  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
   for(int i = 0; i < 16; i++) {
-    cpu.gpr[i] = top->rootp->ysyx_24110015_top__DOT__idu__DOT__rf__DOT__rf[i];
+    cpu.gpr[i] = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[i];
   }
-  cpu.csr.mstatus = top->dout_mstatus;
-  cpu.csr.mepc = top->dout_mepc;
-  cpu.csr.mcause = top->dout_mcause;
-  cpu.csr.mtvec = top->dout_mtvec;
+  cpu.csr.mstatus = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mstatus;
+  cpu.csr.mepc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mepc;
+  cpu.csr.mcause = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mcause;
+  cpu.csr.mtvec = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mtvec;
 
   //itrace
   char *p = s->logbuf;
@@ -190,7 +192,7 @@ void cpu_exec(uint64_t n) {
     }
 
     if(end_flag) {
-      int code = top->rootp->ysyx_24110015_top__DOT__idu__DOT__rf__DOT__rf[10];
+      int code = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[10];
       if(code!=0) bad_trap_flag = 1;
       Log("npc: %s at pc = 0x%08x\n", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
       Log("run cycles: %ld\n", cycles_num);

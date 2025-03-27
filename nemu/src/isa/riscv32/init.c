@@ -28,7 +28,12 @@ static const uint32_t img [] = {
 
 static void restart() {
   /* Set the initial program counter. */
+
+#ifdef CONFIG_TARGET_SHARE
+  cpu.pc = CONFIG_MROM_BASE;
+#else
   cpu.pc = RESET_VECTOR;
+#endif
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
@@ -38,8 +43,13 @@ static void restart() {
 
 void init_isa() {
   /* Load built-in image. */
-  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 
+#ifdef CONFIG_TARGET_SHARE
+  memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
+#else
+  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
+#endif
+  
   /* Initialize this virtual computer system. */
   restart();
 }

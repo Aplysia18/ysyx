@@ -90,7 +90,7 @@ module ysyx_24110015_EXU (
       pc_next_valid <= 1;
     end
   end
-  assign pc_next = pc_next_valid ? (branch && (alu_out==32'b1)) ? pc + imm : ecall ? dout_mtvec : mret ? dout_mepc : pc_default : 32'h80000000;
+  assign pc_next = pc_next_valid ? (branch && (alu_out==32'b1)) ? pc + imm : ecall ? dout_mtvec : mret ? dout_mepc : pc_default : 32'h20000000;
 
   /*-----ALU Calculate-----*/
   wire [31:0] ALUAdata, ALUBdata;
