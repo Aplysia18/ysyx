@@ -6,7 +6,7 @@ MEMORY {
 }
 
 SECTIONS {
-  /*
+  
   .stack ALIGN(0x1000) : {
     _stack_top = ORIGIN(SRAM);
     . = _stack_top + 0x1000;
@@ -19,17 +19,21 @@ SECTIONS {
   .heap ALIGN(0x1000) : {
     _heap_start = .;
   } >SRAM
-  */
+ 
 
   /* fot mem-test */
-  .heap ALIGN(0x1000) : {
+  /* .heap ALIGN(0x1000) : {
     _heap_start = ORIGIN(SRAM);
+    . = . + 0x1000;
+    _heap_end = .;
   } >SRAM
 
-  .stack : {
+  .stack ALIGN(0x1000) : {
     _stack_top = .;
-    _stack_pointer = ORIGIN(SRAM) + 0x2000;
-  } >SRAM
+    . = _stack_top + 0x1000;
+    _stack_pointer = .;
+  } >SRAM */
+
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
