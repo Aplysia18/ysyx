@@ -20,17 +20,15 @@ SECTIONS {
     _heap_start = .;
   } >SRAM
   */
-  
+
   /* fot mem-test */
   .heap ALIGN(0x1000) : {
     _heap_start = ORIGIN(SRAM);
-    . = _heap_start + 0x2000;
-    _heap_end = .;
   } >SRAM
 
-  .stack ALIGN(0x1000) : {
+  .stack : {
     _stack_top = .;
-    _stack_pointer = .;
+    _stack_pointer = ORIGIN(SRAM) + 0x2000;
   } >SRAM
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
