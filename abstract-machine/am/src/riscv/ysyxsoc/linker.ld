@@ -20,7 +20,8 @@ SECTIONS {
     _heap_start = .;
   } >SRAM
   */
-
+  
+  /* fot mem-test */
   .heap ALIGN(0x1000) : {
     _heap_start = ORIGIN(SRAM);
     . = _heap_start + 0x2000;
