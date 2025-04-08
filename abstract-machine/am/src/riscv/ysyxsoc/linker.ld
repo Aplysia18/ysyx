@@ -51,7 +51,7 @@ SECTIONS {
   
   .data : {
     *(.data)
-  } >MROM :data
+  } > SRAM AT > MROM :data
   
   edata = .;
   _data = .;
