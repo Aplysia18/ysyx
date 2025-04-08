@@ -15,7 +15,7 @@ int main(const char *args);
 #define SRAM_BEGIN 0x0f000000
 #define SRAM_SIZE  0x00002000
 
-Area heap = RANGE(&_heap_start, SRAM_BEGIN + SRAM_SIZE/2);
+Area heap = RANGE(&_heap_start, SRAM_BEGIN + SRAM_SIZE);
 #ifndef MAINARGS
 #define MAINARGS ""
 #endif
