@@ -178,7 +178,35 @@ module ysyx_24110015_LSU (
     end
     // assign mem_rdata = axiif.rdata;
     assign axiif.awaddr = {alu_out_i[31:2], 2'b00};
-    assign axiif.wdata = mem_wdata;
+    always @(*) begin
+        case(func3_i)
+            3'b000: begin   //sb
+                case (alu_out_i[1:0])
+                    2'b00: axiif.wdata = mem_wdata;
+                    2'b01: axiif.wdata = mem_wdata << 8;
+                    2'b10: axiif.wdata = mem_wdata << 16;
+                    2'b11: axiif.wdata = mem_wdata << 24;
+                endcase
+            end
+            3'b001: begin   //sh
+                case (alu_out_i[1:0])
+                    2'b00: axiif.wdata = mem_wdata;
+                    2'b10: axiif.wdata = mem_wdata << 16;
+                    default: axiif.wdata = 32'b0;
+                endcase
+            end
+            3'b010: begin   //sw
+                case (alu_out_i[1:0])
+                    2'b00: axiif.wdata = mem_wdata;
+                    default: axiif.wdata = 32'b0;
+                endcase
+            end
+            default: begin
+                axiif.wdata = 32'b0;
+            end
+        endcase
+    end
+    // assign axiif.wdata = mem_wdata;
     assign axiif.wstrb = mem_wmask << (alu_out_i[1:0]);
 
     assign control_dmemR_end = axiif.rvalid & axiif.rready;
