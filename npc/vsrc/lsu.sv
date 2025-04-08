@@ -40,7 +40,7 @@ module ysyx_24110015_LSU (
     output wen_mcause_o,
     output [2:0] func3_o,
     output MemRead_o,
-    output [31:0] mem_rdata,
+    output logic [31:0] mem_rdata,
     //to controller
     output control_dmemR_end,
     output control_dmemW_end,
@@ -85,14 +85,16 @@ module ysyx_24110015_LSU (
             end
         end
     end
-    assign axiif.arsize = ((func3_i&3'b011)==3'b000) ? 3'b000 : ((func3_i&3'b011)==3'b001) ? 3'b001 : 3'b010;
+    // assign axiif.arsize = ((func3_i&3'b011)==3'b000) ? 3'b000 : ((func3_i&3'b011)==3'b001) ? 3'b001 : 3'b010;
+    assign axiif.arsize = 3'b010; // 32 bit
 
     // assign axiif.rready = MemRead_o & control_dMemRW;
     assign axiif.rready = 1;
 
 
     // assign axiif.awvalid = MemWrite & control_dMemRW;
-    assign axiif.awsize = (mem_wmask == 4'b1111) ? 3'b010 : (mem_wmask == 4'b0011) ? 3'b001 : 3'b000;
+    // assign axiif.awsize = (mem_wmask == 4'b1111) ? 3'b010 : (mem_wmask == 4'b0011) ? 3'b001 : 3'b000;
+    assign axiif.awsize = 3'b010; // 32 bit
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.awvalid <= 0;
@@ -124,13 +126,60 @@ module ysyx_24110015_LSU (
             end
         end
     end
+    
+    // 需要添加地址非对齐检测
+
     // assign axiif.bready = MemWrite & control_dMemRW;
     assign axiif.bready = 1;
-    assign axiif.araddr = alu_out_i;
-    assign mem_rdata = axiif.rdata;
-    assign axiif.awaddr = alu_out_i;
+    // sram读取32bit，再截取需要的部分
+    assign axiif.araddr = {alu_out_i[31:2], 2'b00};
+    always @(*) begin
+        case (func3_i)
+            3'b000: begin   //lb
+                case (alu_out_i[1:0])
+                    2'b00: mem_rdata = {{24{axiif.rdata[7]}}, axiif.rdata[7:0]};
+                    2'b01: mem_rdata = {{24{axiif.rdata[15]}}, axiif.rdata[15:8]};
+                    2'b10: mem_rdata = {{24{axiif.rdata[23]}}, axiif.rdata[23:16]};
+                    2'b11: mem_rdata = {{24{axiif.rdata[31]}}, axiif.rdata[31:24]};
+                endcase
+            end
+            3'b001: begin   //lh
+                case (alu_out_i[1:0])
+                    2'b00: mem_rdata = {{16{axiif.rdata[15]}}, axiif.rdata[15:0]};
+                    2'b10: mem_rdata = {{16{axiif.rdata[31]}}, axiif.rdata[31:16]};
+                    default: mem_rdata = 32'b0;
+                endcase
+            end
+            3'b010: begin   //lw
+                case (alu_out_i[1:0])
+                    2'b00: mem_rdata = axiif.rdata;
+                    default: mem_rdata = 32'b0;
+                endcase
+            end
+            3'b100: begin   //lbu
+                case (alu_out_i[1:0])
+                    2'b00: mem_rdata = {24'b0, axiif.rdata[7:0]};
+                    2'b01: mem_rdata = {24'b0, axiif.rdata[15:8]};
+                    2'b10: mem_rdata = {24'b0, axiif.rdata[23:16]};
+                    2'b11: mem_rdata = {24'b0, axiif.rdata[31:24]};
+                endcase
+            end
+            3'b101: begin   //lhu
+                case (alu_out_i[1:0])
+                    2'b00: mem_rdata = {16'b0, axiif.rdata[15:0]};
+                    2'b10: mem_rdata = {16'b0, axiif.rdata[31:16]};
+                    default: mem_rdata = 32'b0;
+                endcase
+            end
+            default: begin
+                mem_rdata = 32'b0;
+            end
+        endcase
+    end
+    // assign mem_rdata = axiif.rdata;
+    assign axiif.awaddr = {alu_out_i[31:2], 2'b00};
     assign axiif.wdata = mem_wdata;
-    assign axiif.wstrb = mem_wmask;
+    assign axiif.wstrb = mem_wmask << (alu_out_i[1:0]);
 
     assign control_dmemR_end = axiif.rvalid & axiif.rready;
     assign control_dmemW_end = axiif.bvalid & axiif.bready;
