@@ -9,7 +9,7 @@ SECTIONS {
   . = ORIGIN(SRAM);
   .stack ALIGN(0x1000) : { /*4KB*/
     _stack_top = ORIGIN(SRAM);
-    . = _stack_top + 0x800;
+    . = _stack_top + 0x1000;
     _stack_pointer = .;
   } >SRAM
 
