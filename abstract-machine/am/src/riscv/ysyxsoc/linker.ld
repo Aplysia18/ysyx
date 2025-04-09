@@ -34,7 +34,7 @@ SECTIONS {
   } > SRAM
 
   .stack ALIGN(0x800) : { /*2KB*/
-    _stack_top = ORIGIN(SRAM);
+    _stack_top = .;
     . = _stack_top + 0x800;
     _stack_pointer = .;
   } >SRAM
