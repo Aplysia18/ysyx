@@ -6,6 +6,19 @@ MEMORY {
 }
 
 SECTIONS {
+  . = ORIGIN(SRAM);
+  .stack ALIGN(4) : { /*4KB*/
+    _stack_top = .;
+    . = _stack_top + 0x1000;
+    _stack_pointer = .;
+  } >SRAM
+
+  .heap ALIGN(4) : {  /*2KB*/
+    _heap_start = .;
+    . = _heap_start + 0x800;
+    _heap_end = .;
+  } >SRAM
+ 
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
@@ -32,19 +45,6 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   } > SRAM
-
-  .stack ALIGN(4) : { /*4KB*/
-    _stack_top = .;
-    . = _stack_top + 0x1000;
-    _stack_pointer = .;
-  } >SRAM
-
-  .heap ALIGN(4) : {  /*2KB*/
-    _heap_start = .;
-    . = _heap_start + 0x800;
-    _heap_end = .;
-  } >SRAM
- 
 
   /* fot mem-test */
   /* .heap ALIGN(0x1000) : {
