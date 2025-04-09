@@ -33,13 +33,13 @@ SECTIONS {
     *(.scommon)
   } > SRAM
 
-  .stack ALIGN(0x800) : { /*4KB*/
+  .stack ALIGN(4) : { /*4KB*/
     _stack_top = .;
     . = _stack_top + 0x1000;
     _stack_pointer = .;
   } >SRAM
 
-  .heap ALIGN(0x800) : {  /*2KB*/
+  .heap ALIGN(4) : {  /*2KB*/
     _heap_start = .;
     . = _heap_start + 0x800;
     _heap_end = .;
