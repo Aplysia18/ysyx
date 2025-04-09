@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+/* PHDRS { text PT_LOAD; data PT_LOAD; } */
 MEMORY {
   SRAM : ORIGIN = 0x0f000000, LENGTH = 0x2000 /*stack and heap 8KB*/
   MROM : ORIGIN = 0x20000000, LENGTH = 0x1000 /*code and read-only region 4KB*/
@@ -25,7 +25,7 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } >MROM :text
+  } >MROM
   
   .rodata : {
     *(.rodata*)
@@ -36,11 +36,11 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > SRAM AT> MROM :data
+  } > SRAM AT> MROM
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
-  .bss : AT(_data_end) ALIGN(4){
+  .bss (NOLOAD): {
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
