@@ -59,6 +59,6 @@ SECTIONS {
     _stack_pointer = .;
   } >SRAM */
 
-  /* end = .;
-  _end = .; */
+  end = .;
+  _end = .;
 }
