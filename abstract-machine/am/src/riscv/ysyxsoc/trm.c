@@ -36,7 +36,7 @@ void halt(int code) {
 }
 
 void _trm_init() {
-  // bootloader_copy_data();
+  bootloader_copy_data();
   int ret = main(mainargs);
   halt(ret);
 }
