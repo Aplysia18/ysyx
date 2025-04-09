@@ -6,29 +6,6 @@ MEMORY {
 }
 
 SECTIONS {
-  . = ORIGIN(SRAM);
-  _stack_top = .;
-  . = _stack_top + 0x800; /*2KB*/
-  _stack_pointer = .;
-
-  _heap_start = .;
-  . = _heap_start + 0x800;
-  _heap_end = .;
- 
-
-  /* fot mem-test */
-  /* .heap ALIGN(0x1000) : {
-    _heap_start = ORIGIN(SRAM);
-    . = _heap_start + 0x1000;
-    _heap_end = .;
-  } >SRAM
-
-  .stack ALIGN(0x1000) : {
-    _stack_top = .;
-    . = _stack_top + 0x1000;
-    _stack_pointer = .;
-  } >SRAM */
-
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
@@ -55,4 +32,30 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
   } > SRAM
+
+  .stack ALIGN(0x800) : { /*2KB*/
+    _stack_top = ORIGIN(SRAM);
+    . = _stack_top + 0x800;
+    _stack_pointer = .;
+  } >SRAM
+
+  .heap ALIGN(0x800) : {  /*2KB*/
+    _heap_start = .;
+    . = _heap_start + 0x800;
+    _heap_end = .;
+  } >SRAM
+ 
+
+  /* fot mem-test */
+  /* .heap ALIGN(0x1000) : {
+    _heap_start = ORIGIN(SRAM);
+    . = _heap_start + 0x1000;
+    _heap_end = .;
+  } >SRAM
+
+  .stack ALIGN(0x1000) : {
+    _stack_top = .;
+    . = _stack_top + 0x1000;
+    _stack_pointer = .;
+  } >SRAM */
 }
