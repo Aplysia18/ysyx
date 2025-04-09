@@ -23,7 +23,7 @@ SECTIONS {
     *(.data)
     _data_end = .;
   } > SRAM AT> MROM :data
-  _data_size = SIZEOF(.data);
+  _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
   .bss (NOLOAD): {
