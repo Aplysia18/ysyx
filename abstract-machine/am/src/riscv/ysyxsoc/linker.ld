@@ -34,16 +34,18 @@ SECTIONS {
   .data : {
     _data_start = .;
     *(.data*)
+    *(.sdata*)
     _data_end = .;
   } > SRAM AT> MROM :data
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
-  .bss (NOLOAD): {
+  .bss : AT(_data_end) ALIGN(4){
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
     *(.scommon)
+    _bss_end = .;
   } > SRAM
 
   /* fot mem-test */
