@@ -58,4 +58,7 @@ SECTIONS {
     . = _stack_top + 0x1000;
     _stack_pointer = .;
   } >SRAM */
+
+  end = .;
+  _end = .;
 }
