@@ -1,7 +1,7 @@
 ENTRY(_start)
 PHDRS { text PT_LOAD; data PT_LOAD; }
 MEMORY {
-  SRAM : ORIGIN = 0x0f000000, LENGTH = 0x2000 /*stack and heap 8KB*/
+  SRAM : ORIGIN = 0x0f000000, LENGTH = 0x4000 /*stack and heap 8KB*/
   MROM : ORIGIN = 0x20000000, LENGTH = 0x1000 /*code and read-only region 4KB*/
 }
 
@@ -33,15 +33,15 @@ SECTIONS {
     *(.scommon)
   } > SRAM
 
-  .stack ALIGN(0x800) : { /*4KB*/
+  .stack ALIGN(0x100) : { /*4KB*/
     _stack_top = .;
     . = _stack_top + 0x1000;
     _stack_pointer = .;
   } >SRAM
 
-  .heap ALIGN(0x800) : {  /*2KB*/
+  .heap ALIGN(0x100) : {  /*2KB*/
     _heap_start = .;
-    . = _heap_start + 0x800;
+    . = _heap_start + 0x1000;
     _heap_end = .;
   } >SRAM
  
