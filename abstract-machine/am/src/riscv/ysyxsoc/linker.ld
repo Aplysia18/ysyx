@@ -33,9 +33,9 @@ SECTIONS {
     *(.scommon)
   } > SRAM
 
-  .stack ALIGN(0x800) : { /*2KB*/
+  .stack ALIGN(0x800) : { /*4KB*/
     _stack_top = .;
-    . = _stack_top + 0x800;
+    . = _stack_top + 0x100;
     _stack_pointer = .;
   } >SRAM
 
