@@ -40,7 +40,7 @@ SECTIONS {
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
-  .bss (NOLOAD): {
+  .bss : {
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
