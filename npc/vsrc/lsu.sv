@@ -99,8 +99,8 @@ module ysyx_24110015_LSU (
                 3'b000: axiif.arsize = 3'b000; //lb
                 3'b001: axiif.arsize = 3'b001; //lh
                 3'b010: axiif.arsize = 3'b010; //lw
-                3'b100: axiif.arsize = 3'b100; //lbu
-                3'b101: axiif.arsize = 3'b101; //lhu
+                3'b100: axiif.arsize = 3'b000; //lbu
+                3'b101: axiif.arsize = 3'b001; //lhu
                 default: axiif.arsize = 3'b010;
             endcase
         end
