@@ -67,7 +67,13 @@ int pmem_read(int raddr) {
   if(in_sram(raddr)) {
     return sram_read(raddr, 4);
   }
-#ifdef CONFIG_RTC_MMIO
+#ifdef CONFIG_UART
+  if((raddr >= CONFIG_UART) && (raddr < CONFIG_UART + CONFIG_UART_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
+  #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
