@@ -5,6 +5,9 @@
 
 #define UART_BASE 0x10000000L
 #define UART_TX   0
+#define UART_LCR  3
+#define UART_DL_LSB 0
+#define UART_DL_MSB 1
 
 extern char _heap_start, _heap_end;
 int main(const char *args);
@@ -26,6 +29,19 @@ void bootloader_copy_data(){
   memcpy(_data_start, _data_load_start, (size_t)_data_size);
 }
 
+void uart_init() {
+  // 1. Set the Line Control Register bit 7 to 1
+  char lcr = *(volatile char *)(UART_BASE + UART_LCR);
+  lcr |= 0x80;
+  *(volatile char *)(UART_BASE + UART_LCR) = lcr;
+  // 2. Set the Divisor Latch to control baud rate
+  *(volatile char *)(UART_BASE + UART_DL_MSB) = 0x00;
+  *(volatile char *)(UART_BASE + UART_DL_LSB) = 0x03;
+  // 3. Set the Line Control Register bit 7 to 0
+  lcr &= ~0x80;
+  *(volatile char *)(UART_BASE + UART_LCR) = lcr;
+}
+
 void putch(char ch) {
     *(volatile char *)(UART_BASE + UART_TX) = ch;
 }
@@ -37,6 +53,7 @@ void halt(int code) {
 
 void _trm_init() {
   bootloader_copy_data();
+  uart_init();
   int ret = main(mainargs);
   halt(ret);
 }
