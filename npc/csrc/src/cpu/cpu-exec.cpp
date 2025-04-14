@@ -102,7 +102,7 @@ static void execute_once(Decode *s){
       s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
       // printf("inst = 0x%08x\n", s->inst);
     }
-    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
+    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
     single_cycle();
     cnt++;
     if(cnt > 20){

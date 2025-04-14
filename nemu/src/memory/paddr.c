@@ -92,8 +92,8 @@ word_t paddr_read(paddr_t addr, int len) {
   printf("paddr_read: addr = " FMT_PADDR ", len = %d\n", addr, len);
 #endif
 #ifdef CONFIG_TARGET_SHARE
-  if (likely(in_mrom(addr))) return mrom_read(addr, len);
-  if (likely(in_sram(addr))) return sram_read(addr, len);
+  if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) return mrom_read(addr, len);
+  if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) return sram_read(addr, len);
 #else
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
 #endif

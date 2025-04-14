@@ -1,4 +1,4 @@
-import "DPI-C" function int pmem_read(input int addr);
+// import "DPI-C" function int pmem_read(input int addr);
 module ysyx_24110015_AXI2Clint (
     input clk,
     input rst,

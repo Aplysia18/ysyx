@@ -40,7 +40,7 @@ static word_t sram_read(paddr_t addr, int len) {
 static void sram_write(paddr_t addr, word_t data, char mask) {
   for(int i = 0; i < 4; i++) {
     if(mask & (1 << i)) {
-      *(uint8_t*)guest_to_host(addr + i) = (data >> (i * 8)) & 0xff;
+      *(uint8_t*)sram_guest_to_host(addr + i) = (data >> (i * 8)) & 0xff;
     }
   }
 }
@@ -56,18 +56,24 @@ int pmem_read(int raddr) {
 #ifdef CONFIG_MTRACE
   printf("pmem_read: addr = " FMT_PADDR "\n", raddr);
 #endif
-  if(raddr & 0x3) {
-    printf("pmem_read: unaligned address 0x%x\n", raddr);
-    abort_flag = 1;
-    return 0;
-  }
+  // if(raddr & 0x3) {
+  //   printf("pmem_read: unaligned address 0x%x\n", raddr);
+  //   abort_flag = 1;
+  //   return 0;
+  // }
   if(in_mrom(raddr)) {
     return mrom_read(raddr, 4);
   }
   if(in_sram(raddr)) {
     return sram_read(raddr, 4);
   }
-#ifdef CONFIG_RTC_MMIO
+#ifdef CONFIG_UART
+  if((raddr >= CONFIG_UART) && (raddr < CONFIG_UART + CONFIG_UART_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
+  #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
@@ -85,7 +91,9 @@ void pmem_write(int waddr, int wdata, char wmask) {
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
 #endif
   if(in_sram(waddr)) {
-    sram_write(waddr, 4, wdata);
+    // printf("in sram begin\n");
+    // sram_write(waddr, 4, wdata);
+    // printf("in sram done\n");
     return;
   }
   if(!in_pmem(waddr)) {
@@ -101,17 +109,24 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
 #endif
+#ifdef CONFIG_UART
+  if((waddr >= CONFIG_UART) && (waddr < CONFIG_UART + CONFIG_UART_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
     printf("pmem_write: invalid address 0x%x\n", waddr);
     abort_flag = 1;
     return;
   }
-  if(waddr & 0x3) {
-    printf("pmem_write: unaligned address 0x%x\n", waddr);
-    abort_flag = 1;
-  }
+  // if(waddr & 0x3) {
+  //   printf("pmem_write: unaligned address 0x%x\n", waddr);
+  //   abort_flag = 1;
+  // }
   for(int i = 0; i < 4; i++) {
     if(wmask & (1 << i)) {
       *(uint8_t*)guest_to_host(waddr + i) = (wdata >> (i * 8)) & 0xff;
     }
   }
+  printf("pmem end\n");
 }
