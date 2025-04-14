@@ -53,9 +53,9 @@ static inline bool in_pmem(paddr_t addr) {
 }
 
 int pmem_read(int raddr) {
-// #ifdef CONFIG_MTRACE
+#ifdef CONFIG_MTRACE
   printf("pmem_read: addr = " FMT_PADDR "\n", raddr);
-// #endif
+#endif
   if(raddr & 0x3) {
     printf("pmem_read: unaligned address 0x%x\n", raddr);
     abort_flag = 1;
@@ -81,9 +81,9 @@ int pmem_read(int raddr) {
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
-// #ifdef CONFIG_MTRACE
+#ifdef CONFIG_MTRACE
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
-// #endif
+#endif
   if(in_sram(waddr)) {
     // printf("in sram begin\n");
     // sram_write(waddr, 4, wdata);
