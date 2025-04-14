@@ -56,11 +56,11 @@ int pmem_read(int raddr) {
 #ifdef CONFIG_MTRACE
   printf("pmem_read: addr = " FMT_PADDR "\n", raddr);
 #endif
-  if(raddr & 0x3) {
-    printf("pmem_read: unaligned address 0x%x\n", raddr);
-    abort_flag = 1;
-    return 0;
-  }
+  // if(raddr & 0x3) {
+  //   printf("pmem_read: unaligned address 0x%x\n", raddr);
+  //   abort_flag = 1;
+  //   return 0;
+  // }
   if(in_mrom(raddr)) {
     return mrom_read(raddr, 4);
   }
@@ -119,10 +119,10 @@ void pmem_write(int waddr, int wdata, char wmask) {
     abort_flag = 1;
     return;
   }
-  if(waddr & 0x3) {
-    printf("pmem_write: unaligned address 0x%x\n", waddr);
-    abort_flag = 1;
-  }
+  // if(waddr & 0x3) {
+  //   printf("pmem_write: unaligned address 0x%x\n", waddr);
+  //   abort_flag = 1;
+  // }
   for(int i = 0; i < 4; i++) {
     if(wmask & (1 << i)) {
       *(uint8_t*)guest_to_host(waddr + i) = (wdata >> (i * 8)) & 0xff;
