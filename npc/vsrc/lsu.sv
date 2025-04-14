@@ -258,7 +258,7 @@ module ysyx_24110015_LSU (
         endcase
     end
 
-    assign axiif.wstrb = (in_sram) ? (mem_wmask << (alu_out_i[1:0])) : mem_wmask;
+    assign axiif.wstrb = mem_wmask << (alu_out_i[1:0]);
 
     assign control_dmemR_end = axiif.rvalid & axiif.rready;
     assign control_dmemW_end = axiif.bvalid & axiif.bready;
