@@ -85,7 +85,9 @@ void pmem_write(int waddr, int wdata, char wmask) {
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
 // #endif
   if(in_sram(waddr)) {
+    printf("in sram begin\n");
     sram_write(waddr, 4, wdata);
+    printf("in sram done\n");
     return;
   }
   if(!in_pmem(waddr)) {
