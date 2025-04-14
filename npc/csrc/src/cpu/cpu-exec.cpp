@@ -97,6 +97,7 @@ static void execute_once(Decode *s){
   s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu + 4;
   // execute
   int cnt = 0;
+  printf("1\n");
   do{
     if(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state==3){
       s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
@@ -112,6 +113,7 @@ static void execute_once(Decode *s){
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
   cnt = 0;
+  printf("2\n");
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
@@ -121,7 +123,7 @@ static void execute_once(Decode *s){
     }
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }
-  
+  printf("3\n");
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
 
   //update cpu state
@@ -174,12 +176,12 @@ void cpu_exec(uint64_t n) {
       end_flag = 1;
       break;
     }
-printf("1\n");
+
     execute_once(&s);
     g_nr_guest_inst ++;
-printf("2\n");
+    
     trace_and_difftest(&s, cpu.pc);
-printf("3\n");
+    
     // if(g_nr_guest_inst >= 5000){
     //   abort_flag = 1;
     // }
