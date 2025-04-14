@@ -100,16 +100,15 @@ static void execute_once(Decode *s){
   do{
     if(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state==3){
       s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
-      printf("inst = 0x%08x\n", s->inst);
+      // printf("inst = 0x%08x\n", s->inst);
     }
-    printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
     single_cycle();
     cnt++;
     if(cnt > 20){
       abort_flag = 1;
       break;
     }
-    printf("do\n");
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
   cnt = 0;
