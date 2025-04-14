@@ -120,4 +120,5 @@ void pmem_write(int waddr, int wdata, char wmask) {
       *(uint8_t*)guest_to_host(waddr + i) = (wdata >> (i * 8)) & 0xff;
     }
   }
+  printf("pmem end\n");
 }
