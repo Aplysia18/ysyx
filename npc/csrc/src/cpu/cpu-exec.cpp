@@ -88,9 +88,7 @@ void npc_trap(){
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
-    printf("1\n");
     difftest_step(_this->pc, dnpc);
-    printf("2\n");
     check_watchpoints();
 }
 
@@ -176,12 +174,12 @@ void cpu_exec(uint64_t n) {
       end_flag = 1;
       break;
     }
-
+printf("1\n");
     execute_once(&s);
     g_nr_guest_inst ++;
-    
+printf("2\n");
     trace_and_difftest(&s, cpu.pc);
-    
+printf("3\n");
     // if(g_nr_guest_inst >= 5000){
     //   abort_flag = 1;
     // }
