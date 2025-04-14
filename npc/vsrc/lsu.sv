@@ -222,29 +222,19 @@ module ysyx_24110015_LSU (
     always @(*) begin
         case(func3_i)
             3'b000: begin   //sb
-                if(in_sram) begin
-                    case (alu_out_i[1:0])
-                        2'b00: axiif.wdata = mem_wdata;
-                        2'b01: axiif.wdata = mem_wdata << 8;
-                        2'b10: axiif.wdata = mem_wdata << 16;
-                        2'b11: axiif.wdata = mem_wdata << 24;
-                    endcase
-                end
-                else begin
-                    axiif.wdata = mem_wdata;
-                end
+                case (alu_out_i[1:0])
+                    2'b00: axiif.wdata = mem_wdata;
+                    2'b01: axiif.wdata = mem_wdata << 8;
+                    2'b10: axiif.wdata = mem_wdata << 16;
+                    2'b11: axiif.wdata = mem_wdata << 24;
+                endcase
             end
             3'b001: begin   //sh
-                if(in_sram) begin
-                    case (alu_out_i[1:0])
-                        2'b00: axiif.wdata = mem_wdata;
-                        2'b10: axiif.wdata = mem_wdata << 16;
-                        default: axiif.wdata = 32'b0;
-                    endcase
-                end
-                else begin
-                    axiif.wdata = mem_wdata;
-                end
+                case (alu_out_i[1:0])
+                    2'b00: axiif.wdata = mem_wdata;
+                    2'b10: axiif.wdata = mem_wdata << 16;
+                    default: axiif.wdata = 32'b0;
+                endcase
             end
             3'b010: begin   //sw
                 case (alu_out_i[1:0])
