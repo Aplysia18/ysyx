@@ -67,11 +67,9 @@ module ysyx_24110015_LSU (
     assign func3_o = func3_i;
     assign MemRead_o = MemRead_i;
 
-    // wire arready, rvalid, awready, wready, bvalid;
-    // wire arvalid, rready, awvalid, wvalid, bready;
-    // wire [1:0] rresp, bresp;
+    logic in_sram;
+    assign in_sram = (alu_out_i>=32'h0f000000)&(alu_out_i<32'h10000000);
 
-    // assign axiif.arvalid = MemRead_o & control_dMemRW;
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.arvalid <= 0;
@@ -87,16 +85,92 @@ module ysyx_24110015_LSU (
             end
         end
     end
-    // assign axiif.arsize = ((func3_i&3'b011)==3'b000) ? 3'b000 : ((func3_i&3'b011)==3'b001) ? 3'b001 : 3'b010;
-    assign axiif.arsize = 3'b010; // 32 bit
-
-    // assign axiif.rready = MemRead_o & control_dMemRW;
+    // assign axiif.arsize = 3'b010; // 32 bit
     assign axiif.rready = 1;
 
+    // sram读取32bit，再截取需要的部分; uart窄传输，需要控制arsize
+    assign axiif.araddr = in_sram ? {alu_out_i[31:2], 2'b00} : alu_out_i;
+    //arsize: sram 4byte, other depends on func3
+    always @(*) begin
+        if(in_sram) begin
+            axiif.arsize = 3'b010;
+        end else begin
+            case (func3_i)
+                3'b000: axiif.arsize = 3'b000; //lb
+                3'b001: axiif.arsize = 3'b001; //lh
+                3'b010: axiif.arsize = 3'b010; //lw
+                3'b100: axiif.arsize = 3'b100; //lbu
+                3'b101: axiif.arsize = 3'b101; //lhu
+                default: axiif.arsize = 3'b010;
+            endcase
+        end
+    end
+    
+    always @(*) begin
+        case (func3_i)
+            3'b000: begin   //lb
+                if(in_sram) begin
+                    case (alu_out_i[1:0])
+                        2'b00: mem_rdata = {{24{axiif.rdata[7]}}, axiif.rdata[7:0]};
+                        2'b01: mem_rdata = {{24{axiif.rdata[15]}}, axiif.rdata[15:8]};
+                        2'b10: mem_rdata = {{24{axiif.rdata[23]}}, axiif.rdata[23:16]};
+                        2'b11: mem_rdata = {{24{axiif.rdata[31]}}, axiif.rdata[31:24]};
+                    endcase
+                end
+                else begin
+                    mem_rdata = {{24{axiif.rdata[7]}}, axiif.rdata[7:0]};
+                end
+            end
+            3'b001: begin   //lh
+                if(in_sram) begin
+                    case (alu_out_i[1:0])
+                        2'b00: mem_rdata = {{16{axiif.rdata[15]}}, axiif.rdata[15:0]};
+                        2'b10: mem_rdata = {{16{axiif.rdata[31]}}, axiif.rdata[31:16]};
+                        default: mem_rdata = 32'b0;
+                    endcase
+                end
+                else begin
+                    mem_rdata = {{16{axiif.rdata[15]}}, axiif.rdata[15:0]};
+                end
+            end
+            3'b010: begin   //lw
+                case (alu_out_i[1:0])
+                    2'b00: mem_rdata = axiif.rdata;
+                    default: mem_rdata = 32'b0;
+                endcase
+            end
+            3'b100: begin   //lbu
+                if(in_sram) begin
+                    case (alu_out_i[1:0])
+                        2'b00: mem_rdata = {24'b0, axiif.rdata[7:0]};
+                        2'b01: mem_rdata = {24'b0, axiif.rdata[15:8]};
+                        2'b10: mem_rdata = {24'b0, axiif.rdata[23:16]};
+                        2'b11: mem_rdata = {24'b0, axiif.rdata[31:24]};
+                    endcase
+                end
+                else begin
+                    mem_rdata = {24'b0, axiif.rdata[7:0]};
+                end
+            end
+            3'b101: begin   //lhu
+                if(in_sram) begin
+                    case (alu_out_i[1:0])
+                        2'b00: mem_rdata = {16'b0, axiif.rdata[15:0]};
+                        2'b10: mem_rdata = {16'b0, axiif.rdata[31:16]};
+                        default: mem_rdata = 32'b0;
+                    endcase
+                end
+                else begin
+                    mem_rdata = {16'b0, axiif.rdata[15:0]};
+                end
+            end
+            default: begin
+                mem_rdata = 32'b0;
+            end
+        endcase
+    end
 
-    // assign axiif.awvalid = MemWrite & control_dMemRW;
-    // assign axiif.awsize = (mem_wmask == 4'b1111) ? 3'b010 : (mem_wmask == 4'b0011) ? 3'b001 : 3'b000;
-    assign axiif.awsize = 3'b010; // 32 bit
+    // assign axiif.awsize = 3'b010; // 32 bit
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.awvalid <= 0;
@@ -112,7 +186,7 @@ module ysyx_24110015_LSU (
             end
         end
     end
-    // assign axiif.wvalid = MemWrite & control_dMemRW;
+
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.wvalid <= 0;
@@ -129,73 +203,48 @@ module ysyx_24110015_LSU (
         end
     end
     
-    // 需要添加地址非对齐检测
-
-    // assign axiif.bready = MemWrite & control_dMemRW;
     assign axiif.bready = 1;
-    // sram读取32bit，再截取需要的部分
-    assign axiif.araddr = {alu_out_i[31:2], 2'b00};
+
+    assign axiif.awaddr = in_sram ? {alu_out_i[31:2], 2'b00} : alu_out_i;
+    //awsize: sram 4byte, other depends on func3
     always @(*) begin
-        case (func3_i)
-            3'b000: begin   //lb
-                case (alu_out_i[1:0])
-                    2'b00: mem_rdata = {{24{axiif.rdata[7]}}, axiif.rdata[7:0]};
-                    2'b01: mem_rdata = {{24{axiif.rdata[15]}}, axiif.rdata[15:8]};
-                    2'b10: mem_rdata = {{24{axiif.rdata[23]}}, axiif.rdata[23:16]};
-                    2'b11: mem_rdata = {{24{axiif.rdata[31]}}, axiif.rdata[31:24]};
-                endcase
-            end
-            3'b001: begin   //lh
-                case (alu_out_i[1:0])
-                    2'b00: mem_rdata = {{16{axiif.rdata[15]}}, axiif.rdata[15:0]};
-                    2'b10: mem_rdata = {{16{axiif.rdata[31]}}, axiif.rdata[31:16]};
-                    default: mem_rdata = 32'b0;
-                endcase
-            end
-            3'b010: begin   //lw
-                case (alu_out_i[1:0])
-                    2'b00: mem_rdata = axiif.rdata;
-                    default: mem_rdata = 32'b0;
-                endcase
-            end
-            3'b100: begin   //lbu
-                case (alu_out_i[1:0])
-                    2'b00: mem_rdata = {24'b0, axiif.rdata[7:0]};
-                    2'b01: mem_rdata = {24'b0, axiif.rdata[15:8]};
-                    2'b10: mem_rdata = {24'b0, axiif.rdata[23:16]};
-                    2'b11: mem_rdata = {24'b0, axiif.rdata[31:24]};
-                endcase
-            end
-            3'b101: begin   //lhu
-                case (alu_out_i[1:0])
-                    2'b00: mem_rdata = {16'b0, axiif.rdata[15:0]};
-                    2'b10: mem_rdata = {16'b0, axiif.rdata[31:16]};
-                    default: mem_rdata = 32'b0;
-                endcase
-            end
-            default: begin
-                mem_rdata = 32'b0;
-            end
-        endcase
+        if(in_sram) begin
+            axiif.awsize = 3'b010;
+        end else begin
+            case (func3_i)
+                3'b000: axiif.awsize = 3'b000; //sb
+                3'b001: axiif.awsize = 3'b001; //sh
+                3'b010: axiif.awsize = 3'b010; //sw
+                default: axiif.awsize = 3'b010;
+            endcase
+        end
     end
-    // assign mem_rdata = axiif.rdata;
-    assign axiif.awaddr = {alu_out_i[31:2], 2'b00};
     always @(*) begin
         case(func3_i)
             3'b000: begin   //sb
-                case (alu_out_i[1:0])
-                    2'b00: axiif.wdata = mem_wdata;
-                    2'b01: axiif.wdata = mem_wdata << 8;
-                    2'b10: axiif.wdata = mem_wdata << 16;
-                    2'b11: axiif.wdata = mem_wdata << 24;
-                endcase
+                if(in_sram) begin
+                    case (alu_out_i[1:0])
+                        2'b00: axiif.wdata = mem_wdata;
+                        2'b01: axiif.wdata = mem_wdata << 8;
+                        2'b10: axiif.wdata = mem_wdata << 16;
+                        2'b11: axiif.wdata = mem_wdata << 24;
+                    endcase
+                end
+                else begin
+                    axiif.wdata = mem_wdata;
+                end
             end
             3'b001: begin   //sh
-                case (alu_out_i[1:0])
-                    2'b00: axiif.wdata = mem_wdata;
-                    2'b10: axiif.wdata = mem_wdata << 16;
-                    default: axiif.wdata = 32'b0;
-                endcase
+                if(in_sram) begin
+                    case (alu_out_i[1:0])
+                        2'b00: axiif.wdata = mem_wdata;
+                        2'b10: axiif.wdata = mem_wdata << 16;
+                        default: axiif.wdata = 32'b0;
+                    endcase
+                end
+                else begin
+                    axiif.wdata = mem_wdata;
+                end
             end
             3'b010: begin   //sw
                 case (alu_out_i[1:0])
@@ -208,13 +257,13 @@ module ysyx_24110015_LSU (
             end
         endcase
     end
-    // assign axiif.wdata = mem_wdata;
-    assign axiif.wstrb = mem_wmask << (alu_out_i[1:0]);
+
+    assign axiif.wstrb = (in_sram) ? (mem_wmask << (alu_out_i[1:0])) : mem_wmask;
 
     assign control_dmemR_end = axiif.rvalid & axiif.rready;
     assign control_dmemW_end = axiif.bvalid & axiif.bready;
 
-    //for the skip of diiftest
+    //for the skip of difftest
     always @(posedge clk or posedge rst) begin
         if(!rst) begin
             if(axiif.awvalid && axiif.awready) begin
