@@ -53,7 +53,7 @@ void halt(int code) {
 
 void _trm_init() {
   bootloader_copy_data();
-  uart_init();
+  // uart_init();
   int ret = main(mainargs);
   halt(ret);
 }
