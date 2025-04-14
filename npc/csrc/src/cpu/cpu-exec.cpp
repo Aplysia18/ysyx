@@ -90,7 +90,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     printf("1\n");
     difftest_step(_this->pc, dnpc);
-    printf("1\n");
+    printf("2\n");
     check_watchpoints();
 }
 
