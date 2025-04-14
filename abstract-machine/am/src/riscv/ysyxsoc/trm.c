@@ -36,7 +36,7 @@ void uart_init() {
   *(volatile char *)(UART_BASE + UART_LCR) = lcr;
   // 2. Set the Divisor Latch to control baud rate
   *(volatile char *)(UART_BASE + UART_DL_MSB) = 0x11;
-  *(volatile char *)(UART_BASE + UART_DL_LSB) = 0x01;
+  *(volatile char *)(UART_BASE + UART_DL_LSB) = 0x11;
   // 3. Set the Line Control Register bit 7 to 0
   lcr &= 0x7f;
   *(volatile char *)(UART_BASE + UART_LCR) = lcr;
