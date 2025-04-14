@@ -101,6 +101,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
 #endif
+#ifdef CONFIG_UART_MMIO
+  if((waddr >= CONFIG_UART_MMIO) && (waddr < CONFIG_UART_MMIO + CONFIG_UART_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
     printf("pmem_write: invalid address 0x%x\n", waddr);
     abort_flag = 1;
     return;

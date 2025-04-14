@@ -1,4 +1,4 @@
-import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+// import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
 module ysyx_24110015_AXI2Uart (
     input clk,
     input rst,

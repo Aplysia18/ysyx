@@ -1,3 +1,5 @@
+import "DPI-C" function int pmem_read(input int addr);
+import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
 module ysyx_24110015_LSU (
     input clk,
     input rst,
@@ -211,6 +213,18 @@ module ysyx_24110015_LSU (
 
     assign control_dmemR_end = axiif.rvalid & axiif.rready;
     assign control_dmemW_end = axiif.bvalid & axiif.bready;
+
+    //for the skip of diiftest
+    always @(posedge clk or posedge rst) begin
+        if(!rst) begin
+            if(axiif.awvalid && axiif.awready) begin
+                pmem_write(axiif.awaddr, axiif.wdata, {4'b0, axiif.wstrb});
+            end
+            if(axiif.arvalid && axiif.rready) begin
+                mem_rdata = pmem_read(axiif.araddr);
+            end
+        end
+    end
 
 
 endmodule
