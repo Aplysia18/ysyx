@@ -6,6 +6,7 @@
 #define UART_BASE 0x10000000L
 #define UART_TX   0
 #define UART_LCR  3
+#define UART_LSR 5
 #define UART_DL_LSB 0
 #define UART_DL_MSB 1
 
@@ -43,6 +44,9 @@ void uart_init() {
 }
 
 void putch(char ch) {
+  while(!(*(volatile char *)(UART_BASE + UART_LSR) & 0x20)) {
+    // wait for the UART to be ready
+  }
     *(volatile char *)(UART_BASE + UART_TX) = ch;
 }
 
