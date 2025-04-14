@@ -40,7 +40,7 @@ static word_t sram_read(paddr_t addr, int len) {
 static void sram_write(paddr_t addr, word_t data, char mask) {
   for(int i = 0; i < 4; i++) {
     if(mask & (1 << i)) {
-      *(uint8_t*)guest_to_host(addr + i) = (data >> (i * 8)) & 0xff;
+      *(uint8_t*)sram_guest_to_host(addr + i) = (data >> (i * 8)) & 0xff;
     }
   }
 }
