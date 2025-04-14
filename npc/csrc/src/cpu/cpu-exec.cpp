@@ -97,13 +97,12 @@ static void execute_once(Decode *s){
   s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu + 4;
   // execute
   int cnt = 0;
-  printf("1\n");
   do{
     if(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state==3){
       s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
-      // printf("inst = 0x%08x\n", s->inst);
+      printf("inst = 0x%08x\n", s->inst);
     }
-    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
+    printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
     single_cycle();
     cnt++;
     if(cnt > 20){
@@ -113,7 +112,6 @@ static void execute_once(Decode *s){
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
   cnt = 0;
-  printf("2\n");
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
@@ -123,7 +121,7 @@ static void execute_once(Decode *s){
     }
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }
-  printf("3\n");
+  
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
 
   //update cpu state
