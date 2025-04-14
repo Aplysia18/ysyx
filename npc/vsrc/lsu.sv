@@ -257,7 +257,7 @@ module ysyx_24110015_LSU (
     always @(posedge clk or posedge rst) begin
         if(!rst) begin
             if(axiif.awvalid && axiif.awready) begin
-                pmem_write(axiif.awaddr, axiif.wdata, {4'b0, axiif.wstrb});
+                pmem_write(axiif.awaddr, axiif.wdata, {4'b0, axiif.wstrb}); // wdata/wstrb not correct
             end
             if(axiif.arvalid && axiif.rready) begin
                 mem_rdata = pmem_read(axiif.araddr);
