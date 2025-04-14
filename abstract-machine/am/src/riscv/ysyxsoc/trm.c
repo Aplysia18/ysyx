@@ -36,7 +36,7 @@ void uart_init() {
   *(volatile char *)(UART_BASE + UART_LCR) = lcr;
   // 2. Set the Divisor Latch to control baud rate
   *(volatile char *)(UART_BASE + UART_DL_MSB) = 0x00;
-  *(volatile char *)(UART_BASE + UART_DL_LSB) = 0x01;
+  *(volatile char *)(UART_BASE + UART_DL_LSB) = 0x10;
   // 3. Set the Line Control Register bit 7 to 0
   lcr &= ~0x80;
   *(volatile char *)(UART_BASE + UART_LCR) = lcr;
@@ -53,7 +53,7 @@ void halt(int code) {
 
 void _trm_init() {
   bootloader_copy_data();
-  // uart_init();
+  uart_init();
   int ret = main(mainargs);
   halt(ret);
 }
