@@ -85,9 +85,9 @@ void pmem_write(int waddr, int wdata, char wmask) {
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
 // #endif
   if(in_sram(waddr)) {
-    printf("in sram begin\n");
-    sram_write(waddr, 4, wdata);
-    printf("in sram done\n");
+    // printf("in sram begin\n");
+    // sram_write(waddr, 4, wdata);
+    // printf("in sram done\n");
     return;
   }
   if(!in_pmem(waddr)) {
@@ -103,8 +103,8 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
 #endif
-#ifdef CONFIG_UART_MMIO
-  if((waddr >= CONFIG_UART_MMIO) && (waddr < CONFIG_UART_MMIO + CONFIG_UART_SIZE)) {
+#ifdef CONFIG_UART
+  if((waddr >= CONFIG_UART) && (waddr < CONFIG_UART + CONFIG_UART_SIZE)) {
     difftest_skip_ref();
     return;
   }
