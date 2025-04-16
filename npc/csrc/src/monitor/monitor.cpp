@@ -23,6 +23,13 @@ static void default_img() {
     pmem_write(0x80000014, 0x00100073, 0xf);
 }
 
+static void init_flash() {
+  // Initialize flash memory
+  for (int i = 0; i < FLASH_SIZE; i+=4) {
+    pmem_write(FLASH_BASE + i, i, 0xf);
+  }
+}
+
 static long load_img() {
   if (img_file == NULL) {
     Log("No image is given. Use the default build-in image.");
@@ -94,6 +101,9 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
+
+  /* init flash */
+  init_flash();
 
   /* Initialize the CPU. */
   init_cpu(argc, argv);
