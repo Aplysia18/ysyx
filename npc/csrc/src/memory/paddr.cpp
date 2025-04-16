@@ -122,6 +122,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
   if(in_flash(waddr)) {
     flash_write(waddr, wdata, wmask);
+    difftest_skip_ref();
     return;
   }
   if(!in_pmem(waddr)) {
