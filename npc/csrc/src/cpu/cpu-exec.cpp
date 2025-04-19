@@ -105,7 +105,7 @@ static void execute_once(Decode *s){
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
     single_cycle();
     cnt++;
-    if(cnt > 20){
+    if(cnt > 50){
       abort_flag = 1;
       break;
     }
@@ -115,7 +115,7 @@ static void execute_once(Decode *s){
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
-    if(cnt > 20){
+    if(cnt > 50){
       abort_flag = 1;
       break;
     }
