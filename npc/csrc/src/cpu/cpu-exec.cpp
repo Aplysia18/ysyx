@@ -174,8 +174,11 @@ void cpu_exec(uint64_t n) {
       end_flag = 1;
       break;
     }
+    printf("before execute\n");
+    printf("pc = 0x%08x\n", s.pc);
 
     execute_once(&s);
+    printf("after execute\n");
     g_nr_guest_inst ++;
     
     trace_and_difftest(&s, cpu.pc);
