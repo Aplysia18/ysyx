@@ -92,6 +92,8 @@ module ysyx_24110015(
   logic [31:0] dout_mtvec;
   logic [31:0] dout_mepc;
   logic [31:0] dout_mcause;
+  logic [31:0] dout_mvendorid;
+  logic [31:0] dout_marchid;
   logic control_ls;
   logic control_RegWrite;
   logic control_iMemRead_end;
@@ -254,6 +256,8 @@ module ysyx_24110015(
     .dout_mtvec(dout_mtvec),
     .dout_mepc(dout_mepc),
     .dout_mcause(dout_mcause),
+    .dout_mvendorid(dout_mvendorid),
+    .dout_marchid(dout_marchid),
     .ebreak(ebreak),
     .ecall(ecall),
     .mret(mret),
@@ -291,6 +295,8 @@ module ysyx_24110015(
     .dout_mtvec(dout_mtvec),
     .dout_mepc(dout_mepc),
     .dout_mcause(dout_mcause),
+    .dout_mvendorid(dout_mvendorid),
+    .dout_marchid(dout_marchid),
     .ebreak(ebreak),
     .ecall(ecall),
     .mret(mret),
