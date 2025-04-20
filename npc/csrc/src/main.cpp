@@ -3,7 +3,8 @@
 #include <cpu/cpu.hpp>
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { 
-  if((addr>FLASH_SIZE-4)||(addr%4!=0)) {
+  // if((addr>FLASH_SIZE-4)||(addr%4!=0)) {
+  if(addr>FLASH_SIZE-4) {
     printf("flash_read: invalid address 0x%x\n", addr);
     assert(0);
   }
