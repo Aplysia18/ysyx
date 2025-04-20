@@ -8,7 +8,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
     assert(0);
   }
   *data = *(int32_t *)flash_guest_to_host(FLASH_BASE+addr);
-  printf("flash_read: addr = 0x%x, data = 0x%x\n", addr, *data);
+  // printf("flash_read: addr = 0x%x, data = 0x%x\n", addr, *data);
 }
 extern "C" void mrom_read(int32_t addr, int32_t *data) 
 { 
