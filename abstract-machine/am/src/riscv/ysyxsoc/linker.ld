@@ -8,9 +8,9 @@ MEMORY {
 
 SECTIONS {
   . = ORIGIN(SRAM);
-  .stack ALIGN(4) : { /*4KB*/
+  .stack ALIGN(4) : { /*2KB*/
     _stack_top = .;
-    . = _stack_top + 0x1000;
+    . = _stack_top + 0x800;
     _stack_pointer = .;
   } >SRAM
 
