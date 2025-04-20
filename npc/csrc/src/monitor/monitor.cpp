@@ -63,7 +63,7 @@ static long load_img() {
 
   fseek(fp, 0, SEEK_SET);
   // int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
-  int ret = fread(mrom_guest_to_host(MROM_BASE), size, 1, fp);
+  int ret = fread(flash_guest_to_host(FLASH_BASE), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);
@@ -116,7 +116,7 @@ void init_monitor(int argc, char *argv[]) {
   long img_size = load_img();
 
   /* init flash */
-  init_flash();
+  // init_flash();
 
   /* Initialize the CPU. */
   init_cpu(argc, argv);
