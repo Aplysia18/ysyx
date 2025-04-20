@@ -50,6 +50,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 }
 
 word_t *csr_reg(word_t idx){
+  printf("csr idx = 0x%x\n", idx);
   switch(idx){
     case 0x300: return &cpu.csr.mstatus;
     case 0x305: return &cpu.csr.mtvec;
