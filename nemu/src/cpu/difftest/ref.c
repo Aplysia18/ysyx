@@ -46,6 +46,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     cpu.csr.mtvec = dut_r->csr.mtvec;
     cpu.csr.mepc = dut_r->csr.mepc;
     cpu.csr.mcause = dut_r->csr.mcause;
+    cpu.csr.mvendorid = dut_r->csr.mvendorid;
+    cpu.csr.marchid = dut_r->csr.marchid;
   } else {
     for (size_t i = 0; i < RISCV_GPR_NUM; i++) {
       dut_r->gpr[i] = cpu.gpr[i];
@@ -55,6 +57,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     dut_r->csr.mtvec = cpu.csr.mtvec;
     dut_r->csr.mepc = cpu.csr.mepc;
     dut_r->csr.mcause = cpu.csr.mcause;
+    dut_r->csr.mvendorid = cpu.csr.mvendorid;
+    dut_r->csr.marchid = cpu.csr.marchid;
   }
 }
 
