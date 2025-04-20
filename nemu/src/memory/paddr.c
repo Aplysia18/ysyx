@@ -38,9 +38,7 @@ static void mrom_write(paddr_t addr, int len, word_t data) {
 void mrom_write_init(paddr_t addr, int len, word_t data) {
   host_write(mrom_guest_to_host(addr), len, data);
 }
-#endif
 
-#if defined(CONFIG_TARGET_SHARE)
 static inline bool in_sram(paddr_t addr) { return addr - CONFIG_SRAM_BASE < CONFIG_SRAM_SIZE; }
 static uint8_t sram[CONFIG_SRAM_SIZE] PG_ALIGN = {};
 uint8_t* sram_guest_to_host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
@@ -50,6 +48,17 @@ static word_t sram_read(paddr_t addr, int len) {
 }
 static void sram_write(paddr_t addr, int len, word_t data) {
   host_write(sram_guest_to_host(addr), len, data);
+}
+
+static inline bool in_flash(paddr_t addr) { return addr - CONFIG_FLASH_BASE < CONFIG_FLASH_SIZE; }
+static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
+uint8_t* flash_guest_to_host(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
+static word_t flash_read(paddr_t addr, int len) {
+  word_t ret = host_read(flash_guest_to_host(addr), len);
+  return ret;
+}
+static void flash_write(paddr_t addr, int len, word_t data) {
+  host_write(flash_guest_to_host(addr), len, data);
 }
 #endif
 
@@ -94,6 +103,7 @@ word_t paddr_read(paddr_t addr, int len) {
 #ifdef CONFIG_TARGET_SHARE
   if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) return mrom_read(addr, len);
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) return sram_read(addr, len);
+  if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) return flash_read(addr, len);
 #else
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
 #endif

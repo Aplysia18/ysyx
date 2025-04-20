@@ -30,6 +30,16 @@ config SRAM_SIZE
   depends on TARGET_SHARE
   default 0x2000
 
+config FLASH_BASE
+  hex "FLASH base address"
+  depends on TARGET_SHARE
+  default 0x30000000
+
+config FLASH_SIZE
+  hex "FLASH size"
+  depends on TARGET_SHARE
+  default 0x10000000
+
 endmenu
 
 config PC_RESET_OFFSET
