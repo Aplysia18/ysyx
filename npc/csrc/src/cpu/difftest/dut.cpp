@@ -76,12 +76,10 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
 
   ref_difftest_init(port);
-  printf("ref_difftest_init1\n");
   // ref_difftest_memcpy(RESET_VECTOR, guest_to_host(RESET_VECTOR), img_size, DIFFTEST_TO_REF);
   // ref_difftest_memcpy(MROM_BASE, mrom_guest_to_host(MROM_BASE), img_size, DIFFTEST_TO_REF);
   ref_difftest_memcpy(FLASH_BASE, flash_guest_to_host(FLASH_BASE), img_size, DIFFTEST_TO_REF);
   ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
-  printf("ref_difftest_init2\n");
 }
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
