@@ -21,8 +21,16 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   // void mrom_write_init(paddr_t addr, int len, word_t data);
   if (direction == DIFFTEST_TO_REF) {
-    for (size_t i = 0; i < n; i++) {
-      mrom_write_init(addr+i, 1, *((uint8_t*)buf+i));
+    if(addr == CONFIG_MROM_BASE) {
+      for (size_t i = 0; i < n; i++) {
+        mrom_write_init(addr+i, 1, *((uint8_t*)buf+i));
+      }
+    } else if (addr ==  CONFIG_FLASH_BASE) {
+      for (size_t i = 0; i < n; i++) {
+        flash_write(addr+i, 1, *((uint8_t*)buf+i));
+      }
+    } else {
+      assert(0);
     }
   } else {
     assert(0);

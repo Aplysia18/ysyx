@@ -83,7 +83,6 @@ int pmem_read(int raddr) {
     return sram_read(raddr, 4);
   }
   if(in_flash(raddr)) {
-    difftest_skip_ref();
     return flash_read(raddr, 4);
   }
 #ifdef CONFIG_UART
@@ -123,7 +122,6 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
   if(in_flash(waddr)) {
     flash_write(waddr, wdata, wmask);
-    difftest_skip_ref();
     return;
   }
   if(!in_pmem(waddr)) {
