@@ -37,7 +37,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > SRAM AT> MROM
+  } > SRAM AT> FLASH
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
