@@ -3,6 +3,7 @@ ENTRY(_start)
 MEMORY {
   SRAM : ORIGIN = 0x0f000000, LENGTH = 0x2000 /*stack and heap 8KB*/
   MROM : ORIGIN = 0x20000000, LENGTH = 0x1000 /*code and read-only region 4KB*/
+  FLASH : ORIGIN = 0x30000000, LENGTH = 0x10000000 /*flash region 64KB*/
 }
 
 SECTIONS {
@@ -25,11 +26,11 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } >MROM
+  } >FLASH
   
   .rodata : {
     *(.rodata*)
-  } >MROM
+  } >FLASH
   
   .data : {
     _data_start = .;
