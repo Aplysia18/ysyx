@@ -62,14 +62,14 @@ void printid() {
   asm volatile ("csrr %0, marchid" : "=r"(marchid));     // read marchid
 
   // 输出 mvendorid
-  putch('M'); putch('V'); putch(':'); putch(' ');
+  putch('y'); putch('s'); putch('y'); putch('x'); putch(':'); putch(' '); putch('0'); putch('x');
   for (int i = 28; i >= 0; i -= 4) {
     putch("0123456789ABCDEF"[(mvendorid >> i) & 0xF]); // 按十六进制输出
   }
   putch('\n');
 
   // 输出 marchid
-  putch('M'); putch('A'); putch(':'); putch(' ');
+  putch('i'); putch('d'); putch(':'); putch(' '); putch('0'); putch('x');
   for (int i = 28; i >= 0; i -= 4) {
     putch("0123456789ABCDEF"[(marchid >> i) & 0xF]); // 按十六进制输出
   }
