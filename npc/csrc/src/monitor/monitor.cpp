@@ -25,9 +25,22 @@ static void default_img() {
 
 static void init_flash() {
   // Initialize flash memory
-  for (int i = 0; i < FLASH_SIZE; i+=4) {
-    pmem_write(FLASH_BASE + i, i, 0xf);
+  // for (int i = 0; i < FLASH_SIZE; i+=4) {
+  //   pmem_write(FLASH_BASE + i, i, 0xf);
+  // }
+  //char test
+  char *test = "/home/lty/ysyx/ysyx-workbench/npc/test/char_test.bin";
+  FILE *fp = fopen(test, "rb");
+  if(fp==NULL) {
+    printf("Can not open '%s'\n", test);
+    assert(0);
   }
+  fseek(fp, 0, SEEK_END);
+  long size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  int ret = fread(flash_guest_to_host(FLASH_BASE), size, 1, fp);
+  assert(ret == 1);
+  fclose(fp);
 }
 
 static long load_img() {
