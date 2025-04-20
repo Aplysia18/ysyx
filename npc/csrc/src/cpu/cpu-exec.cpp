@@ -67,7 +67,7 @@ void init_cpu(int argc, char* argv[]) {
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
-    if(cnt > 20){
+    if(cnt > 1000){
       abort_flag = 1;
       break;
     }
