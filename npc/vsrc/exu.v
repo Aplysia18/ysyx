@@ -26,6 +26,8 @@ module ysyx_24110015_EXU (
   input [31:0] dout_mtvec,
   input [31:0] dout_mepc,
   input [31:0] dout_mcause,
+  input [31:0] dout_mvendorid,
+  input [31:0] dout_marchid,
   input ebreak,
   input ecall,
   input mret,
@@ -139,6 +141,8 @@ module ysyx_24110015_EXU (
       12'h305: csr_rdata = dout_mtvec;
       12'h341: csr_rdata = dout_mepc;
       12'h342: csr_rdata = dout_mcause;
+      12'hF11: csr_rdata = dout_mvendorid;
+      12'hF12: csr_rdata = dout_marchid;
       default: csr_rdata = 32'b0;
     endcase
   end

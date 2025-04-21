@@ -43,6 +43,8 @@ static void reset(int n){
   cpu.csr.mepc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mepc;
   cpu.csr.mcause = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mcause;
   cpu.csr.mtvec = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mtvec;
+  cpu.csr.mvendorid = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mvendorid;
+  cpu.csr.marchid = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_marchid;
 }
 
 void init_cpu(int argc, char* argv[]) {
@@ -67,7 +69,7 @@ void init_cpu(int argc, char* argv[]) {
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
-    if(cnt > 20){
+    if(cnt > 1000){
       abort_flag = 1;
       break;
     }
@@ -105,7 +107,7 @@ static void execute_once(Decode *s){
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
     single_cycle();
     cnt++;
-    if(cnt > 20){
+    if(cnt > 1000){
       abort_flag = 1;
       break;
     }
@@ -115,7 +117,7 @@ static void execute_once(Decode *s){
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
     cnt++;
-    if(cnt > 20){
+    if(cnt > 1000){
       abort_flag = 1;
       break;
     }
@@ -174,8 +176,11 @@ void cpu_exec(uint64_t n) {
       end_flag = 1;
       break;
     }
+    // printf("before execute\n");
+    // printf("pc = 0x%08x\n", s.pc);
 
     execute_once(&s);
+    // printf("after execute\n");
     g_nr_guest_inst ++;
     
     trace_and_difftest(&s, cpu.pc);

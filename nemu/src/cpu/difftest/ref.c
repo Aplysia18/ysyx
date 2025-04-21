@@ -21,8 +21,14 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   // void mrom_write_init(paddr_t addr, int len, word_t data);
   if (direction == DIFFTEST_TO_REF) {
-    for (size_t i = 0; i < n; i++) {
-      mrom_write_init(addr+i, 1, *((uint8_t*)buf+i));
+    if(addr == CONFIG_MROM_BASE) {
+      for (size_t i = 0; i < n; i++) {
+        mrom_write_init(addr+i, 1, *((uint8_t*)buf+i));
+      }
+    } else{
+      for (size_t i = 0; i < n; i++) {
+        paddr_write(addr+i, 1, *((uint8_t*)buf+i));
+      }
     }
   } else {
     assert(0);
@@ -40,6 +46,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     cpu.csr.mtvec = dut_r->csr.mtvec;
     cpu.csr.mepc = dut_r->csr.mepc;
     cpu.csr.mcause = dut_r->csr.mcause;
+    cpu.csr.mvendorid = dut_r->csr.mvendorid;
+    cpu.csr.marchid = dut_r->csr.marchid;
   } else {
     for (size_t i = 0; i < RISCV_GPR_NUM; i++) {
       dut_r->gpr[i] = cpu.gpr[i];
@@ -49,6 +57,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
     dut_r->csr.mtvec = cpu.csr.mtvec;
     dut_r->csr.mepc = cpu.csr.mepc;
     dut_r->csr.mcause = cpu.csr.mcause;
+    dut_r->csr.mvendorid = cpu.csr.mvendorid;
+    dut_r->csr.marchid = cpu.csr.marchid;
   }
 }
 

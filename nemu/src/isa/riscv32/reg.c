@@ -50,11 +50,13 @@ word_t isa_reg_str2val(const char *s, bool *success) {
 }
 
 word_t *csr_reg(word_t idx){
-  switch(idx){
+  switch(idx&0xfff){
     case 0x300: return &cpu.csr.mstatus;
     case 0x305: return &cpu.csr.mtvec;
     case 0x341: return &cpu.csr.mepc;
     case 0x342: return &cpu.csr.mcause;
+    case 0xf11: return &cpu.csr.mvendorid;
+    case 0xf12: return &cpu.csr.marchid;
     default: Assert(0, "csr idx not found"); return NULL;
   }
 }

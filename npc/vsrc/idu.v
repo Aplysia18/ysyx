@@ -42,6 +42,8 @@ module ysyx_24110015_IDU (
   output [31:0] dout_mtvec,
   output [31:0] dout_mepc,
   output [31:0] dout_mcause,
+  output [31:0] dout_mvendorid,
+  output [31:0] dout_marchid,
   output ebreak,
   output ecall,
   output mret,
@@ -155,7 +157,9 @@ module ysyx_24110015_IDU (
     .dout_mstatus(dout_mstatus),
     .dout_mtvec(dout_mtvec),
     .dout_mepc(dout_mepc),
-    .dout_mcause(dout_mcause)
+    .dout_mcause(dout_mcause),
+    .dout_mvendorid(dout_mvendorid),
+    .dout_marchid(dout_marchid)
   );
 
   /*-----branch signal-----*/

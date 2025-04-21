@@ -9,6 +9,7 @@ extern bool abort_flag;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
 static uint8_t sram[SRAM_SIZE] PG_ALIGN = {};
+static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
 
 static inline word_t host_read(void *addr, int len) {
   switch (len) {
@@ -45,6 +46,20 @@ static void sram_write(paddr_t addr, word_t data, char mask) {
   }
 }
 
+static inline bool in_flash(paddr_t addr) { return addr - FLASH_BASE < FLASH_SIZE; }
+uint8_t* flash_guest_to_host(paddr_t paddr) { return flash + paddr - FLASH_BASE; }
+static word_t flash_read(paddr_t addr, int len) {
+  word_t ret = host_read(flash_guest_to_host(addr), len);
+  return ret;
+}
+static void flash_write(paddr_t addr, word_t data, char mask) {
+  for(int i = 0; i < 4; i++) {
+    if(mask & (1 << i)) {
+      *(uint8_t*)flash_guest_to_host(addr + i) = (data >> (i * 8)) & 0xff;
+    }
+  }
+}
+
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
@@ -67,8 +82,17 @@ int pmem_read(int raddr) {
   if(in_sram(raddr)) {
     return sram_read(raddr, 4);
   }
+  if(in_flash(raddr)) {
+    return flash_read(raddr, 4);
+  }
 #ifdef CONFIG_UART
   if((raddr >= CONFIG_UART) && (raddr < CONFIG_UART + CONFIG_UART_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
+#ifdef CONFIG_SPI_MASTER
+  if((raddr >= CONFIG_SPI_MASTER) && (raddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
     difftest_skip_ref();
     return 0;
   }
@@ -96,6 +120,10 @@ void pmem_write(int waddr, int wdata, char wmask) {
     // printf("in sram done\n");
     return;
   }
+  if(in_flash(waddr)) {
+    flash_write(waddr, wdata, wmask);
+    return;
+  }
   if(!in_pmem(waddr)) {
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {
@@ -111,6 +139,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #endif
 #ifdef CONFIG_UART
   if((waddr >= CONFIG_UART) && (waddr < CONFIG_UART + CONFIG_UART_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
+#ifdef CONFIG_SPI_MASTER
+  if((waddr >= CONFIG_SPI_MASTER) && (waddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
     difftest_skip_ref();
     return;
   }

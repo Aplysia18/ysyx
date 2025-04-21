@@ -3,13 +3,14 @@ ENTRY(_start)
 MEMORY {
   SRAM : ORIGIN = 0x0f000000, LENGTH = 0x2000 /*stack and heap 8KB*/
   MROM : ORIGIN = 0x20000000, LENGTH = 0x1000 /*code and read-only region 4KB*/
+  FLASH : ORIGIN = 0x30000000, LENGTH = 0x10000000 /*flash region 64KB*/
 }
 
 SECTIONS {
   . = ORIGIN(SRAM);
-  .stack ALIGN(4) : { /*4KB*/
+  .stack ALIGN(4) : { /*2KB*/
     _stack_top = .;
-    . = _stack_top + 0x1000;
+    . = _stack_top + 0x800;
     _stack_pointer = .;
   } >SRAM
 
@@ -25,18 +26,18 @@ SECTIONS {
   .text : {
     *(entry)
     *(.text*)
-  } >MROM
+  } >FLASH
   
   .rodata : {
     *(.rodata*)
-  } >MROM
+  } >FLASH
   
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > SRAM AT> MROM
+  } > SRAM AT> FLASH
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   

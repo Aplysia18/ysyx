@@ -55,9 +55,31 @@ void halt(int code) {
   while (1);
 }
 
+void printid() {
+  unsigned int mvendorid, marchid;
+
+  asm volatile ("csrr %0, mvendorid" : "=r"(mvendorid)); // read mvendorid
+  asm volatile ("csrr %0, marchid" : "=r"(marchid));     // read marchid
+
+  // 输出 mvendorid
+  putch('y'); putch('s'); putch('y'); putch('x'); putch(':'); putch(' '); putch('0'); putch('x');
+  for (int i = 28; i >= 0; i -= 4) {
+    putch("0123456789ABCDEF"[(mvendorid >> i) & 0xF]); // 按十六进制输出
+  }
+  putch('\n');
+
+  // 输出 marchid
+  putch('i'); putch('d'); putch(':'); putch(' '); putch('0'); putch('x');
+  for (int i = 28; i >= 0; i -= 4) {
+    putch("0123456789ABCDEF"[(marchid >> i) & 0xF]); // 按十六进制输出
+  }
+  putch('\n');
+}
+
 void _trm_init() {
   bootloader_copy_data();
   uart_init();
+  printid();
   int ret = main(mainargs);
   halt(ret);
 }
