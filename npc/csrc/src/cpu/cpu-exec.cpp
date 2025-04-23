@@ -99,6 +99,7 @@ static void execute_once(Decode *s){
   s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu + 4;
   // execute
   int cnt = 0;
+  printf("1\n");
   do{
     if(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state==3){
       s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
@@ -113,6 +114,7 @@ static void execute_once(Decode *s){
     }
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
+  printf("2\n");
   cnt = 0;
   while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
     single_cycle();
@@ -123,7 +125,7 @@ static void execute_once(Decode *s){
     }
     // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
   }
-  
+  printf("1\n");
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
 
   //update cpu state
@@ -176,11 +178,11 @@ void cpu_exec(uint64_t n) {
       end_flag = 1;
       break;
     }
-    printf("before execute\n");
-    printf("pc = 0x%08x\n", s.pc);
+    // printf("before execute\n");
+    // printf("pc = 0x%08x\n", s.pc);
 
     execute_once(&s);
-    printf("after execute\n");
+    // printf("after execute\n");
     g_nr_guest_inst ++;
     
     trace_and_difftest(&s, cpu.pc);
