@@ -118,6 +118,7 @@ module ysyx_24110015(
   axi_lite_if axiif_master_lsu();
   axi_lite_if axiif_master();
   axi_lite_if axiif_slave_clint();
+  axi_lite_if axiif_slave_soc();
 
   ysyx_24110015_AXIArbiter arbiter(
     .clk(clock),
@@ -127,42 +128,43 @@ module ysyx_24110015(
     .axi_slave(axiif_master)
   );
 
-  assign axiif_master.awready = io_master_awready;
-  assign io_master_awvalid = axiif_master.awvalid;
-  assign io_master_awaddr = axiif_master.awaddr;
-  assign io_master_awid = axiif_master.awid;
-  assign io_master_awlen = axiif_master.awlen;
-  assign io_master_awsize = axiif_master.awsize;
-  assign io_master_awburst = axiif_master.awburst;
-  assign axiif_master.wready = io_master_wready;
-  assign io_master_wvalid = axiif_master.wvalid;
-  assign io_master_wdata = axiif_master.wdata;
-  assign io_master_wstrb = axiif_master.wstrb;
-  assign io_master_wlast = axiif_master.wlast;
-  assign io_master_bready = axiif_master.bready;
-  assign axiif_master.bvalid = io_master_bvalid;
-  assign axiif_master.bresp = io_master_bresp;
-  assign axiif_master.bid = io_master_bid;
-  assign axiif_master.arready = io_master_arready;
-  assign io_master_arvalid = axiif_master.arvalid;
-  assign io_master_araddr = axiif_master.araddr;
-  assign io_master_arid = axiif_master.arid;
-  assign io_master_arlen = axiif_master.arlen;
-  assign io_master_arsize = axiif_master.arsize;
-  assign io_master_arburst = axiif_master.arburst;
-  assign io_master_rready = axiif_master.rready;
-  assign axiif_master.rvalid = io_master_rvalid;
-  assign axiif_master.rresp = io_master_rresp;
-  assign axiif_master.rdata = io_master_rdata;
-  assign axiif_master.rlast = io_master_rlast;
-  assign axiif_master.rid = io_master_rid;
+  assign axiif_slave_soc.awready = io_master_awready;
+  assign io_master_awvalid = axiif_slave_soc.awvalid;
+  assign io_master_awaddr = axiif_slave_soc.awaddr;
+  assign io_master_awid = axiif_slave_soc.awid;
+  assign io_master_awlen = axiif_slave_soc.awlen;
+  assign io_master_awsize = axiif_slave_soc.awsize;
+  assign io_master_awburst = axiif_slave_soc.awburst;
+  assign axiif_slave_soc.wready = io_master_wready;
+  assign io_master_wvalid = axiif_slave_soc.wvalid;
+  assign io_master_wdata = axiif_slave_soc.wdata;
+  assign io_master_wstrb = axiif_slave_soc.wstrb;
+  assign io_master_wlast = axiif_slave_soc.wlast;
+  assign io_master_bready = axiif_slave_soc.bready;
+  assign axiif_slave_soc.bvalid = io_master_bvalid;
+  assign axiif_slave_soc.bresp = io_master_bresp;
+  assign axiif_slave_soc.bid = io_master_bid;
+  assign axiif_slave_soc.arready = io_master_arready;
+  assign io_master_arvalid = axiif_slave_soc.arvalid;
+  assign io_master_araddr = axiif_slave_soc.araddr;
+  assign io_master_arid = axiif_slave_soc.arid;
+  assign io_master_arlen = axiif_slave_soc.arlen;
+  assign io_master_arsize = axiif_slave_soc.arsize;
+  assign io_master_arburst = axiif_slave_soc.arburst;
+  assign io_master_rready = axiif_slave_soc.rready;
+  assign axiif_slave_soc.rvalid = io_master_rvalid;
+  assign axiif_slave_soc.rresp = io_master_rresp;
+  assign axiif_slave_soc.rdata = io_master_rdata;
+  assign axiif_slave_soc.rlast = io_master_rlast;
+  assign axiif_slave_soc.rid = io_master_rid;
 
-  // ysyx_24110015_xbar xbar(
-  //   .clk(clock),
-  //   .rst(reset),
-  //   .axi_master(axiif_master),
-  //   .axi_slave_clint(axiif_slave_clint)
-  // );
+  ysyx_24110015_xbar xbar(
+    .clk(clock),
+    .rst(reset),
+    .axi_master(axiif_master),
+    .axi_slave_clint(axiif_slave_clint),
+    .axi_slave_soc(axiif_slave_soc)
+  );
   
   ysyx_24110015_AXI2Clint axi2clint (
     .clk(clock),

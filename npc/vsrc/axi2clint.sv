@@ -66,16 +66,16 @@ module ysyx_24110015_AXI2Clint (
                 axi.rvalid = 1;
                 if(axi.rready) begin
                     next_state = IDLE;
-                    if(araddr_o == 32'ha0000048) begin 
+                    if(araddr_o == 32'h02000000) begin 
                         axi.rdata = mtime[31:0];
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'ha0000048);
+                        pmem_read(32'h02000000);
                         /* verilator lint_on IGNOREDRETURN */
                     end
-                    else if(araddr_o == 32'ha000004c) begin 
+                    else if(araddr_o == 32'h02000004) begin 
                         axi.rdata = mtime[63:32];
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'ha000004c);
+                        pmem_read(32'h02000004);
                         /* verilator lint_on IGNOREDRETURN */
                     end
                     else axi.rdata = 0;
@@ -83,16 +83,17 @@ module ysyx_24110015_AXI2Clint (
                 end else begin
                     next_state = WAIT_RREADY;
                     //save rdata
-                    if(araddr_o == 32'ha0000048) begin
+                    if(araddr_o == 32'h02000000) begin
                         rdata_i = mtime[31:0];
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'ha0000048);
+                        pmem_read(32'h02000000);
                         /* verilator lint_on IGNOREDRETURN */
                     end
-                    else if(araddr_o == 32'ha000004c) begin
+                    else if(araddr_o == 32'h02000004) begin
                         rdata_i = mtime[63:32];
+                        $sformat("rdata_i = %h", rdata_i);
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'ha000004c);
+                        pmem_read(32'h02000004);
                         /* verilator lint_on IGNOREDRETURN */
                     end
                     else rdata_i = 0;
