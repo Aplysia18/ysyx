@@ -135,9 +135,9 @@ int pmem_read(int raddr) {
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
-// #ifdef CONFIG_MTRACE
+#ifdef CONFIG_MTRACE
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
-// #endif
+#endif
   if(in_sram(waddr)) {
     // printf("in sram begin\n");
     // sram_write(waddr, 4, wdata);
@@ -149,7 +149,6 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
   if(in_psram(waddr)) {
-    printf("in_psram\n");
     // psram_write(waddr, wdata, wmask);
     return;
   }

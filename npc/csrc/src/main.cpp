@@ -33,6 +33,7 @@ extern "C" void psram_write(int32_t addr, char data) {
     printf("psram_write: invalid address 0x%x\n", PSRAM_BASE+addr);
   }
   *(char *)flash_guest_to_host(PSRAM_BASE+addr) = data;
+  printf("psram_write: end\n");
 }
 
 int main(int argc, char** argv) {
