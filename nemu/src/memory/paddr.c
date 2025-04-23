@@ -132,7 +132,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) { mrom_write(addr, len, data); return; }
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) { sram_write(addr, len, data); return; }
   if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) { flash_write(addr, len, data); return; }
-  if (likely(in_psram(addr))&&likely(in_psram(addr+len-1))) { psram_write(addr, len, data); return; }
+  if (likely(in_psram(addr))&&likely(in_psram(addr+len-1))) { printf("nemu: before psram write\n"); psram_write(addr, len, data); printf("nemu: after psram write\n"); return; }
 #else
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
 #endif
