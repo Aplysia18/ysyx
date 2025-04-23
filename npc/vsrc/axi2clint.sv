@@ -91,6 +91,7 @@ module ysyx_24110015_AXI2Clint (
                     end
                     else if(araddr_o == 32'h02000004) begin
                         rdata_i = mtime[63:32];
+                        $sformat("rdata_i = %h", rdata_i);
                         /* verilator lint_off IGNOREDRETURN */
                         pmem_read(32'h02000004);
                         /* verilator lint_on IGNOREDRETURN */
