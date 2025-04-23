@@ -9,7 +9,7 @@ module ysyx_24110015_xbar (
     xbar_state_t state, next_state;
     logic cur_slave;
 
-    parameter [31:0] CLINT_BASE = 32'ha0000048;
+    parameter [31:0] CLINT_BASE = 32'h02000000;
 
     // axi_lite_if axi_slave;
 
