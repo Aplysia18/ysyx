@@ -209,10 +209,10 @@ module ysyx_24110015_LSU (
     
     assign axiif.bready = 1;
 
-    assign axiif.awaddr = word_align ? {alu_out_i[31:2], 2'b00} : alu_out_i;
+    assign axiif.awaddr = in_sram ? {alu_out_i[31:2], 2'b00} : alu_out_i;
     //awsize: sram 4byte, other depends on func3
     always @(*) begin
-        if(word_align) begin
+        if(in_sram) begin
             axiif.awsize = 3'b010;
         end else begin
             case (func3_i)
