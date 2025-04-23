@@ -85,6 +85,12 @@ int pmem_read(int raddr) {
   if(in_flash(raddr)) {
     return flash_read(raddr, 4);
   }
+#ifdef CONFIG_CLINT
+  if((raddr >= CONFIG_CLINT) && (raddr < CONFIG_CLINT + CONFIG_CLINT_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
 #ifdef CONFIG_UART
   if((raddr >= CONFIG_UART) && (raddr < CONFIG_UART + CONFIG_UART_SIZE)) {
     difftest_skip_ref();
@@ -133,6 +139,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #endif
 #ifdef CONFIG_RTC_MMIO
   if(waddr == CONFIG_RTC_MMIO || waddr == CONFIG_RTC_MMIO + 4) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
+#ifdef CONFIG_CLINT
+  if((waddr >= CONFIG_CLINT) && (waddr < CONFIG_CLINT + CONFIG_CLINT_SIZE)) {
     difftest_skip_ref();
     return;
   }
