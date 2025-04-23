@@ -25,9 +25,9 @@ extern "C" void psram_read(int32_t addr, char *data) {
     printf("psram_read: invalid address 0x%x\n", PSRAM_BASE+addr);
     assert(0);
   }
-  printf("psram_read: before addr = 0x%08x, data = 0x%08x", PSRAM_BASE+addr, *data);
+  printf("psram_read: before addr = 0x%08x, data = 0x%08x\n", PSRAM_BASE+addr, *data);
   *data = *(char *)psram_guest_to_host(PSRAM_BASE+addr);
-  printf("psram_read: after addr = 0x%08x, data = 0x%08x", PSRAM_BASE+addr, *data);
+  printf("psram_read: after addr = 0x%08x, data = 0x%08x\n", PSRAM_BASE+addr, *data);
 }
 
 extern "C" void psram_write(int32_t addr, char data) {
