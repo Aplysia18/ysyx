@@ -28,7 +28,7 @@ extern "C" void psram_read(int32_t addr, char *data) {
 }
 
 extern "C" void psram_write(int32_t addr, char data) {
-  printf("psram_write: addr = %08x, data = %02x\n", addr, data);
+  printf("psram_write: addr = 0x%08x, data = 0x%02x\n", addr, data);
   if(addr>=PSRAM_SIZE) {
     printf("psram_write: invalid address 0x%x\n", PSRAM_BASE+addr);
   }
