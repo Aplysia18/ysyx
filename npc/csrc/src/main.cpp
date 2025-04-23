@@ -5,7 +5,7 @@
 extern "C" void flash_read(int32_t addr, int32_t *data) { 
   // if((addr>FLASH_SIZE-4)||(addr%4!=0)) {
   if(addr>FLASH_SIZE-4) {
-    printf("flash_read: invalid address 0x%x\n", addr);
+    printf("flash_read: invalid address 0x%x\n", FLASH_BASE+addr);
     assert(0);
   }
   *data = *(int32_t *)flash_guest_to_host(FLASH_BASE+addr);
@@ -18,6 +18,20 @@ extern "C" void mrom_read(int32_t addr, int32_t *data)
     assert(0);
   }
   *data = *(int32_t *)mrom_guest_to_host(addr);
+}
+
+extern "C" void psram_read(int32_t addr, char *data) {
+  if(addr>=PSRAM_SIZE) {
+    printf("psram_read: invalid address 0x%x\n", PSRAM_BASE+addr);
+  }
+  *data = *(char *)flash_guest_to_host(PSRAM_BASE+addr);
+}
+
+extern "C" void psram_write(int32_t addr, char data) {
+  if(addr>=PSRAM_SIZE) {
+    printf("psram_write: invalid address 0x%x\n", PSRAM_BASE+addr);
+  }
+  *(char *)flash_guest_to_host(PSRAM_BASE+addr) = data;
 }
 
 int main(int argc, char** argv) {
