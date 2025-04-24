@@ -17,6 +17,11 @@ SECTIONS {
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
+
+  .entry :{
+    *(entry)
+  } > FLASH
+
   .bootloader : {
     _bootloader_start = .;
     *(.bootloader*)
@@ -26,7 +31,6 @@ SECTIONS {
 
   .text : {
     _text_start = .;
-    *(entry)
     *(.text*)
     _text_end = .;
   } > SRAM AT> FLASH
