@@ -30,7 +30,7 @@ SECTIONS {
     _bootloader_start = .;
     *(.bootloader*)
     _bootloader_end = .;
-  } AT> FLASH
+  } >FLASH
   _bootloader_size = _bootloader_end-_bootloader_start;
   
   .rodata : {
