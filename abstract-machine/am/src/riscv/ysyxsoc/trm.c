@@ -76,7 +76,7 @@ void __attribute__((section(".bootloader"))) jump_to_text(){
   );
 }
 
-void __attribute__((section(".bootloader"))) bootloader(){
+void __attribute__((section(".bootloader"))) _bootloader(){
   bootloader_copy_text();
   bootloader_copy_rodata();
   bootloader_copy_data();
