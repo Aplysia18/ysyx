@@ -60,6 +60,17 @@ static word_t flash_read(paddr_t addr, int len) {
 static void flash_write(paddr_t addr, int len, word_t data) {
   host_write(flash_guest_to_host(addr), len, data);
 }
+
+static inline bool in_psram(paddr_t addr) { return addr - CONFIG_PSRAM_BASE < CONFIG_PSRAM_SIZE; }
+static uint8_t psram[CONFIG_PSRAM_SIZE] PG_ALIGN = {};
+uint8_t* psram_guest_to_host(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
+static word_t psram_read(paddr_t addr, int len) {
+  word_t ret = host_read(psram_guest_to_host(addr), len);
+  return ret;
+}
+static void psram_write(paddr_t addr, int len, word_t data) {
+  host_write(psram_guest_to_host(addr), len, data);
+}
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
@@ -104,6 +115,7 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) return mrom_read(addr, len);
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) return sram_read(addr, len);
   if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) return flash_read(addr, len);
+  if (likely(in_psram(addr))&&likely(in_psram(addr+len-1))) return psram_read(addr, len);
 #else
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
 #endif
@@ -117,9 +129,10 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   printf("paddr_write: addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
 #endif
 #ifdef CONFIG_TARGET_SHARE
-  if (likely(in_mrom(addr))) { mrom_write(addr, len, data); return; }
-  if (likely(in_sram(addr))) { sram_write(addr, len, data); return; }
-  if (likely(in_flash(addr))) { flash_write(addr, len, data); return; }
+  if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) { mrom_write(addr, len, data); return; }
+  if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) { sram_write(addr, len, data); return; }
+  if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) { flash_write(addr, len, data); return; }
+  if (likely(in_psram(addr))&&likely(in_psram(addr+len-1))) { psram_write(addr, len, data); return; }
 #else
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
 #endif

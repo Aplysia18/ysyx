@@ -40,6 +40,16 @@ config FLASH_SIZE
   depends on TARGET_SHARE
   default 0x10000000
 
+config PSRAM_BASE
+  hex "PSRAM base address"
+  depends on TARGET_SHARE
+  default 0x80000000
+
+config PSRAM_SIZE
+  hex "PSRAM size"
+  depends on TARGET_SHARE
+  default 0x20000000
+
 endmenu
 
 config PC_RESET_OFFSET

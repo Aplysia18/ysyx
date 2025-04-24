@@ -67,8 +67,10 @@ module ysyx_24110015_LSU (
     assign func3_o = func3_i;
     assign MemRead_o = MemRead_i;
 
-    logic in_sram;
+    logic in_sram, in_psram, word_align;
     assign in_sram = (alu_out_i>=32'h0f000000)&(alu_out_i<32'h10000000);
+    assign in_psram = (alu_out_i>=32'h80000000)&(alu_out_i<32'ha0000000);
+    assign word_align = in_sram | in_psram;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
@@ -89,10 +91,10 @@ module ysyx_24110015_LSU (
     assign axiif.rready = 1;
 
     // sram读取32bit，再截取需要的部分; uart窄传输，需要控制arsize
-    assign axiif.araddr = in_sram ? {alu_out_i[31:2], 2'b00} : alu_out_i;
+    assign axiif.araddr = word_align ? {alu_out_i[31:2], 2'b00} : alu_out_i;
     //arsize: sram 4byte, other depends on func3
     always @(*) begin
-        if(in_sram) begin
+        if(word_align) begin
             axiif.arsize = 3'b010;
         end else begin
             case (func3_i)
@@ -109,7 +111,7 @@ module ysyx_24110015_LSU (
     always @(*) begin
         case (func3_i)
             3'b000: begin   //lb
-                if(in_sram) begin
+                if(word_align) begin
                     case (alu_out_i[1:0])
                         2'b00: mem_rdata = {{24{axiif.rdata[7]}}, axiif.rdata[7:0]};
                         2'b01: mem_rdata = {{24{axiif.rdata[15]}}, axiif.rdata[15:8]};
@@ -122,7 +124,7 @@ module ysyx_24110015_LSU (
                 end
             end
             3'b001: begin   //lh
-                if(in_sram) begin
+                if(word_align) begin
                     case (alu_out_i[1:0])
                         2'b00: mem_rdata = {{16{axiif.rdata[15]}}, axiif.rdata[15:0]};
                         2'b10: mem_rdata = {{16{axiif.rdata[31]}}, axiif.rdata[31:16]};
@@ -140,7 +142,7 @@ module ysyx_24110015_LSU (
                 endcase
             end
             3'b100: begin   //lbu
-                if(in_sram) begin
+                if(word_align) begin
                     case (alu_out_i[1:0])
                         2'b00: mem_rdata = {24'b0, axiif.rdata[7:0]};
                         2'b01: mem_rdata = {24'b0, axiif.rdata[15:8]};
@@ -153,7 +155,7 @@ module ysyx_24110015_LSU (
                 end
             end
             3'b101: begin   //lhu
-                if(in_sram) begin
+                if(word_align) begin
                     case (alu_out_i[1:0])
                         2'b00: mem_rdata = {16'b0, axiif.rdata[15:0]};
                         2'b10: mem_rdata = {16'b0, axiif.rdata[31:16]};
@@ -169,6 +171,8 @@ module ysyx_24110015_LSU (
             end
         endcase
     end
+
+    /*-----write-----*/
 
     // assign axiif.awsize = 3'b010; // 32 bit
     always @(posedge clk or posedge rst) begin

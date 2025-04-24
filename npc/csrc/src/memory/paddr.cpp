@@ -10,6 +10,7 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
 static uint8_t sram[SRAM_SIZE] PG_ALIGN = {};
 static uint8_t flash[FLASH_SIZE] PG_ALIGN = {};
+static uint8_t psram[PSRAM_SIZE] PG_ALIGN = {};
 
 static inline word_t host_read(void *addr, int len) {
   switch (len) {
@@ -60,6 +61,20 @@ static void flash_write(paddr_t addr, word_t data, char mask) {
   }
 }
 
+static inline bool in_psram(paddr_t addr) { return addr - PSRAM_BASE < PSRAM_SIZE; }
+uint8_t* psram_guest_to_host(paddr_t paddr) { return psram + paddr - PSRAM_BASE; }
+static word_t psram_read(paddr_t addr, int len) {
+  word_t ret = host_read(psram_guest_to_host(addr), len);
+  return ret;
+}
+static void psram_write(paddr_t addr, word_t data, char mask) {
+  for(int i = 0; i < 4; i++) {
+    if(mask & (1 << i)) {
+      *(uint8_t*)psram_guest_to_host(addr + i) = (data >> (i * 8)) & 0xff;
+    }
+  }
+}
+
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
@@ -84,6 +99,9 @@ int pmem_read(int raddr) {
   }
   if(in_flash(raddr)) {
     return flash_read(raddr, 4);
+  }
+  if(in_psram(raddr)) {
+    return psram_read(raddr, 4);
   }
 #ifdef CONFIG_CLINT
   if((raddr >= CONFIG_CLINT) && (raddr < CONFIG_CLINT + CONFIG_CLINT_SIZE)) {
@@ -127,7 +145,11 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
   if(in_flash(waddr)) {
-    flash_write(waddr, wdata, wmask);
+    // flash_write(waddr, wdata, wmask);
+    return;
+  }
+  if(in_psram(waddr)) {
+    // psram_write(waddr, wdata, wmask);
     return;
   }
   if(!in_pmem(waddr)) {
