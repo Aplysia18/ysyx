@@ -37,7 +37,7 @@ void __attribute__((section(".bootloader"))) _bootloader(){
   // copy text
   char *src = _text_load_start;
   char *dst = _text_start;
-  while(src < _text_start + (size_t)_text_size){
+  while(src < _text_load_start + (size_t)_text_size){
     *dst = *src;
     src++;
     dst++;
@@ -45,7 +45,7 @@ void __attribute__((section(".bootloader"))) _bootloader(){
   //copy rodata
   src = _rodata_load_start;
   dst = _rodata_start;
-  while(src < _rodata_start + (size_t)_rodata_size){
+  while(src < _rodata_load_start + (size_t)_rodata_size){
     *dst = *src;
     src++;
     dst++;
@@ -53,7 +53,7 @@ void __attribute__((section(".bootloader"))) _bootloader(){
   // copy data
   src = _data_load_start;
   dst = _data_start;
-  while(src < _data_start + (size_t)_data_size){
+  while(src < _data_load_start + (size_t)_data_size){
     *dst = *src;
     src++;
     dst++;
