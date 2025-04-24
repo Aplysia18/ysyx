@@ -77,7 +77,7 @@ void printid() {
 }
 
 void _trm_init() {
-  // bootloader_copy_data();
+  bootloader_copy_data();
   uart_init();
   printid();
   int ret = main(mainargs);
