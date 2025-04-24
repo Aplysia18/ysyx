@@ -24,7 +24,7 @@ SECTIONS {
   
   .rodata : {
     *(.rodata*)
-  } >FLASH
+  } > PSRAM
   
   .data : {
     _data_start = .;
@@ -47,7 +47,7 @@ SECTIONS {
     _heap_start = .;
     . = _heap_start + 0x100000;
     _heap_end = .;
-  } >PSRAM
+  } > PSRAM
 
   /* fot mem-test */
   /* .heap ALIGN(0x1000) : {
