@@ -25,6 +25,13 @@ SECTIONS {
   } > SRAM AT> FLASH
   _text_size = _text_end-_text_start;
   _text_load_start = LOADADDR(.text);
+
+  .bootloader : {
+    _bootloader_start = .;
+    *(.bootloader*)
+    _bootloader_end = .;
+  } AT> FLASH
+  _bootloader_size = _bootloader_end-_bootloader_start;
   
   .rodata : {
     _rodata_start = .;

@@ -12,6 +12,7 @@
 
 extern char _heap_start, _heap_end;
 int main(const char *args);
+void _trm_init();
 
 #define SRAM_BEGIN 0x0f000000
 #define SRAM_SIZE  0x00002000
@@ -32,32 +33,50 @@ extern char _data_size[];
 extern char _data_start[];
 extern char _data_load_start[];
 
-void bootloader_copy_text(){
+void __attribute__((section(".bootloader"))) bootloader_copy_text(){
   if(_text_start == _text_load_start) return;
-  memcpy(_text_start, _text_load_start, (size_t)_text_size);
+  char *src = _text_load_start;
+  char *dst = _text_start;
+  while(src < _text_start + (size_t)_text_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
 }
 
-void bootloader_copy_rodata(){
+void __attribute__((section(".bootloader"))) bootloader_copy_rodata(){
   if(_rodata_start == _rodata_load_start) return;
-  memcpy(_rodata_start, _rodata_load_start, (size_t)_rodata_size);
+  char *src = _rodata_load_start;
+  char *dst = _rodata_start;
+  while(src < _rodata_start + (size_t)_rodata_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
 }
 
-void bootloader_copy_data(){
+void __attribute__((section(".bootloader"))) bootloader_copy_data(){
   if(_data_start == _data_load_start) return;
-  memcpy(_data_start, _data_load_start, (size_t)_data_size);
+  char *src = _data_load_start;
+  char *dst = _data_start;
+  while(src < _data_start + (size_t)_data_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
 }
 
-void jump_to_text(){
+void __attribute__((section(".bootloader"))) jump_to_text(){
   asm volatile (
     "la t0, %0\n"
     "jr t0\n"
     :
-    : "i"(_text_start)
+    : "i"(_trm_init)
     : "t0"
   );
 }
 
-void bootloader(){
+void __attribute__((section(".bootloader"))) bootloader(){
   bootloader_copy_text();
   bootloader_copy_rodata();
   bootloader_copy_data();
@@ -111,7 +130,6 @@ void printid() {
 }
 
 void _trm_init() {
-  bootloader();
   uart_init();
   printid();
   int ret = main(mainargs);
