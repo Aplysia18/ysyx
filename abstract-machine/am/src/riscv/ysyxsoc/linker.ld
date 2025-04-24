@@ -11,7 +11,7 @@ SECTIONS {
   . = ORIGIN(SRAM);
   .stack ALIGN(4) : { /*8KB*/
     _stack_top = .;
-    . = _stack_top + 0x800;
+    . = _stack_top + 0x2000;
     _stack_pointer = .;
   } >SRAM 
 
@@ -26,14 +26,14 @@ SECTIONS {
     _bootloader_start = .;
     *(.bootloader*)
     _bootloader_end = .;
-  } >FLASH
+  } > FLASH
   _bootloader_size = _bootloader_end-_bootloader_start;
 
   .text : {
     _text_start = .;
     *(.text*)
     _text_end = .;
-  } > SRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _text_size = _text_end-_text_start;
   _text_load_start = LOADADDR(.text);
   
@@ -42,7 +42,7 @@ SECTIONS {
     *(.rodata*)
     *(.srodata*)
     _rodata_end = .;
-  } > SRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _rodata_size = _rodata_end-_rodata_start;
   _rodata_load_start = LOADADDR(.rodata);
   
@@ -51,7 +51,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > SRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
