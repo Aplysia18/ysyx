@@ -22,12 +22,35 @@ Area heap = RANGE(&_heap_start, &_heap_end);
 #endif
 static const char mainargs[] = MAINARGS;
 
+extern char _text_size[];
+extern char _text_start[];
+extern char _text_load_start[];
+extern char _rodata_size[];
+extern char _rodata_start[];
+extern char _rodata_load_start[];
 extern char _data_size[];
 extern char _data_start[];
 extern char _data_load_start[];
+
+void bootloader_copy_text(){
+  if(_text_start == _text_load_start) return;
+  memcpy(_text_start, _text_load_start, (size_t)_text_size);
+}
+
+void bootloader_copy_rodata(){
+  if(_rodata_start == _rodata_load_start) return;
+  memcpy(_rodata_start, _rodata_load_start, (size_t)_rodata_size);
+}
+
 void bootloader_copy_data(){
   if(_data_start == _data_load_start) return;
   memcpy(_data_start, _data_load_start, (size_t)_data_size);
+}
+
+void bootloader(){
+  bootloader_copy_text();
+  bootloader_copy_rodata();
+  bootloader_copy_data();
 }
 
 void uart_init() {
@@ -77,7 +100,7 @@ void printid() {
 }
 
 void _trm_init() {
-  bootloader_copy_data();
+  bootloader();
   uart_init();
   printid();
   int ret = main(mainargs);

@@ -11,27 +11,36 @@ SECTIONS {
   . = ORIGIN(SRAM);
   .stack ALIGN(4) : { /*8KB*/
     _stack_top = .;
-    . = _stack_top + 0x2000;
+    . = _stack_top + 0x800;
     _stack_pointer = .;
   } >SRAM 
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
   .text : {
+    _text_start = .;
     *(entry)
     *(.text*)
-  } >FLASH
+    _text_end = .;
+  } > SRAM AT> FLASH
+  _text_size = _text_end-_text_start;
+  _text_load_start = LOADADDR(.text);
   
   .rodata : {
+    _rodata_start = .;
     *(.rodata*)
-  } >FLASH
+    *(.srodata*)
+    _rodata_end = .;
+  } > SRAM AT> FLASH
+  _rodata_size = _rodata_end-_rodata_start;
+  _rodata_load_start = LOADADDR(.rodata);
   
   .data : {
     _data_start = .;
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > PSRAM AT> FLASH
+  } > SRAM AT> FLASH
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
