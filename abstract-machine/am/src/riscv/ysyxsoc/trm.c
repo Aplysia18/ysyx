@@ -47,10 +47,21 @@ void bootloader_copy_data(){
   memcpy(_data_start, _data_load_start, (size_t)_data_size);
 }
 
+void jump_to_text(){
+  asm volatile (
+    "la t0, %0\n"
+    "jr t0\n"
+    :
+    : "i"(_text_start)
+    : "t0"
+  );
+}
+
 void bootloader(){
   bootloader_copy_text();
   bootloader_copy_rodata();
   bootloader_copy_data();
+  jump_to_text();
 }
 
 void uart_init() {
