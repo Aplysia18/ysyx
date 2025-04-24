@@ -33,8 +33,8 @@ extern char _data_size[];
 extern char _data_start[];
 extern char _data_load_start[];
 
-void __attribute__((section(".bootloader"))) bootloader_copy_text(){
-  if(_text_start == _text_load_start) return;
+void __attribute__((section(".bootloader"))) _bootloader(){
+  // copy text
   char *src = _text_load_start;
   char *dst = _text_start;
   while(src < _text_start + (size_t)_text_size){
@@ -42,31 +42,24 @@ void __attribute__((section(".bootloader"))) bootloader_copy_text(){
     src++;
     dst++;
   }
-}
-
-void __attribute__((section(".bootloader"))) bootloader_copy_rodata(){
-  if(_rodata_start == _rodata_load_start) return;
-  char *src = _rodata_load_start;
-  char *dst = _rodata_start;
+  //copy rodata
+  src = _rodata_load_start;
+  dst = _rodata_start;
   while(src < _rodata_start + (size_t)_rodata_size){
     *dst = *src;
     src++;
     dst++;
   }
-}
-
-void __attribute__((section(".bootloader"))) bootloader_copy_data(){
-  if(_data_start == _data_load_start) return;
-  char *src = _data_load_start;
-  char *dst = _data_start;
+  // copy data
+  src = _data_load_start;
+  dst = _data_start;
   while(src < _data_start + (size_t)_data_size){
     *dst = *src;
     src++;
     dst++;
   }
-}
 
-void __attribute__((section(".bootloader"))) jump_to_text(){
+  //jump to _trm_init
   asm volatile (
     "la t0, %0\n"
     "jr t0\n"
@@ -74,13 +67,6 @@ void __attribute__((section(".bootloader"))) jump_to_text(){
     : "i"(_trm_init)
     : "t0"
   );
-}
-
-void __attribute__((section(".bootloader"))) _bootloader(){
-  bootloader_copy_text();
-  bootloader_copy_rodata();
-  bootloader_copy_data();
-  jump_to_text();
 }
 
 void uart_init() {
