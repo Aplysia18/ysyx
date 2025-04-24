@@ -140,16 +140,16 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #endif
   if(in_sram(waddr)) {
     // printf("in sram begin\n");
-    sram_write(waddr, wdata, wdata);
+    // sram_write(waddr, 4, wdata);
     // printf("in sram done\n");
     return;
   }
   if(in_flash(waddr)) {
-    flash_write(waddr, wdata, wmask);
+    // flash_write(waddr, wdata, wmask);
     return;
   }
   if(in_psram(waddr)) {
-    psram_write(waddr, wdata, wmask);
+    // psram_write(waddr, wdata, wmask);
     return;
   }
   if(!in_pmem(waddr)) {

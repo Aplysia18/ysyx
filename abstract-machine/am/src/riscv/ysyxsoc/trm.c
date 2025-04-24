@@ -32,6 +32,9 @@ extern char _rodata_load_start[];
 extern char _data_size[];
 extern char _data_start[];
 extern char _data_load_start[];
+extern char _bss_size[];
+extern char _bss_start[];
+extern char _bss_load_start[];
 
 void __attribute__((section(".bootloader"))) _bootloader(){
   // copy text
@@ -56,6 +59,12 @@ void __attribute__((section(".bootloader"))) _bootloader(){
   while(src < _data_load_start + (size_t)_data_size){
     *dst = *src;
     src++;
+    dst++;
+  }
+  //bss set to 0
+  dst = _bss_start;
+  while(dst < _bss_start + (size_t)_bss_size){
+    *dst = 0;
     dst++;
   }
 
