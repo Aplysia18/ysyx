@@ -38,7 +38,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > SRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
@@ -48,7 +48,9 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } > SRAM
+  } > PSRAM AT> FLASH
+  _bss_size = _bss_end-_bss_start;
+  _bss_load_start = LOADADDR(.bss);
 
   /* fot mem-test */
   /* .heap ALIGN(0x1000) : {
