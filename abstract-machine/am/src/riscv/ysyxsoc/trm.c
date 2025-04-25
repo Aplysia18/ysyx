@@ -12,6 +12,8 @@
 
 extern char _heap_start, _heap_end;
 int main(const char *args);
+void __attribute__((section(".ssbl"))) _ssbl();
+void _trm_init();
 
 #define SRAM_BEGIN 0x0f000000
 #define SRAM_SIZE  0x00002000
@@ -22,12 +24,103 @@ Area heap = RANGE(&_heap_start, &_heap_end);
 #endif
 static const char mainargs[] = MAINARGS;
 
+extern char _ssbl_size[];
+extern char _ssbl_start[];
+extern char _ssbl_load_start[];
+extern char _text_size[];
+extern char _text_start[];
+extern char _text_load_start[];
+extern char _rodata_size[];
+extern char _rodata_start[];
+extern char _rodata_load_start[];
 extern char _data_size[];
 extern char _data_start[];
 extern char _data_load_start[];
-void bootloader_copy_data(){
-  if(_data_start == _data_load_start) return;
-  memcpy(_data_start, _data_load_start, (size_t)_data_size);
+extern char _bss_size[];
+extern char _bss_start[];
+extern char _bss_load_start[];
+extern char _data_extra_size[];
+extern char _data_extra_start[];
+extern char _data_extra_load_start[];
+extern char _bss_extra_size[];
+extern char _bss_extra_start[];
+extern char _bss_extra_load_start[];
+
+void __attribute__((section(".fsbl"))) _fsbl() {
+  // copy ssbl
+  char *src = _ssbl_load_start;
+  char *dst = _ssbl_start;
+  while(src < _ssbl_load_start + (size_t)_ssbl_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
+
+  //jump to _ssbl
+  asm volatile (
+    "la t0, %0\n"
+    "jr t0\n"
+    :
+    : "i"(_ssbl)
+    : "t0"
+  );
+}
+
+void __attribute__((section(".ssbl"))) _ssbl(){
+  // copy text
+  char *src = _text_load_start;
+  char *dst = _text_start;
+  while(src < _text_load_start + (size_t)_text_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
+  //copy rodata
+  src = _rodata_load_start;
+  dst = _rodata_start;
+  while(src < _rodata_load_start + (size_t)_rodata_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
+  // copy data
+  src = _data_load_start;
+  dst = _data_start;
+  while(src < _data_load_start + (size_t)_data_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
+  //bss set to 0
+  dst = _bss_start;
+  while(dst < _bss_start + (size_t)_bss_size){
+    *dst = 0;
+    dst++;
+  }
+
+  //copy data extra for rt-thread
+  src = _data_extra_load_start;
+  dst = _data_extra_start;
+  while(src < _data_extra_load_start + (size_t)_data_extra_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
+  //bss extra set to 0
+  dst = _bss_extra_start;
+  while(dst < _bss_extra_start + (size_t)_bss_extra_size){
+    *dst = 0;
+    dst++;
+  }
+
+  //jump to _trm_init
+  asm volatile (
+    "la t0, %0\n"
+    "jr t0\n"
+    :
+    : "i"(_trm_init)
+    : "t0"
+  );
 }
 
 void uart_init() {
@@ -77,7 +170,6 @@ void printid() {
 }
 
 void _trm_init() {
-  bootloader_copy_data();
   uart_init();
   printid();
   int ret = main(mainargs);
