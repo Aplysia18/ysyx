@@ -1,5 +1,5 @@
 ENTRY(_start)
-PHDRS { text PT_LOAD; data PT_LOAD; }
+/* PHDRS { text PT_LOAD; data PT_LOAD; } */
 MEMORY {
   SRAM : ORIGIN = 0x0f000000, LENGTH = 0x2000 /*stack and heap 8KB*/
   MROM : ORIGIN = 0x20000000, LENGTH = 0x1000 /*code and read-only region 4KB*/
@@ -113,7 +113,7 @@ SECTIONS {
     __am_apps_data_end = .;
     . = ALIGN(8);
     _data_extra_end = .;
-  }> PSRAM AT> FLASH : data
+  }> PSRAM AT> FLASH
   _data_extra_size = _data_extra_end-_data_extra_start;
   _data_extra_load_start = LOADADDR(.data.extra);
 } 
