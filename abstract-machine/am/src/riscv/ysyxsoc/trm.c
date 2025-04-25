@@ -39,6 +39,12 @@ extern char _data_load_start[];
 extern char _bss_size[];
 extern char _bss_start[];
 extern char _bss_load_start[];
+extern char _data_extra_size[];
+extern char _data_extra_start[];
+extern char _data_extra_load_start[];
+extern char _bss_extra_size[];
+extern char _bss_extra_start[];
+extern char _bss_extra_load_start[];
 
 void __attribute__((section(".fsbl"))) _fsbl() {
   // copy ssbl
@@ -88,6 +94,21 @@ void __attribute__((section(".ssbl"))) _ssbl(){
   //bss set to 0
   dst = _bss_start;
   while(dst < _bss_start + (size_t)_bss_size){
+    *dst = 0;
+    dst++;
+  }
+
+  //copy data extra for rt-thread
+  src = _data_extra_load_start;
+  dst = _data_extra_start;
+  while(src < _data_extra_load_start + (size_t)_data_extra_size){
+    *dst = *src;
+    src++;
+    dst++;
+  }
+  //bss extra set to 0
+  dst = _bss_extra_start;
+  while(dst < _bss_extra_start + (size_t)_bss_extra_size){
     *dst = 0;
     dst++;
   }
