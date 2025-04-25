@@ -32,7 +32,7 @@ SECTIONS {
     _ssbl_start = .;
     *(.ssbl*)
     _ssbl_end = .;
-  } > FLASH AT> SRAM
+  } > SRAM AT> FLASH
   _ssbl_size = _ssbl_end-_ssbl_start;
   _ssbl_load_start = LOADADDR(.ssbl);
 
