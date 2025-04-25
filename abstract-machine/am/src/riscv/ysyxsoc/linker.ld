@@ -9,11 +9,11 @@ MEMORY {
 
 SECTIONS {
   . = ORIGIN(SRAM);
-  .stack ALIGN(4) : { /*8KB*/
+  .stack ALIGN(4) : { /*6KB*/
     _stack_top = .;
-    . = _stack_top + 0x2000;
+    . = _stack_top + 0x1800;
     _stack_pointer = .;
-  } >SRAM 
+  } > SRAM 
 
   /* _pmem_start and _entry_offset are defined in LDFLAGS */
   . = _pmem_start + _entry_offset;
@@ -22,12 +22,19 @@ SECTIONS {
     *(entry)
   } > FLASH
 
-  .bootloader : {
-    _bootloader_start = .;
-    *(.bootloader*)
-    _bootloader_end = .;
+  .fsbl : {
+    _fsbl_start = .;
+    *(.fsbl*)
+    _fsbl_end = .;
   } > FLASH
-  _bootloader_size = _bootloader_end-_bootloader_start;
+
+  .ssbl : {
+    _ssbl_start = .;
+    *(.ssbl*)
+    _ssbl_end = .;
+  } > FLASH AT> SRAM
+  _ssbl_size = _ssbl_end-_ssbl_start;
+  _ssbl_load_start = LOADADDR(.ssbl);
 
   .text : {
     _text_start = .;
