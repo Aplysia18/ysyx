@@ -71,8 +71,9 @@ module ysyx_24110015_LSU (
     assign in_sram = (alu_out_i>=32'h0f000000)&(alu_out_i<32'h10000000);
     assign in_psram = (alu_out_i>=32'h80000000)&(alu_out_i<32'ha0000000);
     assign in_sdram = (alu_out_i>=32'ha0000000)&(alu_out_i<32'hc0000000);
-    assign read_word_align = in_sram | in_psram | in_sdram;
-    assign write_word_align = in_sram | in_sdram;
+    // assign read_word_align = in_sram | in_psram | in_sdram;
+    assign read_word_align = in_sram | in_psram;
+    assign write_word_align = in_sram;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
