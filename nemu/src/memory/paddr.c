@@ -71,6 +71,18 @@ static word_t psram_read(paddr_t addr, int len) {
 static void psram_write(paddr_t addr, int len, word_t data) {
   host_write(psram_guest_to_host(addr), len, data);
 }
+
+static inline bool in_sdram(paddr_t addr) { return addr - CONFIG_SDRAM_BASE < CONFIG_SDRAM_SIZE; }
+static uint8_t sdram[CONFIG_SDRAM_SIZE] PG_ALIGN = {};
+uint8_t* sdram_guest_to_host(paddr_t paddr) { return sdram + paddr - CONFIG_SDRAM_BASE; }
+static word_t sdram_read(paddr_t addr, int len) {
+  word_t ret = host_read(sdram_guest_to_host(addr), len);
+  return ret;
+}
+static void sdram_write(paddr_t addr, int len, word_t data) {
+  host_write(sdram_guest_to_host(addr), len, data);
+}
+
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
@@ -116,6 +128,7 @@ word_t paddr_read(paddr_t addr, int len) {
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) return sram_read(addr, len);
   if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) return flash_read(addr, len);
   if (likely(in_psram(addr))&&likely(in_psram(addr+len-1))) return psram_read(addr, len);
+  if (likely(in_sdram(addr))&&likely(in_sdram(addr+len-1))) return sdram_read(addr, len);
 #else
   if (likely(in_pmem(addr))) return pmem_read(addr, len);
 #endif
@@ -133,6 +146,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) { sram_write(addr, len, data); return; }
   if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) { flash_write(addr, len, data); return; }
   if (likely(in_psram(addr))&&likely(in_psram(addr+len-1))) { psram_write(addr, len, data); return; }
+  if (likely(in_sdram(addr))&&likely(in_sdram(addr+len-1))) { sdram_write(addr, len, data); return; }
 #else
   if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
 #endif
