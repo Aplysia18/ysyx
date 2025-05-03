@@ -112,7 +112,9 @@ void init_mem() {
 #if defined(CONFIG_TARGET_SHARE)
   // printf("size of mrom: %ld\n", sizeof(mrom));
   IFDEF(CONFIG_MEM_RANDOM, memset(mrom, rand(), CONFIG_MROM_SIZE));
-  Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_MROM_BASE, (paddr_t)(CONFIG_MROM_BASE + CONFIG_MROM_SIZE - 1));
+  Log("flash area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_FLASH_BASE, (paddr_t)(CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE - 1));
+  Log("psram area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_PSRAM_BASE, (paddr_t)(CONFIG_PSRAM_BASE + CONFIG_PSRAM_SIZE - 1));
+  Log("sdram area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_SDRAM_BASE, (paddr_t)(CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1));
 #else
   IFDEF(CONFIG_MEM_RANDOM, memset(pmem, rand(), CONFIG_MSIZE));
   Log("physical memory area [" FMT_PADDR ", " FMT_PADDR "]", PMEM_LEFT, PMEM_RIGHT);
