@@ -5,6 +5,7 @@ MEMORY {
   MROM : ORIGIN = 0x20000000, LENGTH = 0x1000 /*code and read-only region 4KB*/
   FLASH : ORIGIN = 0x30000000, LENGTH = 0x10000000 /*flash region 64KB*/
   PSRAM : ORIGIN = 0x80000000, LENGTH = 0x400000 /*psram region, 4MB*/
+  SDRAM : ORIGIN = 0xa0000000, LENGTH = 0x
 }
 
 SECTIONS {
