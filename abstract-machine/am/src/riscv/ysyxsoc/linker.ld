@@ -41,7 +41,7 @@ SECTIONS {
     _text_start = .;
     *(.text*)
     _text_end = .;
-  } > SDRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _text_size = _text_end-_text_start;
   _text_load_start = LOADADDR(.text);
   
@@ -50,7 +50,7 @@ SECTIONS {
     *(.rodata*)
     *(.srodata*)
     _rodata_end = .;
-  } > SDRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _rodata_size = _rodata_end-_rodata_start;
   _rodata_load_start = LOADADDR(.rodata);
   
@@ -59,7 +59,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     _data_end = .;
-  } > SDRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _data_size = _data_end-_data_start;
   _data_load_start = LOADADDR(.data);
   
@@ -69,7 +69,7 @@ SECTIONS {
     *(.sbss*)
     *(.scommon)
     _bss_end = .;
-  } > SDRAM AT> FLASH
+  } > PSRAM AT> FLASH
   _bss_size = _bss_end-_bss_start;
   _bss_load_start = LOADADDR(.bss);
 
@@ -77,7 +77,7 @@ SECTIONS {
     _heap_start = .;
     . = _heap_start + 0x100000;
     _heap_end = .;
-  } >SDRAM
+  } >PSRAM
 
   end = .;
   _end = .;
@@ -114,7 +114,7 @@ SECTIONS {
     __am_apps_data_end = .;
     . = ALIGN(8);
     _data_extra_end = .;
-  }> SDRAM AT> FLASH
+  }> PSRAM AT> FLASH
   _data_extra_size = _data_extra_end-_data_extra_start;
   _data_extra_load_start = LOADADDR(.data.extra);
 } 
@@ -131,7 +131,7 @@ SECTIONS {
     __am_apps_bss_end = .;
     . = ALIGN(8);
     _bss_extra_end = .;
-  }> SDRAM AT> FLASH
+  }> PSRAM AT> FLASH
   _bss_extra_size = _bss_extra_end-_bss_extra_start;
   _bss_extra_load_start = LOADADDR(.bss.extra);
 }
