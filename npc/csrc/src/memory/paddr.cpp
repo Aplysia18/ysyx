@@ -199,6 +199,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
 #endif
+#ifdef CONFIG_GPIO
+  if((waddr >= CONFIG_GPIO) && (waddr < CONFIG_GPIO + CONFIG_GPIO_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
 #ifdef CONFIG_SPI_MASTER
   if((waddr >= CONFIG_SPI_MASTER) && (waddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
     difftest_skip_ref();
