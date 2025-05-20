@@ -133,6 +133,12 @@ int pmem_read(int raddr) {
     return 0;
   }
 #endif
+#ifdef CONFIG_GPIO
+  if((raddr >= CONFIG_GPIO) && (raddr < CONFIG_GPIO + CONFIG_GPIO_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
 #ifdef CONFIG_SPI_MASTER
   if((raddr >= CONFIG_SPI_MASTER) && (raddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
     difftest_skip_ref();
