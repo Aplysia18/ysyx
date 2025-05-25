@@ -8,7 +8,7 @@ int __am_input_keybrd_decode(bool e0, uint8_t k);
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint8_t k = inb(KBD_ADDR);
-  printf("k = %x\n", k);
+  if(k!=0) printf("k = %x\n", k);
   if(k==0) {
     kbd->keydown = false;
     kbd->keycode = AM_KEY_NONE;
