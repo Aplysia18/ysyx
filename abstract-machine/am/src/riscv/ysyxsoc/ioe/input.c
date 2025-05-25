@@ -1,5 +1,6 @@
 #include <am.h>
 #include <riscv/riscv.h>
+#include <stdio.h>
 
 #define KBD_ADDR 0x10011000
 
@@ -7,14 +8,17 @@ int __am_input_keybrd_decode(bool e0, uint8_t k);
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint8_t k = inb(KBD_ADDR);
+  printf("k = %x\n", k);
   if(k==0) {
     kbd->keydown = false;
     kbd->keycode = AM_KEY_NONE;
     return;
   }
   if(k == 0xe0) {
+    printf("e0\n");
     uint8_t k2 = inb(KBD_ADDR);
     if(k2 == 0xf0){
+        printf("e0f0\n");
         kbd->keydown = false;
         uint8_t k3 = inb(KBD_ADDR);
         kbd->keycode = __am_input_keybrd_decode(true, k3);
@@ -23,10 +27,12 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
         kbd->keycode = __am_input_keybrd_decode(true, k2);
     }
   } else if(k == 0xf0) {
+    printf("f0\n");
     uint8_t k2 = inb(KBD_ADDR);
     kbd->keydown = false;
     kbd->keycode = __am_input_keybrd_decode(false, k2);
   } else {
+    printf("normal\n");
     kbd->keydown = true;
     kbd->keycode = __am_input_keybrd_decode(false, k);
   }
