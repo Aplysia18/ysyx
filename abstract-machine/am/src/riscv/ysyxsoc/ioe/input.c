@@ -8,31 +8,38 @@ int __am_input_keybrd_decode(bool e0, uint8_t k);
 
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   uint8_t k = inb(KBD_ADDR);
-  if(k!=0) printf("k = %x\n", k);
   if(k==0) {
     kbd->keydown = false;
     kbd->keycode = AM_KEY_NONE;
     return;
   }
   if(k == 0xe0) {
-    printf("e0\n");
-    uint8_t k2 = inb(KBD_ADDR);
+    uint8_t k2;
+    while(1) {
+        k2 = inb(KBD_ADDR);
+        if(k2 != 0) break;
+    }
     if(k2 == 0xf0){
-        printf("e0f0\n");
         kbd->keydown = false;
-        uint8_t k3 = inb(KBD_ADDR);
+        uint8_t k3;
+        while(1) {
+            k3 = inb(KBD_ADDR);
+            if(k3 != 0) break;
+        }
         kbd->keycode = __am_input_keybrd_decode(true, k3);
     } else {
         kbd->keydown = true;
         kbd->keycode = __am_input_keybrd_decode(true, k2);
     }
   } else if(k == 0xf0) {
-    printf("f0\n");
-    uint8_t k2 = inb(KBD_ADDR);
+    uint8_t k2;
+    while(1) {
+        k2 = inb(KBD_ADDR);
+        if(k2 != 0) break;
+    }
     kbd->keydown = false;
     kbd->keycode = __am_input_keybrd_decode(false, k2);
   } else {
-    printf("normal\n");
     kbd->keydown = true;
     kbd->keycode = __am_input_keybrd_decode(false, k);
   }
