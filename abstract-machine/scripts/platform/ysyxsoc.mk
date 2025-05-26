@@ -1,7 +1,9 @@
 AM_SRCS := riscv/ysyxsoc/start.S \
            riscv/ysyxsoc/trm.c \
-           riscv/ysyxsoc/ioe.c \
-           riscv/ysyxsoc/timer.c \
+           riscv/ysyxsoc/ioe/ioe.c \
+           riscv/ysyxsoc/ioe/timer.c \
+           riscv/ysyxsoc/ioe/uart.c \
+           riscv/ysyxsoc/ioe/input.c \
            riscv/ysyxsoc/input.c \
            riscv/ysyxsoc/cte.c \
            riscv/ysyxsoc/trap.S \
@@ -11,7 +13,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/am/src/riscv/ysyxsoc/linker.ld \
 						 --defsym=_pmem_start=0x30000000 --defsym=_entry_offset=0x0
-LDFLAGS   += --gc-sections -e _start --print-map
+LDFLAGS   += --gc-sections -e _start #--print-map
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 
 NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/ysyxsoc-log.txt -b

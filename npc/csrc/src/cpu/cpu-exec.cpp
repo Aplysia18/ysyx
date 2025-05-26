@@ -4,10 +4,13 @@
 #include <isa/isa-def.hpp>
 #include <cpu/difftest.hpp>
 #include <common.hpp>
+#include <nvboard.h>
 
 VysyxSoCFull* top;
 VerilatedContext* contextp;
 VerilatedFstC* tfp;
+
+void nvboard_bind_all_pins(TOP_NAME* top);
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
@@ -24,11 +27,17 @@ static void single_cycle() {
 #ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
 #endif
+#ifdef CONFIG_NVBOARD
+  nvboard_update();
+#endif
   top->clock = 0;
   top->eval();
   contextp->timeInc(1);
 #ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
+#endif
+#ifdef CONFIG_NVBOARD
+  nvboard_update();
 #endif
   cycles_num++;
 }
@@ -57,6 +66,10 @@ void init_cpu(int argc, char* argv[]) {
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
   tfp->open("./build/simx.fst");
+#endif
+#ifdef CONFIG_NVBOARD
+  nvboard_bind_all_pins(top);
+  nvboard_init();
 #endif
   // printf("init cpu\n");
   reset(20);
@@ -218,6 +231,9 @@ void cpu_exec(uint64_t n) {
 void exit_cpu() {
 #ifdef CONFIG_FST_TRACE
   tfp->close();
+#endif
+#ifdef CONFIG_NVBOARD
+  nvboard_quit();
 #endif
   delete top;
   delete contextp;

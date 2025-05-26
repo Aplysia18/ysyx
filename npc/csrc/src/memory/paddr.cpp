@@ -139,7 +139,19 @@ int pmem_read(int raddr) {
     return 0;
   }
 #endif
-  #ifdef CONFIG_RTC_MMIO
+#ifdef CONFIG_GPIO
+  if((raddr >= CONFIG_GPIO) && (raddr < CONFIG_GPIO + CONFIG_GPIO_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
+#ifdef CONFIG_PS2
+  if((raddr >= CONFIG_PS2) && (raddr < CONFIG_PS2 + CONFIG_PS2_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
+#ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
     difftest_skip_ref();
@@ -201,6 +213,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #endif
 #ifdef CONFIG_SPI_MASTER
   if((waddr >= CONFIG_SPI_MASTER) && (waddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
+#ifdef CONFIG_GPIO
+  if((waddr >= CONFIG_GPIO) && (waddr < CONFIG_GPIO + CONFIG_GPIO_SIZE)) {
     difftest_skip_ref();
     return;
   }
