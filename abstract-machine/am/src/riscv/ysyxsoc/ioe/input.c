@@ -13,15 +13,12 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
     kbd->keycode = AM_KEY_NONE;
     return;
   }
-  printf("k = %x\n", k);
   if(k == 0xe0) {
-    printf("e0\n");
     uint8_t k2;
     while(1) {
         k2 = inb(KBD_ADDR);
         if(k2 != 0) break;
     }
-    printf("e0 k2 = %x\n", k2);
     if(k2 == 0xf0){
         kbd->keydown = false;
         uint8_t k3;
@@ -29,7 +26,6 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
             k3 = inb(KBD_ADDR);
             if(k3 != 0) break;
         }
-        printf("e0f0 k3 = %x\n", k3);
         kbd->keycode = __am_input_keybrd_decode(true, k3);
     } else {
         kbd->keydown = true;
@@ -41,7 +37,6 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
         k2 = inb(KBD_ADDR);
         if(k2 != 0) break;
     }
-    printf("f0 k2 = %x\n", k2);
     kbd->keydown = false;
     kbd->keycode = __am_input_keybrd_decode(false, k2);
   } else {
