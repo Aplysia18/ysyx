@@ -59,6 +59,7 @@ SECTIONS {
     *(.data*)
     *(.sdata*)
     *(.tdata*)
+    *(.init_array*)
     _data_end = .;
   } > SDRAM AT> FLASH
   _data_size = _data_end-_data_start;
