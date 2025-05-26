@@ -58,6 +58,7 @@ SECTIONS {
     _data_start = .;
     *(.data*)
     *(.sdata*)
+    *(.tdata*)
     _data_end = .;
   } > SDRAM AT> FLASH
   _data_size = _data_end-_data_start;
@@ -67,6 +68,7 @@ SECTIONS {
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
+    *(.tbss*)
     *(.scommon)
     _bss_end = .;
   } > SDRAM AT> FLASH
