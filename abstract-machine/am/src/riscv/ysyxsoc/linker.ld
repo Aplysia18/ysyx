@@ -58,6 +58,8 @@ SECTIONS {
     _data_start = .;
     *(.data*)
     *(.sdata*)
+    *(.tdata*)
+    *(.init_array*)
     _data_end = .;
   } > SDRAM AT> FLASH
   _data_size = _data_end-_data_start;
@@ -67,15 +69,16 @@ SECTIONS {
 	  _bss_start = .;
     *(.bss*)
     *(.sbss*)
+    *(.tbss*)
     *(.scommon)
     _bss_end = .;
   } > SDRAM AT> FLASH
   _bss_size = _bss_end-_bss_start;
   _bss_load_start = LOADADDR(.bss);
 
-  .heap ALIGN(4) : {  /*1MB*/
+  .heap ALIGN(4) : {  /*4MB*/
     _heap_start = .;
-    . = _heap_start + 0x100000;
+    . = _heap_start + 0x400000;
     _heap_end = .;
   } >SDRAM
 

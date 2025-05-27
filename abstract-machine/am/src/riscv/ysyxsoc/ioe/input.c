@@ -135,7 +135,6 @@ int __am_input_keybrd_decode(bool e0, uint8_t k) {
             case 0x14: return AM_KEY_LCTRL;
             case 0x11: return AM_KEY_LALT;
             case 0x29: return AM_KEY_SPACE;
-            case 0x77: return AM_KEY_NUMLOCK;
             default: return AM_KEY_NONE;
         }
     }
