@@ -76,9 +76,9 @@ SECTIONS {
   _bss_size = _bss_end-_bss_start;
   _bss_load_start = LOADADDR(.bss);
 
-  .heap ALIGN(4) : {  /*1MB*/
+  .heap ALIGN(4) : {  /*4MB*/
     _heap_start = .;
-    . = _heap_start + 0x100000;
+    . = _heap_start + 0x400000;
     _heap_end = .;
   } >SDRAM
 
