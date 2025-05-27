@@ -27,9 +27,6 @@ static void single_cycle() {
 #ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
 #endif
-#ifdef CONFIG_NVBOARD
-  nvboard_update();
-#endif
   top->clock = 0;
   top->eval();
   contextp->timeInc(1);
