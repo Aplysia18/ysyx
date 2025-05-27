@@ -7,9 +7,14 @@
 #define UART_LSR 5
 
 void __am_uart_rx(AM_UART_RX_T *rx) {
-  uint8_t ch = inb(UART_BASE);
+  
   uint8_t lsr = *(volatile char *)(UART_BASE + UART_LSR);
-  if (ch == 0 || ((lsr&0x1)==0)) {
+  if ((lsr&0x1)==0){
+    rx->data = 0xff;
+    return;
+  }
+  uint8_t ch = inb(UART_BASE);
+  if (ch == 0) {
     rx->data = 0xff;
   }else {
     rx->data = ch;
