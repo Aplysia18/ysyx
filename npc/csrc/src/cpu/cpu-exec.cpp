@@ -21,23 +21,20 @@ static uint64_t cycles_num = 0;
 void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
 
 static void single_cycle() {
+#ifdef CONFIG_NVBOARD
+  nvboard_update();
+#endif
   top->clock = 1;
   top->eval();
   contextp->timeInc(1);
 #ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
 #endif
-#ifdef CONFIG_NVBOARD
-  nvboard_update();
-#endif
   top->clock = 0;
   top->eval();
   contextp->timeInc(1);
 #ifdef CONFIG_FST_TRACE
   tfp->dump(contextp->time());
-#endif
-#ifdef CONFIG_NVBOARD
-  nvboard_update();
 #endif
   cycles_num++;
 }
