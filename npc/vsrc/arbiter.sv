@@ -73,7 +73,7 @@ module ysyx_24110015_AXIArbiter (
                     axi_master_ifu.rid = axi_slave.rid;
                     axi_master_ifu.rvalid = axi_slave.rvalid;
                     axi_slave.rready = axi_master_ifu.rready;
-                end else if(axi_master_lsu.arvalid | axi_master_lsu.awvalid | axi_master_lsu.wvalid) begin
+                end else if(axi_master_lsu.arvalid | axi_master_lsu.awvalid) begin
                     next_state = LSU;
                     // AR channel
                     axi_slave.araddr = axi_master_lsu.araddr;

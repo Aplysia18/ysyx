@@ -151,6 +151,12 @@ int pmem_read(int raddr) {
     return 0;
   }
 #endif
+#ifdef CONFIG_CHIPLINK
+  if((raddr >= CONFIG_CHIPLINK) && (raddr < CONFIG_CHIPLINK -1 + CONFIG_CHIPLINK_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
@@ -225,6 +231,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #endif
 #ifdef CONFIG_VGA
   if((waddr >= CONFIG_VGA) && (waddr < CONFIG_VGA + CONFIG_VGA_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
+#ifdef CONFIG_CHIPLINK
+  if((waddr >= CONFIG_CHIPLINK) && (waddr < CONFIG_CHIPLINK -1 + CONFIG_CHIPLINK_SIZE)) {
     difftest_skip_ref();
     return;
   }

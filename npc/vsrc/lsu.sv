@@ -67,12 +67,13 @@ module ysyx_24110015_LSU (
     assign func3_o = func3_i;
     assign MemRead_o = MemRead_i;
 
-    logic in_sram, in_psram, in_sdram, read_word_align, write_word_align;
+    logic in_sram, in_psram, in_sdram, in_chiplink, read_word_align, write_word_align;
     assign in_sram = (alu_out_i>=32'h0f000000)&(alu_out_i<32'h10000000);
     assign in_psram = (alu_out_i>=32'h80000000)&(alu_out_i<32'ha0000000);
     assign in_sdram = (alu_out_i>=32'ha0000000)&(alu_out_i<32'hc0000000);
+    assign in_chiplink = (alu_out_i>=32'hc0000000);
     // assign read_word_align = in_sram | in_psram | in_sdram;
-    assign read_word_align = in_sram | in_psram | in_sdram;
+    assign read_word_align = in_sram | in_psram | in_sdram | in_chiplink;
     assign write_word_align = in_sram;
 
     always @(posedge clk or posedge rst) begin
@@ -209,6 +210,7 @@ module ysyx_24110015_LSU (
             end
         end
     end
+    assign axiif.wlast = 1; // always 1, no burst transfer
     
     assign axiif.bready = 1;
 
