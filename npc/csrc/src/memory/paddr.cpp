@@ -229,6 +229,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
 #endif
+#ifdef CONFIG_CHIPLINK
+  if((waddr >= CONFIG_CHIPLINK) && (waddr < CONFIG_CHIPLINK + CONFIG_CHIPLINK_SIZE)) {
+    difftest_skip_ref();
+    return;
+  }
+#endif
   printf("pmem_write: invalid address 0x%x\n", waddr);
   abort_flag = 1;
   return;
