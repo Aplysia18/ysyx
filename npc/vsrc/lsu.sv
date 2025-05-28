@@ -194,6 +194,8 @@ module ysyx_24110015_LSU (
         end
     end
 
+    reg axi_write_buf;
+
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.wvalid <= 0;
@@ -202,8 +204,12 @@ module ysyx_24110015_LSU (
                 if(axiif.wready) begin
                     axiif.wvalid <= 0;
                 end
-            end else if(MemWrite & control_dMemRW) begin
+            end else if(axi_write_buf)begin
                 axiif.wvalid <= 1;
+                axi_write_buf <= 0; // clear the buffer after write
+            end else if(MemWrite & control_dMemRW) begin
+                axi_write_buf <= 1;
+                //axiif.wvalid <= 1;
             end else begin
                 axiif.wvalid <= 0;
             end
