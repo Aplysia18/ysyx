@@ -218,6 +218,8 @@ module ysyx_24110015_LSU (
             end
         end
     end
+
+    assign axiif.wlast = 1; // always 1, no burst transfer
     
     assign axiif.bready = 1;
 

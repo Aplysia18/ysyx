@@ -281,6 +281,7 @@ module ysyx_24110015_xbar (
         axi_slave_clint.awburst = axi_master.awburst;
         axi_slave_clint.wdata = axi_master.wdata;
         axi_slave_clint.wstrb = axi_master.wstrb;
+        axi_slave_clint.wlast = axi_master.wlast;
 
         axi_slave_soc.araddr = axi_master.araddr;
         axi_slave_soc.arid = axi_master.arid;
@@ -294,6 +295,7 @@ module ysyx_24110015_xbar (
         axi_slave_soc.awburst = axi_master.awburst;
         axi_slave_soc.wdata = axi_master.wdata;
         axi_slave_soc.wstrb = axi_master.wstrb;
+        axi_slave_soc.wlast = axi_master.wlast;
     end
 
 endmodule
