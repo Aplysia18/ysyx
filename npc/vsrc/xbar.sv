@@ -155,12 +155,30 @@ module ysyx_24110015_xbar (
             XFER_RD: begin
                 case(cur_slave)
                     2'b01: begin
+                        axi_slave_clint.arvalid = axi_master.arvalid;
+                        axi_master.arready = axi_slave_clint.arready;
+
+                        axi_slave_clint.awvalid = axi_master.awvalid;
+                        axi_master.awready = axi_slave_clint.awready;
+
+                        axi_slave_clint.wvalid = axi_master.wvalid;
+                        axi_master.wready = axi_slave_clint.wready;
+
                         axi_slave_clint.rready = axi_master.rready;
                         axi_master.rvalid = axi_slave_clint.rvalid;
                         axi_master.rdata = axi_slave_clint.rdata;
                         axi_master.rresp = axi_slave_clint.rresp;
                     end
                     2'b10: begin
+                        axi_slave_soc.arvalid = axi_master.arvalid;
+                        axi_master.arready = axi_slave_soc.arready;
+
+                        axi_slave_soc.awvalid = axi_master.awvalid;
+                        axi_master.awready = axi_slave_soc.awready;
+
+                        axi_slave_soc.wvalid = axi_master.wvalid;
+                        axi_master.wready = axi_slave_soc.wready;
+
                         axi_slave_soc.rready = axi_master.rready;
                         axi_master.rvalid = axi_slave_soc.rvalid;
                         axi_master.rdata = axi_slave_soc.rdata;
@@ -178,11 +196,29 @@ module ysyx_24110015_xbar (
             XFER_WR: begin
                 case(cur_slave)
                     2'b01: begin
+                        axi_slave_clint.arvalid = axi_master.arvalid;
+                        axi_master.arready = axi_slave_clint.arready;
+
+                        axi_slave_clint.awvalid = axi_master.awvalid;
+                        axi_master.awready = axi_slave_clint.awready;
+
+                        axi_slave_clint.wvalid = axi_master.wvalid;
+                        axi_master.wready = axi_slave_clint.wready;
+
                         axi_slave_clint.bready = axi_master.bready;
                         axi_master.bvalid = axi_slave_clint.bvalid;
                         axi_master.bresp = axi_slave_clint.bresp;
                     end
                     2'b10: begin
+                        axi_slave_soc.arvalid = axi_master.arvalid;
+                        axi_master.arready = axi_slave_soc.arready;
+
+                        axi_slave_soc.awvalid = axi_master.awvalid;
+                        axi_master.awready = axi_slave_soc.awready;
+
+                        axi_slave_soc.wvalid = axi_master.wvalid;
+                        axi_master.wready = axi_slave_soc.wready;
+
                         axi_slave_soc.bready = axi_master.bready;
                         axi_master.bvalid = axi_slave_soc.bvalid;
                         axi_master.bresp = axi_slave_soc.bresp;
