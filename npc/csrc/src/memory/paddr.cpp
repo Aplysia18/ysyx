@@ -151,6 +151,12 @@ int pmem_read(int raddr) {
     return 0;
   }
 #endif
+#ifdef CONFIG_CHIPLINK
+  if((raddr >= CONFIG_CHIPLINK) && (raddr < CONFIG_CHIPLINK + CONFIG_CHIPLINK_SIZE)) {
+    difftest_skip_ref();
+    return 0;
+  }
+#endif
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
