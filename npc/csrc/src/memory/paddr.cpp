@@ -152,7 +152,7 @@ int pmem_read(int raddr) {
   }
 #endif
 #ifdef CONFIG_CHIPLINK
-  if((raddr >= CONFIG_CHIPLINK) && (raddr < CONFIG_CHIPLINK + CONFIG_CHIPLINK_SIZE)) {
+  if((raddr >= CONFIG_CHIPLINK) && (raddr < CONFIG_CHIPLINK -1 + CONFIG_CHIPLINK_SIZE)) {
     difftest_skip_ref();
     return 0;
   }
@@ -236,7 +236,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
 #endif
 #ifdef CONFIG_CHIPLINK
-  if((waddr >= CONFIG_CHIPLINK) && (waddr < CONFIG_CHIPLINK + CONFIG_CHIPLINK_SIZE)) {
+  if((waddr >= CONFIG_CHIPLINK) && (waddr < CONFIG_CHIPLINK -1 + CONFIG_CHIPLINK_SIZE)) {
     difftest_skip_ref();
     return;
   }
