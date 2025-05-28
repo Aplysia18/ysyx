@@ -194,8 +194,8 @@ module ysyx_24110015_LSU (
         end
     end
 
-    reg axi_write_buf;
-
+    reg axi_write_buf, axi_write_buf_1;
+    // wvalid信号比awvalid信号延迟两个周期发送，使cpu顶层发送的wvalid信号在awvalid信号之后一个周期（xbar使awvalid延迟一个周期）
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             axiif.wvalid <= 0;
@@ -205,8 +205,11 @@ module ysyx_24110015_LSU (
                     axiif.wvalid <= 0;
                 end
             end else if(axi_write_buf)begin
-                axiif.wvalid <= 1;
+                axi_write_buf_1 <= 1;
                 axi_write_buf <= 0; // clear the buffer after write
+            end else if(axi_write_buf_1) begin
+                axi_write_buf_1 <= 0;
+                axiif.wvalid <= 1; // write data
             end else if(MemWrite & control_dMemRW) begin
                 axi_write_buf <= 1;
                 //axiif.wvalid <= 1;
