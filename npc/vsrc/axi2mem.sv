@@ -1,7 +1,7 @@
 module ysyx_24110015_AXI2MEM (
     input clk,
     input rst,
-    axi_lite_if.slave axi
+    axi_if.slave axi
 );
 
     reg [2:0] state, next_state;

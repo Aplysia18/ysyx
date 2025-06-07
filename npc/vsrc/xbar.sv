@@ -1,19 +1,21 @@
 module ysyx_24110015_xbar (
     input clk,
     input rst,
-    axi_lite_if.slave axi_master,
-    axi_lite_if.master axi_slave_clint,
-    axi_lite_if.master axi_slave_soc
+    axi_if.slave axi_master,
+    axi_if.master axi_slave_clint,
+    axi_if.master axi_slave_soc
 );
 
-    typedef enum logic [2:0] {IDLE, ADDR_DECODE, XFER_RD, XFER_WR, RESP_RD, RESP_WR} xbar_state_t;
-    xbar_state_t state, next_state;
+    // typedef enum logic [2:0] {IDLE, ADDR_DECODE, XFER_RD, XFER_WR, RESP_RD, RESP_WR} xbar_state_t;
+    localparam IDLE = 3'b000, ADDR_DECODE = 3'b001, XFER_RD = 3'b010, XFER_WR = 3'b011, RESP_RD = 3'b100, RESP_WR = 3'b101;
+    logic [2:0] state, next_state;
+    // xbar_state_t state, next_state;
     logic [1:0] cur_slave; //01:clint 10:soc
 
     parameter [31:0] CLINT_BASE = 32'h02000000;
     parameter [31:0] CLINT_SIZE = 32'h0000FFFF;
 
-    // axi_lite_if axi_slave;
+    // axi_if axi_slave;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin

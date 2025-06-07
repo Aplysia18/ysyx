@@ -47,7 +47,9 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
             // end else begin
             //     delay_counters <= delay_counters - 1;
             // end
+            `ifndef __SYNTHESIS__
             pmem_write(awaddr, wdata, {4'b0000,wstrb});
+            `endif
             bresp <= 0;
             bvalid <= 1;
         end
@@ -61,7 +63,9 @@ module ysyx_24110015_SRAM #(ADDR_WIDTH = 32, DATA_WIDTH = 32)
             // end else begin
             //     delay_counters <= delay_counters - 1;
             // end
+            `ifndef __SYNTHESIS__
             rdata <= pmem_read(araddr);
+            `endif
             rresp <= 0;
             rvalid <= 1;
         end else begin

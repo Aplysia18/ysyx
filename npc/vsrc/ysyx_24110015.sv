@@ -114,11 +114,11 @@ module ysyx_24110015(
     .control_dMemRW(control_dMemRW)
   );
 
-  axi_lite_if axiif_master_ifu();
-  axi_lite_if axiif_master_lsu();
-  axi_lite_if axiif_master();
-  axi_lite_if axiif_slave_clint();
-  axi_lite_if axiif_slave_soc();
+  axi_if axiif_master_ifu();
+  axi_if axiif_master_lsu();
+  axi_if axiif_master();
+  axi_if axiif_slave_clint();
+  axi_if axiif_slave_soc();
 
   ysyx_24110015_AXIArbiter arbiter(
     .clk(clock),

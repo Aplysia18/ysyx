@@ -1,4 +1,4 @@
-interface axi_lite_if(
+interface axi_if(
     // input logic clk,
     // input logic rst
 );

@@ -1,9 +1,9 @@
 module ysyx_24110015_AXIArbiter (
     input clk,
     input rst,
-    axi_lite_if.slave axi_master_ifu,
-    axi_lite_if.slave axi_master_lsu,
-    axi_lite_if.master axi_slave
+    axi_if.slave axi_master_ifu,
+    axi_if.slave axi_master_lsu,
+    axi_if.master axi_slave
 );
     logic [1:0] state, next_state;
     parameter IDLE = 2'b00, IFU = 2'b01, LSU = 2'b10;

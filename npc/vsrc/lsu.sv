@@ -1,5 +1,8 @@
+`ifndef __SYNTHESIS__
 import "DPI-C" function int pmem_read(input int addr);
 import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+import "DPI-C" function void lsu_fetch();
+`endif
 module ysyx_24110015_LSU (
     input clk,
     input rst,
@@ -47,7 +50,7 @@ module ysyx_24110015_LSU (
     output control_dmemR_end,
     output control_dmemW_end,
     //to axi
-    axi_lite_if.master axiif
+    axi_if.master axiif
 );
 
     assign alu_out_o = alu_out_i;
@@ -262,6 +265,13 @@ module ysyx_24110015_LSU (
     assign control_dmemR_end = axiif.rvalid & axiif.rready;
     assign control_dmemW_end = axiif.bvalid & axiif.bready;
 
+`ifndef __SYNTHESIS__
+    always @(posedge clk or posedge rst) begin
+        if(axiif.rvalid & axiif.rready) begin
+            lsu_fetch();
+        end
+    end
+
     //for the skip of difftest
     always @(posedge clk or posedge rst) begin
         if(!rst) begin
@@ -273,6 +283,6 @@ module ysyx_24110015_LSU (
             end
         end
     end
-
+`endif
 
 endmodule

@@ -177,11 +177,12 @@ module ysyx_24110015_EXU (
   assign wen_mcause = (zicsr_i&(imm[11:0]==12'h342)) | ecall;
 
 /*-----ebreak-----*/
+`ifndef __SYNTHESIS__
   always @(ebreak) begin
     if(ebreak) begin
       npc_trap();
     end
   end
-  
+`endif
 
 endmodule

@@ -59,6 +59,10 @@ sim: $(BIN)
 	@echo "$< $(ARGS) $(EXTRA_ARGS) $(IMG)"
 	@$< $(ARGS) $(EXTRA_ARGS) $(IMG)
 
+perf: $(BIN)
+	$(MAKE) -C $(NPC_HOME) clean
+	$(MAKE) -C $(NPC_HOME)/../am-kernels/benchmarks/microbench/ run ARCH=riscv32e-ysyxsoc mainargs=train
+
 clean:
 	rm -rf $(BUILD_DIR)
 

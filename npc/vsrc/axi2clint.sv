@@ -2,7 +2,7 @@
 module ysyx_24110015_AXI2Clint (
     input clk,
     input rst,
-    axi_lite_if.slave axi
+    axi_if.slave axi
 );
 
     logic [2:0] state, next_state;
@@ -68,15 +68,19 @@ module ysyx_24110015_AXI2Clint (
                     next_state = IDLE;
                     if(araddr_o == 32'h02000000) begin 
                         axi.rdata = mtime[31:0];
+`ifndef __SYNTHESIS__
                         /* verilator lint_off IGNOREDRETURN */
                         pmem_read(32'h02000000);
                         /* verilator lint_on IGNOREDRETURN */
+`endif
                     end
                     else if(araddr_o == 32'h02000004) begin 
                         axi.rdata = mtime[63:32];
+`ifndef __SYNTHESIS__
                         /* verilator lint_off IGNOREDRETURN */
                         pmem_read(32'h02000004);
                         /* verilator lint_on IGNOREDRETURN */
+`endif
                     end
                     else axi.rdata = 0;
                     axi.rresp = 0;
@@ -85,16 +89,20 @@ module ysyx_24110015_AXI2Clint (
                     //save rdata
                     if(araddr_o == 32'h02000000) begin
                         rdata_i = mtime[31:0];
+`ifndef __SYNTHESIS__
                         /* verilator lint_off IGNOREDRETURN */
                         pmem_read(32'h02000000);
                         /* verilator lint_on IGNOREDRETURN */
+`endif
                     end
                     else if(araddr_o == 32'h02000004) begin
                         rdata_i = mtime[63:32];
+`ifndef __SYNTHESIS__
                         $sformat("rdata_i = %h", rdata_i);
                         /* verilator lint_off IGNOREDRETURN */
                         pmem_read(32'h02000004);
                         /* verilator lint_on IGNOREDRETURN */
+`endif
                     end
                     else rdata_i = 0;
                     rdata_wen = 1;

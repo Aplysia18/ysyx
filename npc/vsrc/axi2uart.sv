@@ -2,7 +2,7 @@
 module ysyx_24110015_AXI2Uart (
     input clk,
     input rst,
-    axi_lite_if.slave axi
+    axi_if.slave axi
 );
 
     reg [2:0] state, next_state;
@@ -116,8 +116,10 @@ module ysyx_24110015_AXI2Uart (
 
     always @(posedge clk) begin
         if(state==WRITE) begin
+            `ifndef __SYNTHESIS__
             $write("%c", wdata_o[7:0]);
             pmem_write(awaddr_o, wdata_o, {4'b0, wstrb_o});
+            `endif
         end
 
     end
