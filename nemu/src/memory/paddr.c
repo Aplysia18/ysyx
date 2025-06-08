@@ -24,7 +24,7 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
-#if defined(CONFIG_TARGET_SHARE)
+#if defined(CONFIG_MEM_SOC)
 static inline bool in_mrom(paddr_t addr) { return addr - CONFIG_MROM_BASE < CONFIG_MROM_SIZE; }
 static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
 uint8_t* mrom_guest_to_host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
@@ -88,7 +88,7 @@ static void sdram_write(paddr_t addr, int len, word_t data) {
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
-#if !defined(CONFIG_TARGET_SHARE)
+#if !defined(CONFIG_MEM_SOC)
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
   return ret;
@@ -109,7 +109,7 @@ void init_mem() {
   pmem = malloc(CONFIG_MSIZE);
   assert(pmem);
 #endif
-#if defined(CONFIG_TARGET_SHARE)
+#if defined(CONFIG_MEM_SOC)
   // printf("size of mrom: %ld\n", sizeof(mrom));
   IFDEF(CONFIG_MEM_RANDOM, memset(mrom, rand(), CONFIG_MROM_SIZE));
   Log("flash area [" FMT_PADDR ", " FMT_PADDR "]", (paddr_t)CONFIG_FLASH_BASE, (paddr_t)(CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE - 1));
@@ -125,7 +125,7 @@ word_t paddr_read(paddr_t addr, int len) {
 #ifdef CONFIG_MTRACE
   printf("paddr_read: addr = " FMT_PADDR ", len = %d\n", addr, len);
 #endif
-#ifdef CONFIG_TARGET_SHARE
+#ifdef CONFIG_MEM_SOC
   if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) return mrom_read(addr, len);
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) return sram_read(addr, len);
   if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) return flash_read(addr, len);
@@ -143,7 +143,7 @@ void paddr_write(paddr_t addr, int len, word_t data) {
 #ifdef CONFIG_MTRACE
   printf("paddr_write: addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
 #endif
-#ifdef CONFIG_TARGET_SHARE
+#ifdef CONFIG_MEM_SOC
   if (likely(in_mrom(addr))&&likely(in_mrom(addr+len-1))) { mrom_write(addr, len, data); return; }
   if (likely(in_sram(addr))&&likely(in_sram(addr+len-1))) { sram_write(addr, len, data); return; }
   if (likely(in_flash(addr))&&likely(in_flash(addr+len-1))) { flash_write(addr, len, data); return; }

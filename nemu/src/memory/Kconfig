@@ -1,5 +1,14 @@
 menu "Memory Configuration"
 
+choice
+  prompt "NPC/ysyxSoC"
+  depends on TARGET_SHARE
+config MEM_NPC
+  bool "Memory for npc"
+config MEM_SOC
+  bool "Memory for ysyxSoC"
+endchoice
+
 config MBASE
   hex "Memory base address"
   default 0x0        if ISA_x86
@@ -10,54 +19,45 @@ config MSIZE
   default 0x8000000
 
 menu "memory for ysyxSoC"
+depends on MEM_SOC
 config MROM_BASE
   hex "MROM base address"
-  depends on TARGET_SHARE
   default 0x20000000
 
 config MROM_SIZE
   hex "MROM size"
-  depends on TARGET_SHARE
   default 0x1000
 
 config SRAM_BASE
   hex "SRAM base address"
-  depends on TARGET_SHARE
   default 0x0f000000
 
 config SRAM_SIZE
   hex "SRAM size"
-  depends on TARGET_SHARE
   default 0x2000
 
 config FLASH_BASE
   hex "FLASH base address"
-  depends on TARGET_SHARE
   default 0x30000000
 
 config FLASH_SIZE
   hex "FLASH size"
-  depends on TARGET_SHARE
   default 0x10000000
 
 config PSRAM_BASE
   hex "PSRAM base address"
-  depends on TARGET_SHARE
   default 0x80000000
 
 config PSRAM_SIZE
   hex "PSRAM size"
-  depends on TARGET_SHARE
   default 0x20000000
 
 config SDRAM_BASE
   hex "SDRAM base address"
-  depends on TARGET_SHARE
   default 0xa0000000
 
 config SDRAM_SIZE
   hex "SDRAM size"
-  depends on TARGET_SHARE
   default 0x20000000
 
 endmenu

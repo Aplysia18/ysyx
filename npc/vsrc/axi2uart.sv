@@ -1,4 +1,4 @@
-// import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+`ifndef ysyxsoc
 module ysyx_24110015_AXI2Uart (
     input clk,
     input rst,
@@ -137,3 +137,4 @@ module ysyx_24110015_AXI2Uart (
     assign axi.wready = (state == IDLE) | (state == WRITE_WAIT_DATA);
 
 endmodule
+`endif

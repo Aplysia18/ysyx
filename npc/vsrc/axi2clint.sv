@@ -1,9 +1,18 @@
 // import "DPI-C" function int pmem_read(input int addr);
+
 module ysyx_24110015_AXI2Clint (
     input clk,
     input rst,
     axi_if.slave axi
 );
+
+`ifdef ysyxsoc
+    localparam clint_addrl=32'h02000000;
+    localparam clint_addrh=32'h02000004;
+`else
+    localparam clint_addrl=32'ha0000048;
+    localparam clint_addrh=32'ha000004c;
+`endif
 
     logic [2:0] state, next_state;
     parameter IDLE = 3'b000, READ = 3'b001, WAIT_RREADY = 3'b011, WRITE_WAIT_DATA = 3'b010, WRITE_WAIT_ADDR = 3'b110, WRITE = 3'b100, WAIT_BREADY = 3'b101;
@@ -66,19 +75,19 @@ module ysyx_24110015_AXI2Clint (
                 axi.rvalid = 1;
                 if(axi.rready) begin
                     next_state = IDLE;
-                    if(araddr_o == 32'h02000000) begin 
+                    if(araddr_o == clint_addrl) begin 
                         axi.rdata = mtime[31:0];
 `ifndef __SYNTHESIS__
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'h02000000);
+                        pmem_read(clint_addrl);
                         /* verilator lint_on IGNOREDRETURN */
 `endif
                     end
-                    else if(araddr_o == 32'h02000004) begin 
+                    else if(araddr_o == clint_addrh) begin 
                         axi.rdata = mtime[63:32];
 `ifndef __SYNTHESIS__
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'h02000004);
+                        pmem_read(clint_addrh);
                         /* verilator lint_on IGNOREDRETURN */
 `endif
                     end
@@ -87,20 +96,20 @@ module ysyx_24110015_AXI2Clint (
                 end else begin
                     next_state = WAIT_RREADY;
                     //save rdata
-                    if(araddr_o == 32'h02000000) begin
+                    if(araddr_o == clint_addrl) begin
                         rdata_i = mtime[31:0];
 `ifndef __SYNTHESIS__
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'h02000000);
+                        pmem_read(clint_addrl);
                         /* verilator lint_on IGNOREDRETURN */
 `endif
                     end
-                    else if(araddr_o == 32'h02000004) begin
+                    else if(araddr_o == clint_addrh) begin
                         rdata_i = mtime[63:32];
 `ifndef __SYNTHESIS__
                         $sformat("rdata_i = %h", rdata_i);
                         /* verilator lint_off IGNOREDRETURN */
-                        pmem_read(32'h02000004);
+                        pmem_read(clint_addrh);
                         /* verilator lint_on IGNOREDRETURN */
 `endif
                     end

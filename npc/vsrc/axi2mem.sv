@@ -1,3 +1,4 @@
+`ifndef ysyxsoc
 module ysyx_24110015_AXI2MEM (
     input clk,
     input rst,
@@ -229,3 +230,4 @@ module ysyx_24110015_AXI2MEM (
     assign axi.wready = (state == IDLE) | (state == WRITE_WAIT_DATA);
 
 endmodule
+`endif

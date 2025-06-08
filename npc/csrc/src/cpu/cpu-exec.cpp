@@ -4,13 +4,18 @@
 #include <isa/isa-def.hpp>
 #include <cpu/difftest.hpp>
 #include <common.hpp>
-#include <nvboard.h>
 
+#if CONFIG_SOC==1
 VysyxSoCFull* top;
+#else
+Vysyx_24110015* top;
+#endif
 VerilatedContext* contextp;
 VerilatedFstC* tfp;
 
+#if CONFIG_SOC==1
 void nvboard_bind_all_pins(TOP_NAME* top);
+#endif
 
 #define RESET_CYCLE 20
 CPU_state cpu = {};
@@ -51,6 +56,8 @@ inst_type_t g_inst_type = {
 };
 void ifu_fetch() {g_ifu_fetch++;}
 void lsu_fetch() {g_lsu_fetch++;}
+void icache_valid();
+void icache_ready();
 uint64_t ifu_state_cnt = 0; //wbu+ifu
 uint64_t idu_state_cnt = 1; //idu+exu, tied to 1
 uint64_t lsu_state_cnt = 0; 
@@ -86,10 +93,8 @@ if(g_nr_guest_inst < CONFIG_FST_TRACE_NUM)
 #endif
 }
 
-static void reset(int n){
-  top->reset = 1;
-  while(n--) single_cycle();
-  top->reset = 0;
+static void update_cpu_state() {
+#if CONFIG_SOC==1
   cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[i];
   cpu.csr.mstatus = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mstatus;
@@ -98,14 +103,38 @@ static void reset(int n){
   cpu.csr.mtvec = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mtvec;
   cpu.csr.mvendorid = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mvendorid;
   cpu.csr.marchid = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_marchid;
+#else 
+  cpu.pc = top->rootp->ysyx_24110015__DOT__pc_ifu;
+  for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015__DOT__idu__DOT__rf__DOT__rf[i];
+  cpu.csr.mstatus = top->rootp->ysyx_24110015__DOT__dout_mstatus;
+  cpu.csr.mepc = top->rootp->ysyx_24110015__DOT__dout_mepc;
+  cpu.csr.mcause = top->rootp->ysyx_24110015__DOT__dout_mcause;
+  cpu.csr.mtvec = top->rootp->ysyx_24110015__DOT__dout_mtvec;
+  cpu.csr.mvendorid = top->rootp->ysyx_24110015__DOT__dout_mvendorid;
+  cpu.csr.marchid = top->rootp->ysyx_24110015__DOT__dout_marchid;
+#endif
 }
+
+static void reset(int n){
+  top->reset = 1;
+  while(n--) single_cycle();
+  top->reset = 0;
+  
+  update_cpu_state();
+}
+
+uint8_t *cpu_state;
 
 void init_cpu(int argc, char* argv[]) {
 
   contextp = new VerilatedContext;
   contextp->commandArgs(argc, argv);
+#if CONFIG_SOC==1
   top = new VysyxSoCFull{contextp};
-#ifdef CONFIG_FST_TRACE
+#else
+  top = new Vysyx_24110015{contextp};
+#endif
+  #ifdef CONFIG_FST_TRACE
   tfp = new VerilatedFstC;
   Verilated::traceEverOn(true);
   top->trace(tfp, 99);
@@ -118,20 +147,25 @@ void init_cpu(int argc, char* argv[]) {
   // printf("init cpu\n");
   reset(RESET_CYCLE);
   //跳过reset后的idle状态
+#if CONFIG_SOC==1
+  cpu_state = &(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+#else
+  cpu_state = &(top->rootp->ysyx_24110015__DOT__controller__DOT__state);
+#endif
   do{
     single_cycle();
-    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
-  }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
+    // printf("state = %d\n", *cpu_state);
+  }while(*cpu_state != 1);
   cycles_num++;
   int cnt = 0;
   ifu_state_cnt = 0;
-  while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
+  while(*cpu_state == 1){
     single_cycle();
     cycles_num++;
     ifu_state_cnt++;
     cnt++;
     if(cnt > 5000){
-      printf("init cpu failed, state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+      printf("init cpu failed, state = %d\n", *cpu_state);
       abort_flag = 1;
       break;
     }
@@ -164,16 +198,25 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 }
 
 static void execute_once(Decode *s){
+#if CONFIG_SOC==1
   s->pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
   s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu + 4;
+#else
+  s->pc = top->rootp->ysyx_24110015__DOT__pc_ifu;
+  s->snpc = top->rootp->ysyx_24110015__DOT__pc_ifu + 4;
+#endif
   // execute
   int cnt = 0;
   do{
-    if(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state==3){
+    if(*cpu_state==3){
+      #if CONFIG_SOC==1
       s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
+      #else
+      s->inst = top->rootp->ysyx_24110015__DOT__inst;
+      #endif
       // printf("pc = 0x%08x, inst = 0x%08x\n", s->pc, s->inst);
     }
-    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+    // printf("state = %d\n", *cpu_state);
     single_cycle();
     cycles_num++;
     lsu_state_cnt++;
@@ -182,12 +225,12 @@ static void execute_once(Decode *s){
       abort_flag = 1;
       break;
     }
-    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
-  }while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state != 1);
+    // printf("state = %d\n", *cpu_state);
+  }while(*cpu_state != 1);
   lsu_state_cnt --;
   update_performance_counters(s->inst);
   cnt = 0;
-  while(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state == 1){
+  while(*cpu_state == 1){
     single_cycle();
     cycles_num++;
     ifu_state_cnt++;
@@ -196,20 +239,14 @@ static void execute_once(Decode *s){
       abort_flag = 1;
       break;
     }
-    // printf("state = %d\n", top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+    // printf("state = %d\n", *cpu_state);
   }
-  
+#if CONFIG_SOC==1
   s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
-
-  //update cpu state
-  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
-  for(int i = 0; i < 16; i++) {
-    cpu.gpr[i] = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[i];
-  }
-  cpu.csr.mstatus = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mstatus;
-  cpu.csr.mepc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mepc;
-  cpu.csr.mcause = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mcause;
-  cpu.csr.mtvec = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mtvec;
+#else
+  s->dnpc = top->rootp->ysyx_24110015__DOT__pc_ifu;
+#endif
+  update_cpu_state();
 
   //itrace
   char *p = s->logbuf;
@@ -272,7 +309,11 @@ void cpu_exec(uint64_t n) {
     }
 
     if(end_flag) {
+      #if CONFIG_SOC==1
       int code = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[10];
+      #else
+      int code = top->rootp->ysyx_24110015__DOT__idu__DOT__rf__DOT__rf[10];
+      #endif
       if(code!=0) bad_trap_flag = 1;
       Log("npc: %s at pc = 0x%08x", (code == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) : ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED)), s.pc);
       double IPC = (double)g_nr_guest_inst / (cycles_num);
@@ -299,6 +340,28 @@ void exit_cpu() {
   delete top;
   delete contextp;
   if(abort_flag || bad_trap_flag) assert(0);
+}
+
+uint64_t icache_access_num = 0;
+uint64_t icache_hit_num = 0;
+uint64_t icache_miss_num = 0;
+uint64_t icache_access_cycles = 0;
+uint64_t icache_miss_penalty_cycles = 0;
+static uint64_t icache_valid_cycle = 0;
+static uint64_t icache_ready_cycle = 0;
+void icache_valid() {
+  icache_valid_cycle = cycles_num;
+  icache_access_num++;
+}
+void icache_ready(){
+  icache_ready_cycle = cycles_num;
+  icache_access_cycles++;
+  if(icache_ready_cycle==icache_valid_cycle) {
+    icache_hit_num++;
+  }else{
+    icache_miss_num++;
+    icache_miss_penalty_cycles += (icache_ready_cycle - icache_valid_cycle);
+  }
 }
 
 void update_performance_counters(uint32_t inst){
@@ -371,12 +434,14 @@ void update_performance_counters(uint32_t inst){
         g_inst_type.zicsr.lsu += lsu_state_cnt;
       } else {
         Log("Unknown system instruction: %08x", inst);
-        assert(0);
+        // assert(0);
+        abort_flag = 1;
       }
       break;
     default:
       Log("Unknown instruction opcode: %02x", opcode);
-      assert(0);
+      // assert(0);
+      abort_flag = 1;
       break;
   }
   ifu_state_cnt = 0;
@@ -437,4 +502,6 @@ void performance_log() {
       g_inst_type.ebreak.ifu, (double)g_inst_type.ebreak.ifu / g_inst_type.ebreak.num,
       g_inst_type.ebreak.idu, (double)g_inst_type.ebreak.idu / g_inst_type.ebreak.num,
       g_inst_type.ebreak.lsu, (double)g_inst_type.ebreak.lsu / g_inst_type.ebreak.num);
+  printf("  ICache: access %ld, hit %ld, miss %ld, hit rate %f, access cycles %ld, miss penalty cycles %ld, AMAT=%f\n",
+      icache_access_num, icache_hit_num, icache_miss_num, (double)icache_hit_num/icache_access_num, icache_access_cycles, icache_miss_penalty_cycles, ((double)icache_access_cycles + (1- (double)icache_hit_num/icache_access_num) * (double)icache_miss_penalty_cycles)/icache_miss_num);
 }

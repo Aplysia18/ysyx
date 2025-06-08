@@ -23,26 +23,6 @@ static void default_img() {
     pmem_write(0x80000014, 0x00100073, 0xf);
 }
 
-static void init_flash() {
-  // Initialize flash memory
-  // for (int i = 0; i < FLASH_SIZE; i+=4) {
-  //   pmem_write(FLASH_BASE + i, i, 0xf);
-  // }
-  //char test
-  char *test = "/home/lty/ysyx/ysyx-workbench/npc/test/char_test.bin";
-  FILE *fp = fopen(test, "rb");
-  if(fp==NULL) {
-    printf("Can not open '%s'\n", test);
-    assert(0);
-  }
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-  int ret = fread(flash_guest_to_host(FLASH_BASE), size, 1, fp);
-  assert(ret == 1);
-  fclose(fp);
-}
-
 static long load_img() {
   if (img_file == NULL) {
     Log("No image is given. Use the default build-in image.");
@@ -62,8 +42,12 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
+  #if CONFIG_SOC==1 
   // int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
   int ret = fread(flash_guest_to_host(FLASH_BASE), size, 1, fp);
+  #else
+  int ret = fread(guest_to_host(CONFIG_MBASE), size, 1, fp);
+  #endif
   assert(ret == 1);
 
   fclose(fp);
@@ -114,9 +98,6 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
-
-  /* init flash */
-  // init_flash();
 
   /* Initialize the CPU. */
   init_cpu(argc, argv);

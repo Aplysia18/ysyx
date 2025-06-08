@@ -70,6 +70,7 @@ module ysyx_24110015_LSU (
     assign func3_o = func3_i;
     assign MemRead_o = MemRead_i;
 
+`ifdef ysyxsoc
     logic in_sram, in_psram, in_sdram, in_chiplink, read_word_align, write_word_align;
     assign in_sram = (alu_out_i>=32'h0f000000)&(alu_out_i<32'h10000000);
     assign in_psram = (alu_out_i>=32'h80000000)&(alu_out_i<32'ha0000000);
@@ -78,6 +79,11 @@ module ysyx_24110015_LSU (
     // assign read_word_align = in_sram | in_psram | in_sdram;
     assign read_word_align = in_sram | in_psram | in_sdram | in_chiplink;
     assign write_word_align = in_sram;
+`else
+    logic read_word_align, write_word_align;
+    assign read_word_align = 1; // always read word aligned
+    assign write_word_align = 1; // always write word aligned
+`endif
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
@@ -272,6 +278,7 @@ module ysyx_24110015_LSU (
         end
     end
 
+`ifdef ysyxsoc
     //for the skip of difftest
     always @(posedge clk or posedge rst) begin
         if(!rst) begin
@@ -283,6 +290,7 @@ module ysyx_24110015_LSU (
             end
         end
     end
+`endif
 `endif
 
 endmodule

@@ -106,6 +106,11 @@ int pmem_read(int raddr) {
   //   abort_flag = 1;
   //   return 0;
   // }
+#if CONFIG_SOC==0
+  if(in_pmem(raddr)) {
+    return host_read(guest_to_host(raddr), 4);
+  }
+#else
   if(in_mrom(raddr)) {
     return mrom_read(raddr, 4);
   }
@@ -121,6 +126,8 @@ int pmem_read(int raddr) {
   if(in_sdram(raddr)) {
     return sdram_read(raddr, 4);
   }
+#endif
+
 #ifdef CONFIG_CLINT
   if((raddr >= CONFIG_CLINT) && (raddr < CONFIG_CLINT + CONFIG_CLINT_SIZE)) {
     difftest_skip_ref();
@@ -174,6 +181,22 @@ void pmem_write(int waddr, int wdata, char wmask) {
 #ifdef CONFIG_MTRACE
   printf("pmem_write: addr = " FMT_PADDR ", data = " FMT_WORD ", mask = 0x%x\n", waddr, wdata, wmask);
 #endif
+
+#if CONFIG_SOC==0
+  if(in_pmem(waddr)) {
+    if(waddr & 0x3) {
+      printf("pmem_write: unaligned address 0x%x\n", waddr);
+      abort_flag = 1;
+      return;
+    }
+    for(int i = 0; i < 4; i++) {
+      if(wmask & (1 << i)) {
+        *(uint8_t*)guest_to_host(waddr + i) = (wdata >> (i * 8)) & 0xff;
+      }
+    }
+    return;
+  }
+#else
   if(in_sram(waddr)) {
     // printf("in sram begin\n");
     // sram_write(waddr, 4, wdata);
@@ -192,6 +215,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
     // sdram_write(waddr, wdata, wmask);
     return;
   }
+#endif
 
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {

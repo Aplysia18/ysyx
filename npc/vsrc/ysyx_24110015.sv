@@ -118,7 +118,12 @@ module ysyx_24110015(
   axi_if axiif_master_lsu();
   axi_if axiif_master();
   axi_if axiif_slave_clint();
+`ifdef ysyxsoc
   axi_if axiif_slave_soc();
+`else
+  axi_if axiif_slave_sram();
+  axi_if axiif_slave_uart();
+`endif
 
   ysyx_24110015_AXIArbiter arbiter(
     .clk(clock),
@@ -128,6 +133,7 @@ module ysyx_24110015(
     .axi_slave(axiif_master)
   );
 
+`ifdef ysyxsoc
   assign axiif_slave_soc.awready = io_master_awready;
   assign io_master_awvalid = axiif_slave_soc.awvalid;
   assign io_master_awaddr = axiif_slave_soc.awaddr;
@@ -165,6 +171,30 @@ module ysyx_24110015(
     .axi_slave_clint(axiif_slave_clint),
     .axi_slave_soc(axiif_slave_soc)
   );
+
+`else
+  ysyx_24110015_xbar xbar(
+    .clk(clock),
+    .rst(reset),
+    .axi_master(axiif_master),
+    .axi_slave_sram(axiif_slave_sram),
+    .axi_slave_uart(axiif_slave_uart),
+    .axi_slave_clint(axiif_slave_clint)
+  );
+  
+  ysyx_24110015_AXI2MEM axi2mem(
+    .clk(clock),
+    .rst(reset),
+    .axi(axiif_slave_sram)
+  );
+
+  ysyx_24110015_AXI2Uart axi2uart (
+    .clk(clock),
+    .rst(reset),
+    .axi(axiif_slave_uart)
+  );
+  
+`endif
   
   ysyx_24110015_AXI2Clint axi2clint (
     .clk(clock),

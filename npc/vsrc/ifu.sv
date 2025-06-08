@@ -20,36 +20,77 @@ module ysyx_24110015_IFU (
   //to axi
   axi_if.master axiif
 );
-
+  /*-----PC-----*/
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
     .rst(rst), 
     .wen(control_RegWrite),
     .din(pc_next), 
     .pc(pc)
-  );
+  ); 
 
-  assign control_iMemRead_end = axiif.rready & axiif.rvalid;
-  
-  assign axiif.araddr = pc;
-  always @(posedge clk or posedge rst) begin
-    if(rst) begin
-      axiif.arvalid <= 0;
-    end else begin
-      if(axiif.arvalid) begin
-        if(axiif.arready) begin
-          axiif.arvalid <= 0;
-`ifndef __SYNTHESIS__
-          ifu_fetch();
+  /*-----AXI&CACHE control-----*/
+  localparam CACHE_BLOCK_SIZE = 4,
+            CACHE_BLOCK_NUM = 16;
+  logic [31:0] cpu_req_addr;
+  logic cpu_req_valid;
+  logic [8*CACHE_BLOCK_SIZE-1:0] cpu_req_data;
+  logic cpu_req_ready;
+  logic [31:0] mem_req_addr;
+  logic mem_req_valid;
+  logic [8*CACHE_BLOCK_SIZE-1:0] mem_req_data;
+  logic mem_req_ready;
+
+  logic cacheable; //if address need cache
+  logic reg_cacheable;  //record if using cache
+
+
+  assign control_iMemRead_end = ((cacheable & control_iMemRead) | reg_cacheable) ? cpu_req_ready : axiif.rready & axiif.rvalid;
+
+`ifdef ysyxsoc
+  assign cacheable = ((pc>=32'h30000000)&(pc<32'h40000000))|((pc>=32'h80000000)&(pc<32'hc0000000)); //FLASH/PSRAM/SDRAM
+`else
+  assign cacheable = 1;
 `endif
-        end
-      end else if(control_iMemRead) begin
-        axiif.arvalid <= 1;
-      end else begin
-        axiif.arvalid <= axiif.arvalid;
-      end
-    end
+
+  wire reg_cacheable_in = control_iMemRead_end ? 0 : (cacheable & control_iMemRead);
+  ysyx_24110015_Reg #(1, 0) creg(
+    .clk(clk), .rst(rst), .din(reg_cacheable_in), .dout(reg_cacheable), .wen(control_iMemRead | control_iMemRead_end) );
+
+`ifndef __SYNTHESIS__
+  always @(posedge clk) begin
+    if(control_iMemRead)
+      ifu_fetch();
   end
+`endif
+
+  localparam IDLE = 0;  //wait or cache hit
+  localparam AXI_FETCH = 1; //send awvalid and until awready
+  localparam AXI_WAIT_READ = 2; //wait for rvalid
+
+  logic [1:0] state, next_state;
+  always @(posedge clk or posedge rst) begin 
+    if(rst) state <= IDLE;
+    else state <= next_state;
+  end
+
+  always @(*) begin
+    case(state)
+      IDLE:
+        if(mem_req_valid | (control_iMemRead&~cacheable)) begin
+          next_state = AXI_FETCH;
+        end else next_state = IDLE;
+      AXI_FETCH:
+        if(axiif.arready) next_state = AXI_WAIT_READ;
+        else next_state = AXI_FETCH;
+      AXI_WAIT_READ:
+        if(axiif.rvalid) next_state = IDLE;
+        else next_state = AXI_WAIT_READ;
+    endcase
+  end 
+  
+  assign axiif.arvalid = state==AXI_FETCH;
+  assign axiif.araddr = pc;
   
   assign axiif.arsize = 3'b010;
   assign axiif.rready = 1;
@@ -60,10 +101,28 @@ module ysyx_24110015_IFU (
   assign axiif.wvalid = 0;
   assign axiif.bready = 0;
 
+  assign cpu_req_addr = pc;
+  assign cpu_req_valid = control_iMemRead & cacheable;
+  assign mem_req_ready = axiif.rready & axiif.rvalid & reg_cacheable;
+  assign mem_req_data = axiif.rdata;
+  
+  ysyx_24110015_icache #(CACHE_BLOCK_SIZE, CACHE_BLOCK_NUM) icache (
+    .clk(clk),
+    .rst(rst),
+    .cpu_req_addr(cpu_req_addr),
+    .cpu_req_valid(cpu_req_valid),
+    .cpu_req_data(cpu_req_data),
+    .cpu_req_ready(cpu_req_ready),
+    .mem_req_addr(mem_req_addr),
+    .mem_req_valid(mem_req_valid),
+    .mem_req_data(mem_req_data),
+    .mem_req_ready(mem_req_ready)
+  );
+
   ysyx_24110015_Reg #(32, 0) inst_reg (
     .clk(clk),
     .rst(rst),
-    .din(axiif.rdata),
+    .din(cacheable ? cpu_req_data : axiif.rdata),
     .dout(inst),
     .wen(control_iMemRead_end)
   );
