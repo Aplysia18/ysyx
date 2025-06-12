@@ -129,7 +129,7 @@ module ysyx_24110015_AXIArbiter (
                 axi_master_ifu.rid = axi_slave.rid;
                 axi_master_ifu.rvalid = axi_slave.rvalid;
                 axi_slave.rready = axi_master_ifu.rready;
-                if(axi_slave.rvalid & axi_master_ifu.rready) begin
+                if(axi_slave.rvalid & axi_slave.rlast & axi_master_ifu.rready) begin
                     next_state = IDLE;
                 end else begin
                     next_state = IFU;
@@ -170,7 +170,7 @@ module ysyx_24110015_AXIArbiter (
                 axi_master_lsu.bid = axi_slave.bid;
                 axi_master_lsu.bvalid = axi_slave.bvalid;
                 axi_slave.bready = axi_master_lsu.bready;
-                if((axi_slave.rvalid & axi_master_lsu.rready)|(axi_slave.bvalid & axi_master_lsu.bready)) begin
+                if((axi_slave.rvalid & axi_slave.rlast & axi_master_lsu.rready)|(axi_slave.bvalid & axi_master_lsu.bready)) begin
                     next_state = IDLE;
                 end else begin
                     next_state = LSU;

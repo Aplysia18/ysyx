@@ -1,4 +1,5 @@
 #ifndef __CPU_FTRACE_H__
+#define __CPU_FTRACE_H__
 
 #include <elf.h>
 

@@ -25,7 +25,6 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
 #if defined(CONFIG_MEM_SOC)
-static inline bool in_mrom(paddr_t addr) { return addr - CONFIG_MROM_BASE < CONFIG_MROM_SIZE; }
 static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
 uint8_t* mrom_guest_to_host(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
 static word_t mrom_read(paddr_t addr, int len) {
@@ -39,7 +38,6 @@ void mrom_write_init(paddr_t addr, int len, word_t data) {
   host_write(mrom_guest_to_host(addr), len, data);
 }
 
-static inline bool in_sram(paddr_t addr) { return addr - CONFIG_SRAM_BASE < CONFIG_SRAM_SIZE; }
 static uint8_t sram[CONFIG_SRAM_SIZE] PG_ALIGN = {};
 uint8_t* sram_guest_to_host(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
 static word_t sram_read(paddr_t addr, int len) {
@@ -50,7 +48,6 @@ static void sram_write(paddr_t addr, int len, word_t data) {
   host_write(sram_guest_to_host(addr), len, data);
 }
 
-static inline bool in_flash(paddr_t addr) { return addr - CONFIG_FLASH_BASE < CONFIG_FLASH_SIZE; }
 static uint8_t flash[CONFIG_FLASH_SIZE] PG_ALIGN = {};
 uint8_t* flash_guest_to_host(paddr_t paddr) { return flash + paddr - CONFIG_FLASH_BASE; }
 static word_t flash_read(paddr_t addr, int len) {
@@ -61,7 +58,6 @@ static void flash_write(paddr_t addr, int len, word_t data) {
   host_write(flash_guest_to_host(addr), len, data);
 }
 
-static inline bool in_psram(paddr_t addr) { return addr - CONFIG_PSRAM_BASE < CONFIG_PSRAM_SIZE; }
 static uint8_t psram[CONFIG_PSRAM_SIZE] PG_ALIGN = {};
 uint8_t* psram_guest_to_host(paddr_t paddr) { return psram + paddr - CONFIG_PSRAM_BASE; }
 static word_t psram_read(paddr_t addr, int len) {
@@ -72,7 +68,6 @@ static void psram_write(paddr_t addr, int len, word_t data) {
   host_write(psram_guest_to_host(addr), len, data);
 }
 
-static inline bool in_sdram(paddr_t addr) { return addr - CONFIG_SDRAM_BASE < CONFIG_SDRAM_SIZE; }
 static uint8_t sdram[CONFIG_SDRAM_SIZE] PG_ALIGN = {};
 uint8_t* sdram_guest_to_host(paddr_t paddr) { return sdram + paddr - CONFIG_SDRAM_BASE; }
 static word_t sdram_read(paddr_t addr, int len) {

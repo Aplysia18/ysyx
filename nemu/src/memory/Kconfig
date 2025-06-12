@@ -2,7 +2,6 @@ menu "Memory Configuration"
 
 choice
   prompt "NPC/ysyxSoC"
-  depends on TARGET_SHARE
 config MEM_NPC
   bool "Memory for npc"
 config MEM_SOC

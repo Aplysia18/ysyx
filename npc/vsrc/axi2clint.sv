@@ -140,5 +140,6 @@ module ysyx_24110015_AXI2Clint (
     assign axi.arready = (state == IDLE);
     assign axi.awready = 0;
     assign axi.wready = 0;
+    assign axi.rlast = 1;
 
 endmodule

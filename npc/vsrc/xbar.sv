@@ -39,12 +39,12 @@ module ysyx_24110015_xbar (
             XFER_RD: begin
                 case(cur_slave)
                     2'b01: begin
-                        if(axi_slave_clint.rvalid & axi_master.rready) begin
+                        if(axi_slave_clint.rvalid & axi_slave_clint.rlast & axi_master.rready) begin
                             next_state = RESP_RD;
                         end else next_state = XFER_RD;
                     end
                     2'b10: begin
-                        if(axi_slave_soc.rvalid & axi_master.rready) begin
+                        if(axi_slave_soc.rvalid & axi_slave_soc.rlast & axi_master.rready) begin
                             next_state = RESP_RD;
                         end else next_state = XFER_RD;
                     end
@@ -115,6 +115,7 @@ module ysyx_24110015_xbar (
 
         axi_master.rdata = 0;
         axi_master.rresp = 0;
+        axi_master.rlast = 0;
         axi_master.bresp = 0;
 
         case(state)
@@ -171,6 +172,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = axi_slave_clint.rvalid;
                         axi_master.rdata = axi_slave_clint.rdata;
                         axi_master.rresp = axi_slave_clint.rresp;
+                        axi_master.rlast = axi_slave_clint.rlast;
                     end
                     2'b10: begin
                         axi_slave_soc.arvalid = axi_master.arvalid;
@@ -186,6 +188,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = axi_slave_soc.rvalid;
                         axi_master.rdata = axi_slave_soc.rdata;
                         axi_master.rresp = axi_slave_soc.rresp;
+                        axi_master.rlast = axi_slave_soc.rlast;
                     end
                     default: begin
                         axi_slave_clint.rready = 0;
@@ -193,6 +196,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = 0;
                         axi_master.rdata = 0;
                         axi_master.rresp = 0;
+                        axi_master.rlast = 0;
                     end
                 endcase
             end

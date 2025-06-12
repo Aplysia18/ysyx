@@ -30,7 +30,7 @@ static void restart() {
   /* Set the initial program counter. */
 
 #ifdef CONFIG_MEM_SOC
-  cpu.pc = CONFIG_MROM_BASE;
+  cpu.pc = CONFIG_FLASH_BASE;
 #else
   cpu.pc = RESET_VECTOR;
 #endif
@@ -45,7 +45,7 @@ void init_isa() {
   /* Load built-in image. */
 
 #ifdef CONFIG_MEM_SOC
-  memcpy(mrom_guest_to_host(CONFIG_MROM_BASE), img, sizeof(img));
+  memcpy(flash_guest_to_host(CONFIG_FLASH_BASE), img, sizeof(img));
 #else
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
 #endif

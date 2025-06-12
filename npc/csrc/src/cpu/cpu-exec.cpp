@@ -164,7 +164,7 @@ void init_cpu(int argc, char* argv[]) {
     cycles_num++;
     ifu_state_cnt++;
     cnt++;
-    if(cnt > 5000){
+    if(cnt > 10000){
       printf("init cpu failed, state = %d\n", *cpu_state);
       abort_flag = 1;
       break;
@@ -221,7 +221,7 @@ static void execute_once(Decode *s){
     cycles_num++;
     lsu_state_cnt++;
     cnt++;
-    if(cnt > 5000){
+    if(cnt > 10000){
       abort_flag = 1;
       break;
     }
@@ -235,7 +235,7 @@ static void execute_once(Decode *s){
     cycles_num++;
     ifu_state_cnt++;
     cnt++;
-    if(cnt > 5000){
+    if(cnt > 10000){
       abort_flag = 1;
       break;
     }
@@ -503,5 +503,5 @@ void performance_log() {
       g_inst_type.ebreak.idu, (double)g_inst_type.ebreak.idu / g_inst_type.ebreak.num,
       g_inst_type.ebreak.lsu, (double)g_inst_type.ebreak.lsu / g_inst_type.ebreak.num);
   printf("  ICache: access %ld, hit %ld, miss %ld, hit rate %f, access cycles %ld, miss penalty cycles %ld, AMAT=%f\n",
-      icache_access_num, icache_hit_num, icache_miss_num, (double)icache_hit_num/icache_access_num, icache_access_cycles, icache_miss_penalty_cycles, ((double)icache_access_cycles + (1- (double)icache_hit_num/icache_access_num) * (double)icache_miss_penalty_cycles)/icache_miss_num);
+      icache_access_num, icache_hit_num, icache_miss_num, (double)icache_hit_num/icache_access_num, icache_access_cycles, icache_miss_penalty_cycles, (double)icache_access_cycles/icache_access_num + (1- (double)icache_hit_num/icache_access_num) * ((double)icache_miss_penalty_cycles)/icache_miss_num);
 }
