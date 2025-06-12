@@ -12,6 +12,8 @@ module ysyx_24110015_IFU (
   input control_iMemRead,
   //from wbu
   input [31:0] pc_next,
+  //from idu?
+  input fence_i,
   //to idu
   output reg [31:0] inst,
   output [31:0] pc,
@@ -194,10 +196,13 @@ module ysyx_24110015_IFU (
   assign cpu_req_valid = control_iMemRead & cacheable;
   assign mem_req_ready = axi_fetch_cache_done & reg_cacheable;
   assign mem_req_data = {axiif.rdata , axi_fetch_cache_data[8*CACHE_BLOCK_SIZE-1:32]};
+
+  wire cache_flush = control_iMemRead & fence_i;
   
   ysyx_24110015_icache #(CACHE_BLOCK_SIZE, CACHE_BLOCK_NUM) icache (
     .clk(clk),
     .rst(rst),
+    .flush(cache_flush),
     .cpu_req_addr(cpu_req_addr),
     .cpu_req_valid(cpu_req_valid),
     .cpu_req_data(cpu_req_data),

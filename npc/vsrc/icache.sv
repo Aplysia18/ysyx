@@ -8,6 +8,8 @@ module ysyx_24110015_icache #(
     input clk,
     input rst,
 
+    input flush,
+
     input [31:0] cpu_req_addr,
     input cpu_req_valid,
     output [8*BLOCK_SIZE-1:0]cpu_req_data,
@@ -27,7 +29,7 @@ module ysyx_24110015_icache #(
 
     wire [INDEX_WIDTH-1:0] index = cpu_req_addr[INDEX_WIDTH+OFFSET_WIDTH-1:OFFSET_WIDTH];
     wire [TAG_WIDTH-1:0] tag = cpu_req_addr[31:INDEX_WIDTH+OFFSET_WIDTH]; 
-    wire hit = cache_tag[index][TAG_WIDTH:0] == {1'b1, tag};
+    wire hit = (~flush)&&(cache_tag[index][TAG_WIDTH:0] == {1'b1, tag});
 
     parameter IDLE = 0, AXI_FETCH = 1;
     logic state, next_state;
@@ -63,7 +65,11 @@ module ysyx_24110015_icache #(
             end
 `endif
         end else begin
-            if(mem_req_valid & mem_req_ready) begin
+            if(flush) begin
+                for(int i = 0; i < BLOCK_NUM; i++) begin
+                    cache_tag[i] <= 0;
+                end
+            end else if(mem_req_valid & mem_req_ready) begin
                 cache_data[index] <= mem_req_data;
                 cache_tag[index] <= {1'b1, tag}; 
             end else begin

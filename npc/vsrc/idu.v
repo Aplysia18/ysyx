@@ -46,6 +46,7 @@ module ysyx_24110015_IDU (
   output [31:0] dout_marchid,
   output ebreak,
   output ecall,
+  output fence_i,
   output mret,
   //to controller
   output control_ls
@@ -177,6 +178,9 @@ module ysyx_24110015_IDU (
   /*-----ebreak&ecall single-----*/
   assign ebreak = (inst==32'h00100073);
   assign ecall = (inst==32'h00000073);
+
+  /*-----fence.i control-----*/
+  assign fence_i = (opcode == `fence) && (func3 == 3'b001);
 
   /*-----mret single-----*/
   assign mret = (inst==32'h30200073);

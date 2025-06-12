@@ -39,6 +39,7 @@ SECTIONS {
 
   .text : {
     _text_start = .;
+    . = _text_start + 0x4;
     *(.text*)
     _text_end = .;
   } > SDRAM AT> FLASH

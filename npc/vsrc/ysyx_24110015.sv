@@ -207,6 +207,8 @@ module ysyx_24110015(
   assign pc = pc_ifu;
   assign pc_next = pc_next_wbu;
 
+  wire fence_i;
+
   ysyx_24110015_IFU ifu (
     .clk(clock),
     .rst(reset),
@@ -215,6 +217,8 @@ module ysyx_24110015(
     .control_iMemRead(control_iMemRead),
     //from wbu
     .pc_next(pc_next_wbu),
+    //from idu
+    .fence_i(fence_i),
     //to idu
     .inst(inst),
     .pc(pc_ifu),
@@ -292,6 +296,7 @@ module ysyx_24110015(
     .dout_marchid(dout_marchid),
     .ebreak(ebreak),
     .ecall(ecall),
+    .fence_i(fence_i),
     .mret(mret),
     //to controller
     .control_ls(control_ls)

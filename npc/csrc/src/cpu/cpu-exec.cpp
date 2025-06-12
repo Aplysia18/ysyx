@@ -407,6 +407,7 @@ void update_performance_counters(uint32_t inst){
       g_inst_type.store.lsu += lsu_state_cnt;
       break;
     case 0x0f: // FENCE
+      // FENCE, FENCE.I
       g_inst_type.fence.num++;
       g_inst_type.fence.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
       g_inst_type.fence.ifu += ifu_state_cnt;
