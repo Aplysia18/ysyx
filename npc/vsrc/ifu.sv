@@ -1,35 +1,110 @@
-// import "DPI-C" function int pmem_read(input int addr);
-// import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
-// import "DPI-C" function void get_pc(input int pc);
-// import "DPI-C" function void get_inst(input int inst);
 import "DPI-C" function void ifu_fetch();
+import "DPI-C" function void ifu_begin();
+import "DPI-C" function void ifu_end(input int inst);
 
 module ysyx_24110015_IFU (
   input clk,
   input rst,
-  //from controller
-  input control_RegWrite,
-  input control_iMemRead,
-  //from wbu
+  //handshake signals
+  input in_valid, //ifu valid
+  output in_ready, //ifu ready
+  output out_valid, //to idu
+  input out_ready, //from idu
+  //for branch hazard
+  input control_hazard,
   input [31:0] pc_next,
   //from idu?
   input fence_i,
   //to idu
-  output reg [31:0] inst,
-  output [31:0] pc,
-  //to controller
-  output control_iMemRead_end,
+  output [31:0] inst,
+  output [31:0] pc_out,
+  output [31:0] pc_predict,
   //to axi
   axi_if.master axiif
 );
+
+  logic [2:0] state, next_state;
+  localparam IDLE = 0;  //wait or cache hit
+  localparam AXI_FETCH = 1; //send awvalid and until awready
+  localparam AXI_WAIT_READ = 2; //wait for rvalid
+  localparam CACHE_AXI_FETCH = 3;
+  localparam CACHE_AXI_WAIT_READ = 4;
+  localparam CACHE_AXI_FETCH_SDRAM = 5;
+  localparam CACHE_AXI_WAIT_READ_SDRAM = 6;
+
+  logic control_iMemRead, control_iMemRead_end; //ifu fetch start and end signals
+  logic flush_refetch, need_refetch;
+  logic control_hazard_reg;
+  logic [31:0] pc_next_reg;
+
+  /*-----handshake signals-----*/
+  assign in_ready = (next_state==IDLE)&~(out_valid & ~out_ready)&~need_refetch; // cache hit / no fetch req
+
+  wire out_valid_begin;
+  assign out_valid_begin = (~control_hazard&~control_hazard_reg)? control_iMemRead_end : flush_refetch & control_iMemRead_end; //ifu read request end
+  reg out_valid_reg;
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      out_valid_reg <= 0;
+    end else if(out_valid_begin & ~out_ready) begin
+      out_valid_reg <= 1;
+    end else if(out_ready) begin
+      out_valid_reg <= 0;
+    end
+  end
+  assign out_valid = out_valid_begin | out_valid_reg;
+
+  /*-----instruction fetch control-----*/
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      control_iMemRead <= 0;
+    end else if(in_valid & in_ready) begin
+      control_iMemRead <= 1; //ifu read request
+    end else if(control_iMemRead_end & need_refetch) begin
+      control_iMemRead <= 1; //ifu read request for refetch
+    end else begin
+      control_iMemRead <= 0; //ifu read request end
+    end
+  end
+  
+  /*-----control hazard-----*/
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      control_hazard_reg <= 0;
+      pc_next_reg <= 0;
+    end else if((~control_hazard_reg) & control_hazard) begin
+      control_hazard_reg <= 1; //control hazard detected
+      pc_next_reg <= pc_next; //next pc from idu
+    end else if(out_valid) begin
+      control_hazard_reg <= 0; //clear control hazard
+    end
+  end
+  
+  assign need_refetch = (control_hazard | control_hazard_reg)&~flush_refetch; //need refetch if control hazard or flush refetch
+
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      flush_refetch <= 0;
+    end else if(control_iMemRead_end) begin
+      if(need_refetch) begin
+        flush_refetch <= 1;
+      end else begin
+        flush_refetch <= 0;
+      end
+    end 
+  end
+
   /*-----PC-----*/
+  logic [31:0] pc;
+  assign pc_predict = pc + 4; //pc increment
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
     .rst(rst), 
-    .wen(control_RegWrite),
-    .din(pc_next), 
+    .wen((out_valid & out_ready)|(control_iMemRead_end & need_refetch)),
+    .din((control_iMemRead_end & need_refetch)?control_hazard_reg?pc_next_reg:pc_next:pc_predict), 
     .pc(pc)
   ); 
+  assign pc_out = pc; //pc to idu
 
   /*-----AXI&CACHE control-----*/
   localparam CACHE_BLOCK_SIZE = 16,
@@ -73,15 +148,7 @@ module ysyx_24110015_IFU (
   end
 `endif
 
-  localparam IDLE = 0;  //wait or cache hit
-  localparam AXI_FETCH = 1; //send awvalid and until awready
-  localparam AXI_WAIT_READ = 2; //wait for rvalid
-  localparam CACHE_AXI_FETCH = 3;
-  localparam CACHE_AXI_WAIT_READ = 4;
-  localparam CACHE_AXI_FETCH_SDRAM = 5;
-  localparam CACHE_AXI_WAIT_READ_SDRAM = 6;
-
-  logic [2:0] state, next_state;
+  /*-----FSM-----*/
   always @(posedge clk or posedge rst) begin 
     if(rst) state <= IDLE;
     else state <= next_state;
@@ -214,13 +281,30 @@ module ysyx_24110015_IFU (
   );
 
   wire [31:0] inst_in_cache_data = cpu_req_data[(pc[CACHE_BLOCK_SIZE_LOG2-1:2] * 32) +: 32];
-
-  ysyx_24110015_Reg #(32, 0) inst_reg (
+  
+  reg [31:0] inst_reg;
+  wire [31:0] inst_din = cacheable ? inst_in_cache_data : axiif.rdata;
+  ysyx_24110015_Reg #(32, 0) inst_register (
     .clk(clk),
     .rst(rst),
-    .din(cacheable ? inst_in_cache_data : axiif.rdata),
-    .dout(inst),
+    .din(inst_din),
+    .dout(inst_reg),
     .wen(control_iMemRead_end)
   );
+  assign inst = control_iMemRead_end?inst_din:inst_reg;
+
+  /*-----performance counter-----*/
+`ifndef __SYNTHESIS__
+  always@(posedge clk or posedge rst) begin
+    if(~rst) begin
+      if(out_valid & out_ready) begin
+          ifu_end(inst);
+      end
+      if(in_valid & in_ready) begin
+          ifu_begin();
+      end 
+    end
+  end
+`endif
 
 endmodule

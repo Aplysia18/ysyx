@@ -1,39 +1,54 @@
 `include "macros.v"
 import "DPI-C" function void npc_trap();
+import "DPI-C" function void exu_begin();
+import "DPI-C" function void exu_end(input int inst);
 
 module ysyx_24110015_EXU (
   input clk,
   input rst,
+  // handshake signals
+  input in_valid, //exu valid
+  output in_ready, //exu ready
+  output reg out_valid, //to lsu
+  input out_ready, //from lsu
+  //to conflict detection
+  output reg processing,
+  //for branch hazard
+  output reg control_hazard,
+  output [31:0] pc_next,
   //from idu
-  input [31:0] pc,
-  input [2:0] func3,
-  input [31:0] imm,
-  input [31:0] data1,
-  input [31:0] data2,
+  input [31:0] pc_i,
+  input [31:0] inst_i,
+  input [31:0] pc_predict_i,
+  input [2:0] func3_i,
+  input [31:0] imm_i,
+  input [31:0] data1_i,
+  input [31:0] data2_i,
   input RegWrite_i,
   input [4:0] wb_addr_i,
-  input [1:0] ALUAsrc,
-  input [1:0] ALUBsrc,
-  input [3:0] ALUop,
+  input [1:0] ALUAsrc_i,
+  input [1:0] ALUBsrc_i,
+  input [3:0] ALUop_i,
   input MemWrite_i,
   input MemRead_i,
-  input PCAsrc,
-  input PCBsrc,
-  input branch,
+  input PCAsrc_i,
+  input PCBsrc_i,
+  input branch_i,
   input zicsr_i,
-  input [4:0] zimm,
-  input [31:0] dout_mstatus,
-  input [31:0] dout_mtvec,
-  input [31:0] dout_mepc,
-  input [31:0] dout_mcause,
-  input [31:0] dout_mvendorid,
-  input [31:0] dout_marchid,
-  input ebreak,
-  input ecall,
-  input mret,
+  input [4:0] zimm_i,
+  input [31:0] dout_mstatus_i,
+  input [31:0] dout_mtvec_i,
+  input [31:0] dout_mepc_i,
+  input [31:0] dout_mcause_i,
+  input [31:0] dout_mvendorid_i,
+  input [31:0] dout_marchid_i,
+  input ebreak_i,
+  input ecall_i,
+  input mret_i,
   //to lsu
+  output reg [31:0] pc_o,
+  output reg [31:0] inst_o,
   output reg [31:0] alu_out,
-  output [31:0] pc_next,
   output RegWrite_o,
   output [4:0] wb_addr_o,
   output [3:0] mem_wmask,
@@ -50,15 +65,128 @@ module ysyx_24110015_EXU (
   output [2:0] func3_o,
   output MemWrite_o,
   output MemRead_o,
-  output [31:0] mem_wdata
+  output [31:0] mem_wdata,
+  output ebreak_o
 );
+  
+  /*-----handshake signals-----*/
+  assign in_ready = out_ready;
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      out_valid <= 1'b0;
+    end else if (in_valid && in_ready) begin
+      out_valid <= 1'b1;
+    end else if(out_ready) begin
+      out_valid <= 1'b0;
+    end
+  end
 
-  assign RegWrite_o = RegWrite_i;
-  assign wb_addr_o = wb_addr_i;
-  assign zicsr_o = zicsr_i;
-  assign func3_o = func3;
-  assign MemWrite_o = MemWrite_i;
-  assign MemRead_o = MemRead_i;
+  //direct assign signals
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      pc_o <= 32'b0;
+      inst_o <= 32'b0;
+      RegWrite_o <= 1'b0;
+      wb_addr_o <= 5'b0;
+      zicsr_o <= 1'b0;
+      func3_o <= 3'b0;
+      MemWrite_o <= 1'b0;
+      MemRead_o <= 1'b0;
+      ebreak_o <= 1'b0;
+    end else if (in_valid && in_ready) begin
+      pc_o <= pc_i;
+      inst_o <= inst_i;
+      RegWrite_o <= RegWrite_i;
+      wb_addr_o <= wb_addr_i;
+      zicsr_o <= zicsr_i;
+      func3_o <= func3_i;
+      MemWrite_o <= MemWrite_i;
+      MemRead_o <= MemRead_i;
+      ebreak_o <= ebreak_i;
+    end
+  end
+
+  reg [31:0] pc, pc_predict;
+  reg [2:0] func3;
+  reg [31:0] imm, data1, data2;
+  reg [1:0] ALUAsrc, ALUBsrc;
+  reg [3:0] ALUop;
+  reg PCAsrc, PCBsrc, branch;
+  reg [4:0] zimm;
+  reg [31:0] dout_mstatus, dout_mtvec, dout_mepc, dout_mcause, dout_mvendorid, dout_marchid;
+  reg ecall, mret;
+
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      pc <= 32'b0;
+      pc_predict <= 32'b0;
+      func3 <= 3'b0;
+      imm <= 32'b0;
+      data1 <= 32'b0;
+      data2 <= 32'b0;
+      ALUAsrc <= 2'b0;
+      ALUBsrc <= 2'b0;
+      ALUop <= 4'b0;
+      PCAsrc <= 1'b0;
+      PCBsrc <= 1'b0;
+      branch <= 1'b0;
+      zimm <= 5'b0;
+      dout_mstatus <= 32'b0;
+      dout_mtvec <= 32'b0;
+      dout_mepc <= 32'b0;
+      dout_mcause <= 32'b0;
+      dout_mvendorid <= 32'b0;
+      dout_marchid <= 32'b0;
+      ecall <= 1'b0;
+      mret <= 1'b0;
+    end else if (in_valid && in_ready) begin
+      pc <= pc_i;
+      pc_predict <= pc_predict_i;
+      func3 <= func3_i;
+      imm <= imm_i;
+      data1 <= data1_i;
+      data2 <= data2_i;
+      ALUAsrc <= ALUAsrc_i;
+      ALUBsrc <= ALUBsrc_i;
+      ALUop <= ALUop_i;
+      PCAsrc <= PCAsrc_i;
+      PCBsrc <= PCBsrc_i;
+      branch <= branch_i;
+      zimm <= zimm_i;
+      dout_mstatus <= dout_mstatus_i;
+      dout_mtvec <= dout_mtvec_i;
+      dout_mepc <= dout_mepc_i;
+      dout_mcause <= dout_mcause_i;
+      dout_mvendorid <= dout_mvendorid_i;
+      dout_marchid <= dout_marchid_i;
+      ecall <= ecall_i;
+      mret <= mret_i;
+    end
+  end
+
+  /*-----processing-----*/
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      processing <= 1'b0;
+    end else if (in_valid && in_ready) begin
+      processing <= 1'b1;
+    end else if (out_valid & out_ready) begin
+      processing <= 1'b0;
+    end
+  end
+
+   /*-----branch hazard-----*/
+  reg control_hazard_flag; //control hazard only raise 1 cycle every handshake
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      control_hazard_flag <= 1'b0;
+    end else if (in_valid & in_ready) begin
+      control_hazard_flag <= 1'b1;
+    end else begin
+      control_hazard_flag <= 1'b0;
+    end
+  end
+  assign control_hazard = control_hazard_flag & (pc_predict != pc_next);
 
   /*-----Next PC Calculate-----*/
   wire [31:0] PCAdata, PCBdata;
@@ -160,28 +288,31 @@ module ysyx_24110015_EXU (
   wire [31:0] din_mstatus_ecall, din_mstatus_mret;
   assign din_mstatus_ecall = (((dout_mstatus & 32'hffffff7f) | (((dout_mstatus >> 3) & 32'b1) << 7)) & 32'hfffffff7) | 32'h00001800;
   assign din_mstatus_mret = (((dout_mstatus & 32'hfffffff7) | (((dout_mstatus >> 7) & 32'b1) << 3)) | 32'h80) & 32'hffffe7ff;
-  assign din_mstatus = (zicsr_i&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
-  assign wen_mstatus = (zicsr_i&(imm[11:0]==12'h300)) | ecall | mret;
+  assign din_mstatus = (zicsr_o&(imm[11:0]==12'h300)) ? csr_wdata : ecall ?  din_mstatus_ecall : mret ? din_mstatus_mret : dout_mstatus;
+  assign wen_mstatus = (zicsr_o&(imm[11:0]==12'h300)) | ecall | mret;
 
-  assign din_mtvec = (zicsr_i&(imm[11:0]==12'h305)) ? csr_wdata : dout_mtvec;
-  assign wen_mtvec = zicsr_i&(imm[11:0]==12'h305);
+  assign din_mtvec = (zicsr_o&(imm[11:0]==12'h305)) ? csr_wdata : dout_mtvec;
+  assign wen_mtvec = zicsr_o&(imm[11:0]==12'h305);
 
   wire [31:0] din_mepc_ecall;
   assign din_mepc_ecall = pc;
-  assign din_mepc = (zicsr_i&(imm[11:0]==12'h341)) ? csr_wdata : ecall ? din_mepc_ecall : dout_mepc;
-  assign wen_mepc = (zicsr_i&(imm[11:0]==12'h341)) | ecall;
+  assign din_mepc = (zicsr_o&(imm[11:0]==12'h341)) ? csr_wdata : ecall ? din_mepc_ecall : dout_mepc;
+  assign wen_mepc = (zicsr_o&(imm[11:0]==12'h341)) | ecall;
 
   wire [31:0] din_mcause_ecall;
   assign din_mcause_ecall = 32'h0000000b;
-  assign din_mcause = (zicsr_i&(imm[11:0]==12'h342)) ? csr_wdata : ecall ? din_mcause_ecall : dout_mcause;
-  assign wen_mcause = (zicsr_i&(imm[11:0]==12'h342)) | ecall;
+  assign din_mcause = (zicsr_o&(imm[11:0]==12'h342)) ? csr_wdata : ecall ? din_mcause_ecall : dout_mcause;
+  assign wen_mcause = (zicsr_o&(imm[11:0]==12'h342)) | ecall;
 
-/*-----ebreak-----*/
+/*-----performance counter-----*/
 `ifndef __SYNTHESIS__
-  always @(ebreak) begin
-    if(ebreak) begin
-      npc_trap();
+  always@(posedge clk) begin
+    if(out_valid & out_ready) begin
+        exu_end(inst_o);
     end
+    if(in_valid & in_ready) begin
+        exu_begin();
+    end 
   end
 `endif
 

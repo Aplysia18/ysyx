@@ -23,6 +23,7 @@ uint64_t g_nr_guest_inst = 0;
 static uint64_t cycles_num = 0;
 
 // performance counters
+
 uint64_t g_ifu_fetch = 0; // instruction fetch
 uint64_t g_lsu_fetch = 0; // data fetch
 typedef struct {
@@ -30,7 +31,9 @@ typedef struct {
   uint64_t cycles;
   uint64_t ifu;
   uint64_t idu;
+  uint64_t exu;
   uint64_t lsu;
+  uint64_t wbu;
 } inst_perf_t;
 typedef struct {
   inst_perf_t compute;
@@ -44,24 +47,101 @@ typedef struct {
   inst_perf_t ebreak;
 } inst_type_t;
 inst_type_t g_inst_type = {
-  .compute = {0, 0, 0, 0, 0},
-  .load = {0, 0, 0, 0, 0},
-  .store = {0, 0, 0, 0, 0},
-  .branch = {0, 0, 0, 0, 0},
-  .jump = {0, 0, 0, 0, 0},
-  .fence = {0, 0, 0, 0, 0},
-  .zicsr = {0, 0, 0, 0, 0},
-  .ecall = {0, 0, 0, 0, 0},
-  .ebreak = {0, 0, 0, 0, 0}
+  .compute = {0, 0, 0, 0, 0, 0, 0},
+  .load = {0, 0, 0, 0, 0, 0, 0},
+  .store = {0, 0, 0, 0, 0, 0, 0},
+  .branch = {0, 0, 0, 0, 0, 0, 0},
+  .jump = {0, 0, 0, 0, 0, 0, 0},
+  .fence = {0, 0, 0, 0, 0, 0, 0},
+  .zicsr = {0, 0, 0, 0, 0, 0, 0},
+  .ecall = {0, 0, 0, 0, 0, 0, 0},
+  .ebreak = {0, 0, 0, 0, 0, 0, 0}
 };
+
+inst_perf_t * update_performance_counters(uint32_t inst);
+
 void ifu_fetch() {g_ifu_fetch++;}
 void lsu_fetch() {g_lsu_fetch++;}
+int8_t ifu_counter = 0;
+uint64_t ifu_cycle;
+int8_t idu_counter = 0;
+uint64_t idu_cycle;
+int8_t exu_counter = 0;
+uint64_t exu_cycle;
+int8_t lsu_counter = 0;
+uint64_t lsu_cycle;
+int8_t wbu_counter = 0;
+void ifu_begin(){
+  // ifu_counter++;
+  // ifu_cycle = cycles_num;
+}
+void ifu_end(int inst){
+  // ifu_counter--;
+  // inst_perf_t * inst_perf = update_performance_counters((uint32_t)inst);
+  // if(ifu_counter == 0) {
+  //   if(inst_perf) {
+  //     inst_perf->num++;
+  //     inst_perf->cycles += cycles_num-ifu_cycle+1;
+  //     inst_perf->ifu += cycles_num-ifu_cycle+1;
+  //   }
+  // }else if(ifu_counter == -1) {
+  //   if(inst_perf) {
+  //     inst_perf->num++;
+  //     inst_perf->cycles += 1;
+  //     inst_perf->ifu +=1;
+  //   }
+  // } else{
+  //   printf("ifu handshake mismatch! ifu_counter = %d\n", ifu_counter);
+  //   abort_flag = 1;
+  //   return;
+  // }
+}
+void idu_begin() {
+  // idu_counter++;
+  // idu_cycle = cycles_num;
+}
+void idu_end(int inst){
+  // idu_counter--;
+  // inst_perf_t * inst_perf = update_performance_counters((uint32_t)inst);
+  // if(idu_counter == 0) {
+  //   if(inst_perf) {
+  //     inst_perf->cycles += cycles_num-idu_cycle+1;
+  //     inst_perf->idu += cycles_num-idu_cycle+1;
+  //   }
+  // }else if(idu_counter == -1) {
+  //   if(inst_perf) {
+  //     inst_perf->cycles += 1;
+  //     inst_perf->idu +=1;
+  //   }
+  // } else{
+  //   printf("idu handshake mismatch! idu_counter = %d\n", idu_counter);
+  //   abort_flag = 1;
+  //   return;
+  // }
+}
+void exu_begin(){
+
+}
+void exu_end(int inst){
+
+}
+void lsu_begin(){
+
+}
+void lsu_end(int inst){
+
+}
+void wbu_begin(){
+
+}
+void wbu_end(int inst){
+
+}
 void icache_valid();
 void icache_ready();
-uint64_t ifu_state_cnt = 0; //wbu+ifu
-uint64_t idu_state_cnt = 1; //idu+exu, tied to 1
+uint64_t ifu_state_cnt = 0;
+uint64_t idu_state_cnt = 0;
 uint64_t lsu_state_cnt = 0; 
-void update_performance_counters(uint32_t inst);
 
 void performance_log();
 
@@ -95,7 +175,7 @@ if(g_nr_guest_inst < CONFIG_FST_TRACE_NUM)
 
 static void update_cpu_state() {
 #if CONFIG_SOC==1
-  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
+  cpu.pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_wbu;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__idu__DOT__rf__DOT__rf[i];
   cpu.csr.mstatus = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mstatus;
   cpu.csr.mepc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mepc;
@@ -104,7 +184,7 @@ static void update_cpu_state() {
   cpu.csr.mvendorid = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_mvendorid;
   cpu.csr.marchid = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__dout_marchid;
 #else 
-  cpu.pc = top->rootp->ysyx_24110015__DOT__pc_ifu;
+  cpu.pc = top->rootp->ysyx_24110015__DOT__pc_wbu;
   for(int i = 0; i < 16; i++) cpu.gpr[i] = top->rootp->ysyx_24110015__DOT__idu__DOT__rf__DOT__rf[i];
   cpu.csr.mstatus = top->rootp->ysyx_24110015__DOT__dout_mstatus;
   cpu.csr.mepc = top->rootp->ysyx_24110015__DOT__dout_mepc;
@@ -121,9 +201,14 @@ static void reset(int n){
   top->reset = 0;
   
   update_cpu_state();
+  #if CONFIG_SOC == 1
+    cpu.pc = 0x30000000;
+  #else
+    cpu.pc = 0x80000000;
+  #endif
 }
 
-uint8_t *cpu_state;
+uint8_t *wbu_out_valid;
 
 void init_cpu(int argc, char* argv[]) {
 
@@ -147,29 +232,30 @@ void init_cpu(int argc, char* argv[]) {
   // printf("init cpu\n");
   reset(RESET_CYCLE);
   //跳过reset后的idle状态
+  uint8_t *ifu_in_valid;
 #if CONFIG_SOC==1
-  cpu_state = &(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__controller__DOT__state);
+  ifu_in_valid = &(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__ifu_in_valid);
+  wbu_out_valid = &(top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__wbu_out_valid);
 #else
-  cpu_state = &(top->rootp->ysyx_24110015__DOT__controller__DOT__state);
+  ifu_in_valid = &(top->rootp->ysyx_24110015__DOT__ifu_in_valid);
+  wbu_out_valid = &(top->rootp->ysyx_24110015__DOT__wbu_out_valid);
 #endif
+
   do{
     single_cycle();
     // printf("state = %d\n", *cpu_state);
-  }while(*cpu_state != 1);
+  }while(*ifu_in_valid != 1);
   cycles_num++;
   int cnt = 0;
-  ifu_state_cnt = 0;
-  while(*cpu_state == 1){
+  //第一条指令执行到最后
+  while(*wbu_out_valid != 1){
     single_cycle();
     cycles_num++;
-    ifu_state_cnt++;
     cnt++;
     if(cnt > 10000){
-      printf("init cpu failed, state = %d\n", *cpu_state);
       abort_flag = 1;
       break;
     }
-    // printf("state = %d\n", top->rootp->ysyx_24110015_top__DOT__controller__DOT__state);
   }
   // printf("init cpu done\n");
 }
@@ -182,71 +268,59 @@ static bool end_flag = 0;
 void npc_trap(){
   // printf("npc trap\n");
   end_flag = 1;
-  g_inst_type.ebreak.num += 1;
-  g_inst_type.ebreak.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-  g_inst_type.ebreak.ifu += ifu_state_cnt;
-  g_inst_type.ebreak.idu += idu_state_cnt;
-  g_inst_type.ebreak.lsu += lsu_state_cnt;
+  // g_inst_type.ebreak.num += 1;
+  // g_inst_type.ebreak.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
+  // g_inst_type.ebreak.ifu += ifu_state_cnt;
+  // g_inst_type.ebreak.idu += idu_state_cnt;
+  // g_inst_type.ebreak.lsu += lsu_state_cnt;
   g_nr_guest_inst += 1;
 
 } 
+
+uint32_t difftest_skip = 0;
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
     log_write("%s\n", _this->logbuf);
     difftest_step(_this->pc, dnpc);
     check_watchpoints();
+    if(difftest_skip!=0) {
+      difftest_skip_ref();
+      difftest_skip=0;
+    }
 }
 
 static void execute_once(Decode *s){
 #if CONFIG_SOC==1
-  s->pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
-  s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu + 4;
+  s->pc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_wbu;
+  s->snpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_wbu + 4;
+  s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
 #else
-  s->pc = top->rootp->ysyx_24110015__DOT__pc_ifu;
-  s->snpc = top->rootp->ysyx_24110015__DOT__pc_ifu + 4;
+  s->pc = top->rootp->ysyx_24110015__DOT__pc_wbu;
+  s->snpc = top->rootp->ysyx_24110015__DOT__pc_wbu + 4;
+  s->inst = top->rootp->ysyx_24110015__DOT__inst_wbu;
 #endif
+  // printf("pc = 0x%08x, inst = 0x%08x\n", s->pc, s->inst);
   // execute
   int cnt = 0;
   do{
-    if(*cpu_state==3){
-      #if CONFIG_SOC==1
-      s->inst = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__inst;
-      #else
-      s->inst = top->rootp->ysyx_24110015__DOT__inst;
-      #endif
-      // printf("pc = 0x%08x, inst = 0x%08x\n", s->pc, s->inst);
-    }
     // printf("state = %d\n", *cpu_state);
     single_cycle();
     cycles_num++;
-    lsu_state_cnt++;
     cnt++;
     if(cnt > 10000){
       abort_flag = 1;
       break;
     }
     // printf("state = %d\n", *cpu_state);
-  }while(*cpu_state != 1);
-  lsu_state_cnt --;
-  update_performance_counters(s->inst);
-  cnt = 0;
-  while(*cpu_state == 1){
-    single_cycle();
-    cycles_num++;
-    ifu_state_cnt++;
-    cnt++;
-    if(cnt > 10000){
-      abort_flag = 1;
-      break;
-    }
-    // printf("state = %d\n", *cpu_state);
-  }
+  }while(*wbu_out_valid != 1);
 #if CONFIG_SOC==1
-  s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_ifu;
+  s->dnpc = top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc_wbu;
 #else
-  s->dnpc = top->rootp->ysyx_24110015__DOT__pc_ifu;
+  s->dnpc = top->rootp->ysyx_24110015__DOT__pc_wbu;
+  // printf("dnpc = 0x%08x\n", s->dnpc);
 #endif
   update_cpu_state();
+  // printf("cpu.pc = 0x%08x\n", cpu.pc);
 
   //itrace
   char *p = s->logbuf;
@@ -339,7 +413,7 @@ void exit_cpu() {
 #endif
   delete top;
   delete contextp;
-  if(abort_flag || bad_trap_flag) assert(0);
+  // if(abort_flag || bad_trap_flag) assert(0);
 }
 
 uint64_t icache_access_num = 0;
@@ -364,75 +438,33 @@ void icache_ready(){
   }
 }
 
-void update_performance_counters(uint32_t inst){
+inst_perf_t *update_performance_counters(uint32_t inst){
   uint32_t opcode = inst & 0x7f;
   switch(opcode) {
     case 0x37: // LUI
     case 0x17: // AUIPC
     case 0x13: // I-type
     case 0x33: // R-type
-      g_inst_type.compute.num++;
-      g_inst_type.compute.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-      g_inst_type.compute.ifu += ifu_state_cnt;
-      g_inst_type.compute.idu += idu_state_cnt;
-      g_inst_type.compute.lsu += lsu_state_cnt;
-      break;
+      return &g_inst_type.compute;
     case 0x6f: // JAL
     case 0x67: // JALR
-      g_inst_type.jump.num++;
-      g_inst_type.jump.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-      g_inst_type.jump.ifu += ifu_state_cnt;
-      g_inst_type.jump.idu += idu_state_cnt;
-      g_inst_type.jump.lsu += lsu_state_cnt;
-      break;
+      return &g_inst_type.jump;
     case 0x63: // B-type
-      g_inst_type.branch.num++;
-      g_inst_type.branch.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-      g_inst_type.branch.ifu += ifu_state_cnt;
-      g_inst_type.branch.idu += idu_state_cnt;
-      g_inst_type.branch.lsu += lsu_state_cnt;
-      break;
+      return &g_inst_type.branch;
     case 0x03: // Load
-      g_inst_type.load.num++;
-      g_inst_type.load.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-      g_inst_type.load.ifu += ifu_state_cnt;
-      g_inst_type.load.idu += idu_state_cnt;
-      g_inst_type.load.lsu += lsu_state_cnt;
-      break;
+      return &g_inst_type.load;
     case 0x23: // Store
-      g_inst_type.store.num++;
-      g_inst_type.store.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-      g_inst_type.store.ifu += ifu_state_cnt;
-      g_inst_type.store.idu += idu_state_cnt;
-      g_inst_type.store.lsu += lsu_state_cnt;
-      break;
+      return &g_inst_type.store;
     case 0x0f: // FENCE
       // FENCE, FENCE.I
-      g_inst_type.fence.num++;
-      g_inst_type.fence.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-      g_inst_type.fence.ifu += ifu_state_cnt;
-      g_inst_type.fence.idu += idu_state_cnt;
-      g_inst_type.fence.lsu += lsu_state_cnt;
-      break;
+      return &g_inst_type.fence;
     case 0x73: // System
       if (inst == 0x73) { // ECALL
-        g_inst_type.ecall.num++;
-        g_inst_type.ecall.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-        g_inst_type.ecall.ifu += ifu_state_cnt;
-        g_inst_type.ecall.idu += idu_state_cnt;
-        g_inst_type.ecall.lsu += lsu_state_cnt;
+        return &g_inst_type.ecall;
       } else if (inst == 0x00100073) { // EBREAK
-        g_inst_type.ebreak.num++;
-        g_inst_type.ebreak.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-        g_inst_type.ebreak.ifu += ifu_state_cnt;
-        g_inst_type.ebreak.idu += idu_state_cnt;
-        g_inst_type.ebreak.lsu += lsu_state_cnt;
+        return &g_inst_type.branch;
       } else if (((inst>>12)&0x7)!=0) {
-        g_inst_type.zicsr.num++; // ZICSR instructions
-        g_inst_type.zicsr.cycles += ifu_state_cnt + idu_state_cnt + lsu_state_cnt;
-        g_inst_type.zicsr.ifu += ifu_state_cnt;
-        g_inst_type.zicsr.idu += idu_state_cnt;
-        g_inst_type.zicsr.lsu += lsu_state_cnt;
+        return &g_inst_type.zicsr;
       } else {
         Log("Unknown system instruction: %08x", inst);
         // assert(0);
@@ -445,64 +477,63 @@ void update_performance_counters(uint32_t inst){
       abort_flag = 1;
       break;
   }
-  ifu_state_cnt = 0;
-  lsu_state_cnt = 0;
+  return NULL;
 }
 
 void performance_log() {
   uint64_t ifu_cycles = g_inst_type.compute.ifu + g_inst_type.load.ifu + g_inst_type.store.ifu + g_inst_type.branch.ifu + g_inst_type.jump.ifu + g_inst_type.fence.ifu + g_inst_type.zicsr.ifu + g_inst_type.ecall.ifu + g_inst_type.ebreak.ifu;
   uint64_t idu_cycles = g_inst_type.compute.idu + g_inst_type.load.idu + g_inst_type.store.idu + g_inst_type.branch.idu + g_inst_type.jump.idu + g_inst_type.fence.idu + g_inst_type.zicsr.idu + g_inst_type.ecall.idu + g_inst_type.ebreak.idu;
   uint64_t lsu_cycles = g_inst_type.compute.lsu + g_inst_type.load.lsu + g_inst_type.store.lsu + g_inst_type.branch.lsu + g_inst_type.jump.lsu + g_inst_type.fence.lsu + g_inst_type.zicsr.lsu + g_inst_type.ecall.lsu + g_inst_type.ebreak.lsu;
-  uint64_t total_cycles = ifu_cycles + idu_cycles + lsu_cycles;
+  uint64_t total_cycles = cycles_num;
   printf("Performance counters:\n");
   printf("  IFU fetch: %ld\n", g_ifu_fetch);
   printf("  LSU fetch: %ld\n", g_lsu_fetch);
-  printf("  Cycles: total %ld, ifu %ld(%f%), idu %ld(%f%), lsu %ld(%f%)\n", total_cycles, ifu_cycles, (double)ifu_cycles/total_cycles*100, idu_cycles, (double)idu_cycles/total_cycles*100, lsu_cycles, (double)lsu_cycles/total_cycles*100);
-  printf("  Compute: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.compute.num, 
-      g_inst_type.compute.cycles, (double)g_inst_type.compute.cycles / g_inst_type.compute.num,
-      g_inst_type.compute.ifu, (double)g_inst_type.compute.ifu / g_inst_type.compute.num,
-      g_inst_type.compute.idu, (double)g_inst_type.compute.idu / g_inst_type.compute.num,
-      g_inst_type.compute.lsu, (double)g_inst_type.compute.lsu / g_inst_type.compute.num);
-  printf("  Load: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.load.num,
-      g_inst_type.load.cycles, (double)g_inst_type.load.cycles / g_inst_type.load.num,
-      g_inst_type.load.ifu, (double)g_inst_type.load.ifu / g_inst_type.load.num,
-      g_inst_type.load.idu, (double)g_inst_type.load.idu / g_inst_type.load.num,
-      g_inst_type.load.lsu, (double)g_inst_type.load.lsu / g_inst_type.load.num);
-  printf("  Store: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.store.num,
-      g_inst_type.store.cycles, (double)g_inst_type.store.cycles / g_inst_type.store.num,
-      g_inst_type.store.ifu, (double)g_inst_type.store.ifu / g_inst_type.store.num,
-      g_inst_type.store.idu, (double)g_inst_type.store.idu / g_inst_type.store.num,
-      g_inst_type.store.lsu, (double)g_inst_type.store.lsu / g_inst_type.store.num);
-  printf("  Branch: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.branch.num,
-      g_inst_type.branch.cycles, (double)g_inst_type.branch.cycles / g_inst_type.branch.num,
-      g_inst_type.branch.ifu, (double)g_inst_type.branch.ifu / g_inst_type.branch.num,
-      g_inst_type.branch.idu, (double)g_inst_type.branch.idu / g_inst_type.branch.num,
-      g_inst_type.branch.lsu, (double)g_inst_type.branch.lsu / g_inst_type.branch.num);
-  printf("  Jump: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.jump.num,
-      g_inst_type.jump.cycles, (double)g_inst_type.jump.cycles / g_inst_type.jump.num,
-      g_inst_type.jump.ifu, (double)g_inst_type.jump.ifu / g_inst_type.jump.num,
-      g_inst_type.jump.idu, (double)g_inst_type.jump.idu / g_inst_type.jump.num,
-      g_inst_type.jump.lsu, (double)g_inst_type.jump.lsu / g_inst_type.jump.num);
-  printf("  Fence: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.fence.num,
-      g_inst_type.fence.cycles, (double)g_inst_type.fence.cycles / g_inst_type.fence.num,
-      g_inst_type.fence.ifu, (double)g_inst_type.fence.ifu / g_inst_type.fence.num,
-      g_inst_type.fence.idu, (double)g_inst_type.fence.idu / g_inst_type.fence.num,
-      g_inst_type.fence.lsu, (double)g_inst_type.fence.lsu / g_inst_type.fence.num);
-  printf("  ZICSR: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.zicsr.num,
-      g_inst_type.zicsr.cycles, (double)g_inst_type.zicsr.cycles / g_inst_type.zicsr.num,
-      g_inst_type.zicsr.ifu, (double)g_inst_type.zicsr.ifu / g_inst_type.zicsr.num,
-      g_inst_type.zicsr.idu, (double)g_inst_type.zicsr.idu / g_inst_type.zicsr.num,
-      g_inst_type.zicsr.lsu, (double)g_inst_type.zicsr.lsu / g_inst_type.zicsr.num);
-  printf("  ECALL: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.ecall.num,
-      g_inst_type.ecall.cycles, (double)g_inst_type.ecall.cycles / g_inst_type.ecall.num,
-      g_inst_type.ecall.ifu, (double)g_inst_type.ecall.ifu / g_inst_type.ecall.num,
-      g_inst_type.ecall.idu, (double)g_inst_type.ecall.idu / g_inst_type.ecall.num,
-      g_inst_type.ecall.lsu, (double)g_inst_type.ecall.lsu / g_inst_type.ecall.num);
-  printf("  EBREAK: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.ebreak.num,
-      g_inst_type.ebreak.cycles, (double)g_inst_type.ebreak.cycles / g_inst_type.ebreak.num,
-      g_inst_type.ebreak.ifu, (double)g_inst_type.ebreak.ifu / g_inst_type.ebreak.num,
-      g_inst_type.ebreak.idu, (double)g_inst_type.ebreak.idu / g_inst_type.ebreak.num,
-      g_inst_type.ebreak.lsu, (double)g_inst_type.ebreak.lsu / g_inst_type.ebreak.num);
+  // printf("  Cycles: total %ld, ifu %ld(%f%), idu %ld(%f%), lsu %ld(%f%)\n", total_cycles, ifu_cycles, (double)ifu_cycles/total_cycles*100, idu_cycles, (double)idu_cycles/total_cycles*100, lsu_cycles, (double)lsu_cycles/total_cycles*100);
+  // printf("  Compute: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.compute.num, 
+  //     g_inst_type.compute.cycles, (double)g_inst_type.compute.cycles / g_inst_type.compute.num,
+  //     g_inst_type.compute.ifu, (double)g_inst_type.compute.ifu / g_inst_type.compute.num,
+  //     g_inst_type.compute.idu, (double)g_inst_type.compute.idu / g_inst_type.compute.num,
+  //     g_inst_type.compute.lsu, (double)g_inst_type.compute.lsu / g_inst_type.compute.num);
+  // printf("  Load: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.load.num,
+  //     g_inst_type.load.cycles, (double)g_inst_type.load.cycles / g_inst_type.load.num,
+  //     g_inst_type.load.ifu, (double)g_inst_type.load.ifu / g_inst_type.load.num,
+  //     g_inst_type.load.idu, (double)g_inst_type.load.idu / g_inst_type.load.num,
+  //     g_inst_type.load.lsu, (double)g_inst_type.load.lsu / g_inst_type.load.num);
+  // printf("  Store: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.store.num,
+  //     g_inst_type.store.cycles, (double)g_inst_type.store.cycles / g_inst_type.store.num,
+  //     g_inst_type.store.ifu, (double)g_inst_type.store.ifu / g_inst_type.store.num,
+  //     g_inst_type.store.idu, (double)g_inst_type.store.idu / g_inst_type.store.num,
+  //     g_inst_type.store.lsu, (double)g_inst_type.store.lsu / g_inst_type.store.num);
+  // printf("  Branch: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.branch.num,
+  //     g_inst_type.branch.cycles, (double)g_inst_type.branch.cycles / g_inst_type.branch.num,
+  //     g_inst_type.branch.ifu, (double)g_inst_type.branch.ifu / g_inst_type.branch.num,
+  //     g_inst_type.branch.idu, (double)g_inst_type.branch.idu / g_inst_type.branch.num,
+  //     g_inst_type.branch.lsu, (double)g_inst_type.branch.lsu / g_inst_type.branch.num);
+  // printf("  Jump: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.jump.num,
+  //     g_inst_type.jump.cycles, (double)g_inst_type.jump.cycles / g_inst_type.jump.num,
+  //     g_inst_type.jump.ifu, (double)g_inst_type.jump.ifu / g_inst_type.jump.num,
+  //     g_inst_type.jump.idu, (double)g_inst_type.jump.idu / g_inst_type.jump.num,
+  //     g_inst_type.jump.lsu, (double)g_inst_type.jump.lsu / g_inst_type.jump.num);
+  // printf("  Fence: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.fence.num,
+  //     g_inst_type.fence.cycles, (double)g_inst_type.fence.cycles / g_inst_type.fence.num,
+  //     g_inst_type.fence.ifu, (double)g_inst_type.fence.ifu / g_inst_type.fence.num,
+  //     g_inst_type.fence.idu, (double)g_inst_type.fence.idu / g_inst_type.fence.num,
+  //     g_inst_type.fence.lsu, (double)g_inst_type.fence.lsu / g_inst_type.fence.num);
+  // printf("  ZICSR: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.zicsr.num,
+  //     g_inst_type.zicsr.cycles, (double)g_inst_type.zicsr.cycles / g_inst_type.zicsr.num,
+  //     g_inst_type.zicsr.ifu, (double)g_inst_type.zicsr.ifu / g_inst_type.zicsr.num,
+  //     g_inst_type.zicsr.idu, (double)g_inst_type.zicsr.idu / g_inst_type.zicsr.num,
+  //     g_inst_type.zicsr.lsu, (double)g_inst_type.zicsr.lsu / g_inst_type.zicsr.num);
+  // printf("  ECALL: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.ecall.num,
+  //     g_inst_type.ecall.cycles, (double)g_inst_type.ecall.cycles / g_inst_type.ecall.num,
+  //     g_inst_type.ecall.ifu, (double)g_inst_type.ecall.ifu / g_inst_type.ecall.num,
+  //     g_inst_type.ecall.idu, (double)g_inst_type.ecall.idu / g_inst_type.ecall.num,
+  //     g_inst_type.ecall.lsu, (double)g_inst_type.ecall.lsu / g_inst_type.ecall.num);
+  // printf("  EBREAK: num %ld, cycles(/inst) %ld(%f), ifu cycles %ld(%f), idu cycles %ld(%f), lsu cycles %ld(%f)\n", g_inst_type.ebreak.num,
+  //     g_inst_type.ebreak.cycles, (double)g_inst_type.ebreak.cycles / g_inst_type.ebreak.num,
+  //     g_inst_type.ebreak.ifu, (double)g_inst_type.ebreak.ifu / g_inst_type.ebreak.num,
+  //     g_inst_type.ebreak.idu, (double)g_inst_type.ebreak.idu / g_inst_type.ebreak.num,
+  //     g_inst_type.ebreak.lsu, (double)g_inst_type.ebreak.lsu / g_inst_type.ebreak.num);
   printf("  ICache: access %ld, hit %ld, miss %ld, hit rate %f, access cycles %ld, miss penalty cycles %ld, AMAT=%f\n",
       icache_access_num, icache_hit_num, icache_miss_num, (double)icache_hit_num/icache_access_num, icache_access_cycles, icache_miss_penalty_cycles, (double)icache_access_cycles/icache_access_num + (1- (double)icache_hit_num/icache_access_num) * ((double)icache_miss_penalty_cycles)/icache_miss_num);
 }

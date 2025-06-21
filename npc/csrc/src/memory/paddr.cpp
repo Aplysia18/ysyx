@@ -5,6 +5,7 @@
 #include "utils.hpp"
 
 extern bool abort_flag;
+extern uint32_t difftest_skip;
 
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 static uint8_t mrom[MROM_SIZE] PG_ALIGN = {};
@@ -130,44 +131,44 @@ int pmem_read(int raddr) {
 
 #ifdef CONFIG_CLINT
   if((raddr >= CONFIG_CLINT) && (raddr < CONFIG_CLINT + CONFIG_CLINT_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0;
   }
 #endif
 #ifdef CONFIG_UART
   if((raddr >= CONFIG_UART) && (raddr < CONFIG_UART + CONFIG_UART_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0;
   }
 #endif
 #ifdef CONFIG_SPI_MASTER
   if((raddr >= CONFIG_SPI_MASTER) && (raddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0;
   }
 #endif
 #ifdef CONFIG_GPIO
   if((raddr >= CONFIG_GPIO) && (raddr < CONFIG_GPIO + CONFIG_GPIO_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0;
   }
 #endif
 #ifdef CONFIG_PS2
   if((raddr >= CONFIG_PS2) && (raddr < CONFIG_PS2 + CONFIG_PS2_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0;
   }
 #endif
 #ifdef CONFIG_CHIPLINK
   if((raddr >= CONFIG_CHIPLINK) && (raddr < CONFIG_CHIPLINK -1 + CONFIG_CHIPLINK_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0;
   }
 #endif
 #ifdef CONFIG_RTC_MMIO
   static uint64_t us = get_time();
   if((raddr == CONFIG_RTC_MMIO) || (raddr == CONFIG_RTC_MMIO + 4)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return 0; 
   }
 #endif
@@ -219,49 +220,49 @@ void pmem_write(int waddr, int wdata, char wmask) {
 
 #ifdef CONFIG_SERIAL_MMIO
   if(waddr == CONFIG_SERIAL_MMIO) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_RTC_MMIO
   if(waddr == CONFIG_RTC_MMIO || waddr == CONFIG_RTC_MMIO + 4) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_CLINT
   if((waddr >= CONFIG_CLINT) && (waddr < CONFIG_CLINT + CONFIG_CLINT_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_UART
   if((waddr >= CONFIG_UART) && (waddr < CONFIG_UART + CONFIG_UART_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_SPI_MASTER
   if((waddr >= CONFIG_SPI_MASTER) && (waddr < CONFIG_SPI_MASTER + CONFIG_SPI_MASTER_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_GPIO
   if((waddr >= CONFIG_GPIO) && (waddr < CONFIG_GPIO + CONFIG_GPIO_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_VGA
   if((waddr >= CONFIG_VGA) && (waddr < CONFIG_VGA + CONFIG_VGA_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif
 #ifdef CONFIG_CHIPLINK
   if((waddr >= CONFIG_CHIPLINK) && (waddr < CONFIG_CHIPLINK -1 + CONFIG_CHIPLINK_SIZE)) {
-    difftest_skip_ref();
+    difftest_skip++;
     return;
   }
 #endif

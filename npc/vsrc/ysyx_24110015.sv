@@ -76,44 +76,6 @@ module ysyx_24110015(
   assign io_slave_rresp = 0;
   assign io_slave_rlast = 0;
 
-  logic [31:0] pc;
-  logic [31:0] pc_next;
-  logic [31:0] inst;
-  logic [31:0] imm;
-  logic [2:0] func3;
-  logic [31:0] rdata1;
-  logic [31:0] rdata2;
-  logic [31:0] wdata;
-  logic RegWrite;
-  logic ebreak;
-  logic ecall;
-  logic mret;
-  logic [31:0] dout_mstatus;
-  logic [31:0] dout_mtvec;
-  logic [31:0] dout_mepc;
-  logic [31:0] dout_mcause;
-  logic [31:0] dout_mvendorid;
-  logic [31:0] dout_marchid;
-  logic control_ls;
-  logic control_RegWrite;
-  logic control_iMemRead_end;
-  logic control_iMemRead;
-  logic control_dmemR_end;
-  logic control_dmemW_end;
-  logic control_dMemRW;
-
-  ysyx_24110015_Controller controller (
-    .clk(clock), 
-    .rst(reset),
-    .control_ls(control_ls),
-    .control_RegWrite(control_RegWrite),
-    .control_iMemRead_end(control_iMemRead_end),
-    .control_iMemRead(control_iMemRead),
-    .control_dmemR_end(control_dmemR_end),
-    .control_dmemW_end(control_dmemW_end),
-    .control_dMemRW(control_dMemRW)
-  );
-
   axi_if axiif_master_ifu();
   axi_if axiif_master_lsu();
   axi_if axiif_master();
@@ -202,33 +164,66 @@ module ysyx_24110015(
     .axi(axiif_slave_clint)
   );
 
-  wire [31:0] pc_ifu;
-  wire [31:0] pc_next_exu, pc_next_lsu, pc_next_wbu;
+  logic [31:0] pc;
+  logic [31:0] inst;
+  logic [31:0] imm;
+  logic [2:0] func3;
+  logic [31:0] rdata1;
+  logic [31:0] rdata2;
+  logic [31:0] wdata;
+  logic RegWrite;
+  logic ebreak_idu, ebreak_exu,ebreak_lsu;
+  logic ecall;
+  logic mret;
+  logic [31:0] dout_mstatus;
+  logic [31:0] dout_mtvec;
+  logic [31:0] dout_mepc;
+  logic [31:0] dout_mcause;
+  logic [31:0] dout_mvendorid;
+  logic [31:0] dout_marchid;
+
+  wire [31:0] pc_ifu, pc_idu, pc_exu, pc_lsu, pc_wbu;
+  wire [31:0] inst_idu, inst_exu, inst_lsu, inst_wbu;
+  wire [31:0] pc_next_exu;
   assign pc = pc_ifu;
-  assign pc_next = pc_next_wbu;
+
+  logic [31:0] pc_predict_ifu, pc_predict_idu;
+  logic control_hazard;
 
   wire fence_i;
 
+  logic ifu_in_valid, ifu_in_ready, ifu_out_valid, ifu_out_ready;
+
+  always @(posedge clock or posedge reset) begin
+    if(reset) begin
+      ifu_in_valid <= 0;
+    end else begin
+      ifu_in_valid <= 1;  //need raw control
+    end
+  end
+  
+  /*-----IFU-----*/
   ysyx_24110015_IFU ifu (
     .clk(clock),
     .rst(reset),
-    //from controller
-    .control_RegWrite(control_RegWrite),
-    .control_iMemRead(control_iMemRead),
-    //from wbu
-    .pc_next(pc_next_wbu),
+    //handshake signals
+    .in_valid(ifu_in_valid),
+    .in_ready(ifu_in_ready),
+    .out_valid(ifu_out_valid),
+    .out_ready(ifu_out_ready),
+    //for branch hazard
+    .control_hazard(control_hazard),
+    .pc_next(pc_next_exu),
     //from idu
     .fence_i(fence_i),
     //to idu
     .inst(inst),
-    .pc(pc_ifu),
-    //to controller
-    .control_iMemRead_end(control_iMemRead_end),
+    .pc_out(pc_ifu),
+    .pc_predict(pc_predict_ifu),
     //to axi
     .axiif(axiif_master_ifu)
   );
 
-  wire [31:0] pc_idu;
   wire RegWrite_idu, RegWrite_exu, RegWrite_lsu, RegWrite_wbu;
   wire [4:0] wb_addr_idu, wb_addr_exu, wb_addr_lsu, wb_addr_wbu;
   wire [31:0] din_mcause_idu, din_mcause_exu, din_mcause_lsu, din_mcause_wbu;
@@ -250,12 +245,46 @@ module ysyx_24110015(
   wire zicsr_idu, zicsr_exu, zicsr_lsu;
   wire [4:0] zimm;
 
+  logic idu_in_valid, idu_in_ready, idu_out_valid, idu_out_ready;
+  assign ifu_out_ready = idu_in_ready;
+  assign idu_in_valid = ifu_out_valid;
+
+  logic idu_reg1_read, idu_reg2_read;
+  logic [4:0] idu_raddr1, idu_raddr2;
+  logic idu_processing, exu_processing, lsu_processing, wbu_processing;
+  logic RAW_check;
+  
+  assign RAW_check = idu_processing? 
+    (idu_reg1_read ? 
+    (exu_processing & RegWrite_exu & (wb_addr_exu == idu_raddr1)) | 
+    (lsu_processing & RegWrite_lsu & (wb_addr_lsu == idu_raddr1)) | 
+    (wbu_processing & RegWrite_wbu & (wb_addr_wbu == idu_raddr1)): 0) | 
+    (idu_reg2_read ? 
+    (exu_processing & RegWrite_exu & (wb_addr_exu == idu_raddr2)) | 
+    (lsu_processing & RegWrite_lsu & (wb_addr_lsu == idu_raddr2)) |
+    (wbu_processing & RegWrite_wbu & (wb_addr_wbu == idu_raddr2)) : 0) : 0;
+
   ysyx_24110015_IDU idu (
     .clk(clock),
     .rst(reset),
+    // handshake signals
+    .in_valid(idu_in_valid),
+    .in_ready(idu_in_ready),
+    .out_valid(idu_out_valid),
+    .out_ready(idu_out_ready),
+    //to conflict detection
+    .processing(idu_processing),
+    .reg1_read(idu_reg1_read),
+    .reg2_read(idu_reg2_read),
+    .raddr1(idu_raddr1),
+    .raddr2(idu_raddr2),
+    .RAW_check(RAW_check),
+    //for branch hazard
+    .control_hazard(control_hazard),
     //from ifu
-    .inst(inst),
+    .inst_i(inst),
     .pc_i(pc_ifu),
+    .pc_predict_i(pc_predict_ifu),
     //from wbu
     .RegWrite_i(RegWrite_wbu),
     .wb_addr_i(wb_addr_wbu),
@@ -268,10 +297,10 @@ module ysyx_24110015(
     .wen_mepc(wen_mepc_wbu),
     .wen_mcause(wen_mcause_wbu),
     .wb_data(wb_data),
-    //from controller
-    .control_RegWrite(control_RegWrite),
     //to exu
     .pc_o(pc_idu),
+    .inst_o(inst_idu),
+    .pc_predict_o(pc_predict_idu),
     .func3(func3_idu),
     .imm(imm),
     .rdata1(rdata1),
@@ -294,12 +323,10 @@ module ysyx_24110015(
     .dout_mcause(dout_mcause),
     .dout_mvendorid(dout_mvendorid),
     .dout_marchid(dout_marchid),
-    .ebreak(ebreak),
+    .ebreak(ebreak_idu),
     .ecall(ecall),
     .fence_i(fence_i),
-    .mret(mret),
-    //to controller
-    .control_ls(control_ls)
+    .mret(mret)
 );
 
   wire [31:0] alu_out_exu, alu_out_lsu;
@@ -307,39 +334,56 @@ module ysyx_24110015(
   wire [31:0] csr_rdata_exu, csr_rdata_lsu;
   wire [31:0] mem_wdata;
 
+  logic exu_in_valid, exu_in_ready, exu_out_valid, exu_out_ready;
+  assign idu_out_ready = exu_in_ready;
+  assign exu_in_valid = idu_out_valid;
+
   ysyx_24110015_EXU exu (
     .clk(clock),
     .rst(reset),
+    // handshake signals
+    .in_valid(exu_in_valid),
+    .in_ready(exu_in_ready),
+    .out_valid(exu_out_valid),
+    .out_ready(exu_out_ready),
+    //to conflict detection
+    .processing(exu_processing), 
+    //for branch hazard
+    .control_hazard(control_hazard),
+    .pc_next(pc_next_exu),
     //from idu
-    .pc(pc_idu),
-    .func3(func3_idu),
-    .imm(imm),
-    .data1(rdata1),
-    .data2(rdata2),
+    .pc_i(pc_idu),
+    .inst_i(inst_idu),
+    .pc_predict_i(pc_predict_idu),
+    .func3_i(func3_idu),
+    .imm_i(imm),
+    .data1_i(rdata1),
+    .data2_i(rdata2),
     .RegWrite_i(RegWrite_idu),
     .wb_addr_i(wb_addr_idu),
-    .ALUAsrc(ALUAsrc),
-    .ALUBsrc(ALUBsrc),
-    .ALUop(ALUop),
+    .ALUAsrc_i(ALUAsrc),
+    .ALUBsrc_i(ALUBsrc),
+    .ALUop_i(ALUop),
     .MemWrite_i(MemWrite_idu),
     .MemRead_i(MemRead_idu),
-    .PCAsrc(PCAsrc),
-    .PCBsrc(PCBsrc),
-    .branch(branch),
+    .PCAsrc_i(PCAsrc),
+    .PCBsrc_i(PCBsrc),
+    .branch_i(branch),
     .zicsr_i(zicsr_idu),
-    .zimm(zimm),
-    .dout_mstatus(dout_mstatus),
-    .dout_mtvec(dout_mtvec),
-    .dout_mepc(dout_mepc),
-    .dout_mcause(dout_mcause),
-    .dout_mvendorid(dout_mvendorid),
-    .dout_marchid(dout_marchid),
-    .ebreak(ebreak),
-    .ecall(ecall),
-    .mret(mret),
+    .zimm_i(zimm),
+    .dout_mstatus_i(dout_mstatus),
+    .dout_mtvec_i(dout_mtvec),
+    .dout_mepc_i(dout_mepc),
+    .dout_mcause_i(dout_mcause),
+    .dout_mvendorid_i(dout_mvendorid),
+    .dout_marchid_i(dout_marchid),
+    .ebreak_i(ebreak_idu),
+    .ecall_i(ecall),
+    .mret_i(mret),
     //to lsu
+    .pc_o(pc_exu),
+    .inst_o(inst_exu),
     .alu_out(alu_out_exu),
-    .pc_next(pc_next_exu),
     .RegWrite_o(RegWrite_exu),
     .wb_addr_o(wb_addr_exu),
     .mem_wmask(mem_wmask),
@@ -356,20 +400,33 @@ module ysyx_24110015(
     .func3_o(func3_exu),
     .MemWrite_o(MemWrite_exu),
     .MemRead_o(MemRead_exu),
-    .mem_wdata(mem_wdata)
+    .mem_wdata(mem_wdata),
+    .ebreak_o(ebreak_exu)
   );
 
   wire [31:0] mem_rdata;
 
+  wire lsu_in_valid, lsu_in_ready, lsu_out_valid, lsu_out_ready;
+  assign exu_out_ready = lsu_in_ready;
+  assign lsu_in_valid = exu_out_valid;
+
   ysyx_24110015_LSU lsu (
     .clk(clock),
     .rst(reset),
+    // handshake signals
+    .in_valid(lsu_in_valid),
+    .in_ready(lsu_in_ready),
+    .out_valid(lsu_out_valid),
+    .out_ready(lsu_out_ready),
+    //to conflict detection
+    .processing(lsu_processing),
     //from exu
+    .pc_i(pc_exu),
+    .inst_i(inst_exu),
     .alu_out_i(alu_out_exu),
-    .pc_next_i(pc_next_exu),
     .RegWrite_i(RegWrite_exu),
     .wb_addr_i(wb_addr_exu),
-    .mem_wmask(mem_wmask),
+    .mem_wmask_i(mem_wmask),
     .zicsr_i(zicsr_exu),
     .csr_rdata_i(csr_rdata_exu),
     .din_mstatus_i(din_mstatus_exu),
@@ -381,14 +438,14 @@ module ysyx_24110015(
     .wen_mepc_i(wen_mepc_exu),
     .wen_mcause_i(wen_mcause_exu),
     .func3_i(func3_exu),
-    .MemWrite(MemWrite_exu),
+    .MemWrite_i(MemWrite_exu),
     .MemRead_i(MemRead_exu),
-    .mem_wdata(mem_wdata),
-    //from controller
-    .control_dMemRW(control_dMemRW),
+    .mem_wdata_i(mem_wdata),
+    .ebreak_i(ebreak_exu),
     //to wbu
+    .pc_o(pc_lsu),
+    .inst_o(inst_lsu),
     .alu_out_o(alu_out_lsu),
-    .pc_next_o(pc_next_lsu),
     .RegWrite_o(RegWrite_lsu),
     .wb_addr_o(wb_addr_lsu),
     .zicsr_o(zicsr_lsu),
@@ -404,23 +461,35 @@ module ysyx_24110015(
     .func3_o(func3_lsu),
     .MemRead_o(MemRead_lsu),
     .mem_rdata(mem_rdata),
-    //to controller
-    .control_dmemR_end(control_dmemR_end),
-    .control_dmemW_end(control_dmemW_end),
+    .ebreak_o(ebreak_lsu),
     //to axi
     .axiif(axiif_master_lsu)
   );
 
+  wire wbu_in_valid, wbu_in_ready;
+  wire wbu_out_valid, wbu_out_ready;
+  assign lsu_out_ready = wbu_in_ready;
+  assign wbu_in_valid = lsu_out_valid;
+  assign wbu_out_ready = 1'b1;  //to do
+
   ysyx_24110015_WBU wbu(
     .clk(clock),
     .rst(reset),
+    // handshake signals
+    .in_valid(wbu_in_valid),
+    .in_ready(wbu_in_ready),
+    .out_valid(wbu_out_valid),
+    .out_ready(wbu_out_ready),
+    //to conflict detection
+    .processing(wbu_processing),
     //from lsu
-    .alu_out(alu_out_lsu),
-    .pc_next_i(pc_next_lsu),
+    .pc_i(pc_lsu),
+    .inst_i(inst_lsu),
+    .alu_out_i(alu_out_lsu),
     .RegWrite_i(RegWrite_lsu),
     .wb_addr_i(wb_addr_lsu),
-    .zicsr(zicsr_lsu),
-    .csr_rdata(csr_rdata_lsu),
+    .zicsr_i(zicsr_lsu),
+    .csr_rdata_i(csr_rdata_lsu),
     .din_mstatus_i(din_mstatus_lsu),
     .din_mtvec_i(din_mtvec_lsu),
     .din_mepc_i(din_mepc_lsu),
@@ -429,11 +498,13 @@ module ysyx_24110015(
     .wen_mtvec_i(wen_mtvec_lsu),
     .wen_mepc_i(wen_mepc_lsu),
     .wen_mcause_i(wen_mcause_lsu),
-    .func3(func3_lsu),
-    .MemRead(MemRead_lsu),
-    .mem_rdata(mem_rdata),
-    //to exu
-    .pc_next_o(pc_next_wbu),
+    .func3_i(func3_lsu),
+    .MemRead_i(MemRead_lsu),
+    .mem_rdata_i(mem_rdata),
+    .ebreak_i(ebreak_lsu),
+    //to idu
+    .pc_o(pc_wbu),
+    .inst_o(inst_wbu),
     .RegWrite_o(RegWrite_wbu),
     .wb_addr_o(wb_addr_wbu),
     .din_mstatus_o(din_mstatus_wbu),

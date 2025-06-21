@@ -56,24 +56,7 @@ module ysyx_24110015_AXIArbiter (
 
         case(state)
             IDLE: begin
-                if(axi_master_ifu.arvalid) begin
-                    next_state = IFU;
-                    // AR channel
-                    axi_slave.araddr = axi_master_ifu.araddr;
-                    axi_slave.arid = axi_master_ifu.arid;
-                    axi_slave.arlen = axi_master_ifu.arlen;
-                    axi_slave.arsize = axi_master_ifu.arsize;
-                    axi_slave.arburst = axi_master_ifu.arburst;
-                    axi_slave.arvalid = axi_master_ifu.arvalid;
-                    axi_master_ifu.arready = axi_slave.arready;
-                    // R channel
-                    axi_master_ifu.rdata = axi_slave.rdata;
-                    axi_master_ifu.rresp = axi_slave.rresp;
-                    axi_master_ifu.rlast = axi_slave.rlast;
-                    axi_master_ifu.rid = axi_slave.rid;
-                    axi_master_ifu.rvalid = axi_slave.rvalid;
-                    axi_slave.rready = axi_master_ifu.rready;
-                end else if(axi_master_lsu.arvalid | axi_master_lsu.awvalid) begin
+                if(axi_master_lsu.arvalid | axi_master_lsu.awvalid) begin
                     next_state = LSU;
                     // AR channel
                     axi_slave.araddr = axi_master_lsu.araddr;
@@ -109,6 +92,23 @@ module ysyx_24110015_AXIArbiter (
                     axi_master_lsu.bid = axi_slave.bid;
                     axi_master_lsu.bvalid = axi_slave.bvalid;
                     axi_slave.bready = axi_master_lsu.bready;
+                end else if(axi_master_ifu.arvalid) begin
+                    next_state = IFU;
+                    // AR channel
+                    axi_slave.araddr = axi_master_ifu.araddr;
+                    axi_slave.arid = axi_master_ifu.arid;
+                    axi_slave.arlen = axi_master_ifu.arlen;
+                    axi_slave.arsize = axi_master_ifu.arsize;
+                    axi_slave.arburst = axi_master_ifu.arburst;
+                    axi_slave.arvalid = axi_master_ifu.arvalid;
+                    axi_master_ifu.arready = axi_slave.arready;
+                    // R channel
+                    axi_master_ifu.rdata = axi_slave.rdata;
+                    axi_master_ifu.rresp = axi_slave.rresp;
+                    axi_master_ifu.rlast = axi_slave.rlast;
+                    axi_master_ifu.rid = axi_slave.rid;
+                    axi_master_ifu.rvalid = axi_slave.rvalid;
+                    axi_slave.rready = axi_master_ifu.rready;
                 end else begin
                     next_state = IDLE;
                 end

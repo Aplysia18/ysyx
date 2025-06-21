@@ -270,6 +270,7 @@ module ysyx_24110015_xbar (
                 axi_master.rdata = 0;
                 axi_master.rresp = 0;
                 axi_master.bresp = 0;
+                axi_master.rlast = 0;
             end
         endcase
     end
@@ -443,6 +444,7 @@ module ysyx_24110015_xbar (
 
         axi_master.rdata = 0;
         axi_master.rresp = 0;
+        axi_master.rlast = 0;
         axi_master.bresp = 0;
 
         case(state)
@@ -512,6 +514,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = axi_slave_sram.rvalid;
                         axi_master.rdata = axi_slave_sram.rdata;
                         axi_master.rresp = axi_slave_sram.rresp;
+                        axi_master.rlast = axi_slave_sram.rlast;
                     end
                     3'b010: begin
                         axi_slave_uart.arvalid = axi_master.arvalid;
@@ -527,6 +530,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = axi_slave_uart.rvalid;
                         axi_master.rdata = axi_slave_uart.rdata;
                         axi_master.rresp = axi_slave_uart.rresp;
+                        axi_master.rlast = axi_slave_uart.rlast;
                     end
                     3'b100: begin
                         axi_slave_clint.arvalid = axi_master.arvalid;
@@ -542,6 +546,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = axi_slave_clint.rvalid;
                         axi_master.rdata = axi_slave_clint.rdata;
                         axi_master.rresp = axi_slave_clint.rresp;
+                        axi_master.rlast = axi_slave_clint.rlast;
                     end
                     default: begin
                         axi_slave_sram.rready = 0;
@@ -550,6 +555,7 @@ module ysyx_24110015_xbar (
                         axi_master.rvalid = 0;
                         axi_master.rdata = 0;
                         axi_master.rresp = 0;
+                        axi_master.rlast = 0;
                     end
                 endcase
             end
@@ -646,6 +652,7 @@ module ysyx_24110015_xbar (
                 axi_master.rdata = 0;
                 axi_master.rresp = 0;
                 axi_master.bresp = 0;
+                axi_master.rlast = 0;
             end
         endcase
     end

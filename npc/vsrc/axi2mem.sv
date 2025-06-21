@@ -30,6 +30,8 @@ module ysyx_24110015_AXI2MEM (
     reg [1:0] rresp_i, rresp_o, bresp_i, bresp_o;
     reg araddr_wen, rdata_wen, rresp_wen, awaddr_wen, wdata_wen, wstrb_wen, bresp_wen;
 
+    assign axi.rlast = 1;
+
     always @(*) begin
         axi.rvalid = 0;
         axi.bvalid = 0;

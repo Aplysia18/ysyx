@@ -88,6 +88,7 @@ void init_difftest(char *ref_so_file, long img_size, int port) {
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   size_t gpr_num = sizeof(ref_r->gpr) / sizeof(ref_r->gpr[0]);
+  bool ret = true;
   
   for (size_t i = 0; i < gpr_num; i++) {
     if (ref_r->gpr[i] != cpu.gpr[i]) {
@@ -97,7 +98,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
       // for(int j = 0; j < 16; j++) {
       //   printf("ref gpr[%s]: 0x%08x\n", reg_name(j), ref_r->gpr[j]);
       // }
-      return false;
+      ret = false;
     }
   }
 
@@ -105,7 +106,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     Log("pc is different after executing instruction at pc = " FMT_WORD
         ", right = " FMT_WORD ", wrong = " FMT_WORD,
         pc, ref_r->pc, cpu.pc);
-    return false;
+    ret = false;
   }
 
   // if(ref_r->csr.mstatus != cpu.csr.mstatus) {
@@ -134,7 +135,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   // }
   
 
-  return true;
+  return ret;
 }
 
 extern bool abort_flag;

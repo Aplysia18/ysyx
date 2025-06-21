@@ -1,11 +1,28 @@
 `include "macros.v"
+import "DPI-C" function void idu_begin();
+import "DPI-C" function void idu_end(input int inst);
 
 module ysyx_24110015_IDU (
   input clk,
   input rst, 
+  // handshake signals
+  input in_valid, //idu valid
+  output in_ready, //idu ready
+  output reg out_valid, //to exu
+  input out_ready, //from exu
+  //to conflict detection
+  output reg processing,
+  output reg1_read,
+  output reg2_read,
+  output [4:0] raddr1,
+  output [4:0] raddr2,
+  input RAW_check,
+  //for branch hazard
+  input control_hazard,
   //from ifu
-  input [31:0] inst,
+  input [31:0] inst_i,
   input [31:0] pc_i,
+  input [31:0] pc_predict_i,
   //from wbu
   input RegWrite_i,
   input [4:0] wb_addr_i,
@@ -18,10 +35,10 @@ module ysyx_24110015_IDU (
   input wen_mepc,
   input wen_mcause,
   input [31:0] wb_data,
-  //from controller
-  input control_RegWrite,
   //to exu
-  output [31:0] pc_o,
+  output reg [31:0] pc_o,
+  output reg [31:0] inst_o,
+  output reg [31:0] pc_predict_o,
   output [2:0] func3,
   output [31:0] imm,
   output [31:0] rdata1,
@@ -31,8 +48,8 @@ module ysyx_24110015_IDU (
   output [1:0] ALUAsrc,
   output [1:0] ALUBsrc,
   output reg [3:0] ALUop,
-  output reg MemWrite,
-  output reg MemRead,
+  output MemWrite,
+  output MemRead,
   output PCAsrc,
   output PCBsrc,
   output branch,
@@ -47,12 +64,46 @@ module ysyx_24110015_IDU (
   output ebreak,
   output ecall,
   output fence_i,
-  output mret,
-  //to controller
-  output control_ls
+  output mret
 );
 
-  assign pc_o = pc_i;
+  /*-----handshake signals-----*/
+  assign in_ready = ~RAW_check & out_ready; // ready when no RAW hazard
+  assign out_valid = processing & ~RAW_check & ~control_hazard;
+  
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      pc_o <= 0;
+      pc_predict_o <= 0;
+    end else if (in_valid && in_ready) begin
+      pc_o <= pc_i;
+      pc_predict_o <= pc_predict_i;
+    end
+  end
+
+  reg [31:0] inst;
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      inst <= 32'b0;
+      inst_o <= 32'b0;
+    end else if (in_valid && in_ready) begin
+      inst <= inst_i;
+      inst_o <= inst_i;
+    end
+  end
+
+  /*-----processing-----*/
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      processing <= 1'b0;
+    end else if (in_valid && in_ready) begin
+      processing <= 1'b1;
+    end else if(control_hazard) begin
+      processing <= 1'b0; //flush
+    end else if (out_valid & out_ready) begin
+      processing <= 1'b0;
+    end
+  end
 
   /*-----imm gen-----*/
   wire [6:0] opcode, func7;
@@ -77,18 +128,24 @@ module ysyx_24110015_IDU (
 
   assign imm = I_type ? immI : S_type ? immS : B_type ? immB : U_type ? immU : J_type ? immJ : 32'b0;
 
+  // conflict detection signals
+  assign reg1_read = R_type | (zicsr ? inst[14]==0 : I_type) | S_type | B_type;
+  assign reg2_read = R_type | S_type | B_type;
+
   /*-----Reg Write Single Generation-----*/
   assign RegWrite_o = R_type || I_type || U_type || J_type;
 
   /*-----Read Reg Data-----*/
   assign wb_addr_o = {1'b0, inst[10:7]};
+  assign raddr1 = inst[19:15];
+  assign raddr2 = inst[24:20];
   ysyx_24110015_RegisterFile #(4, 32) rf (
     .clk(clk), 
     .wdata(wb_data),
     .waddr(wb_addr_i[3:0]),
-    .wen(RegWrite_i & control_RegWrite),
-    .raddr1(inst[18:15]),
-    .raddr2(inst[23:20]),
+    .wen(RegWrite_i),
+    .raddr1(raddr1[3:0]),
+    .raddr2(raddr2[3:0]),
     .rdata1(rdata1),
     .rdata2(rdata2)
   );
@@ -151,10 +208,10 @@ module ysyx_24110015_IDU (
     .din_mtvec(din_mtvec),
     .din_mepc(din_mepc),
     .din_mcause(din_mcause),
-    .wen_mstatus(wen_mstatus & control_RegWrite),
-    .wen_mtvec(wen_mtvec & control_RegWrite),
-    .wen_mepc(wen_mepc & control_RegWrite),
-    .wen_mcause(wen_mcause & control_RegWrite),
+    .wen_mstatus(wen_mstatus),
+    .wen_mtvec(wen_mtvec),
+    .wen_mepc(wen_mepc),
+    .wen_mcause(wen_mcause),
     .dout_mstatus(dout_mstatus),
     .dout_mtvec(dout_mtvec),
     .dout_mepc(dout_mepc),
@@ -169,7 +226,6 @@ module ysyx_24110015_IDU (
   /*-----Mem control single generation-----*/
   assign MemWrite = (opcode == `S_type);
   assign MemRead = (opcode == `load);
-  assign control_ls = MemRead | MemWrite;
 
   /*-----zicsr control-----*/
   assign zicsr = (opcode == `zicsr);
@@ -184,5 +240,17 @@ module ysyx_24110015_IDU (
 
   /*-----mret single-----*/
   assign mret = (inst==32'h30200073);
+
+  /*-----performance counter-----*/
+`ifndef __SYNTHESIS__
+  always@(posedge clk) begin
+    if(out_valid & out_ready) begin
+        idu_end(inst_o);
+    end
+    if(in_valid & in_ready) begin
+        idu_begin();
+    end 
+  end
+`endif
 
 endmodule
