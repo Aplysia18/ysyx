@@ -72,52 +72,12 @@ int8_t lsu_counter = 0;
 uint64_t lsu_cycle;
 int8_t wbu_counter = 0;
 void ifu_begin(){
-  // ifu_counter++;
-  // ifu_cycle = cycles_num;
 }
 void ifu_end(int inst){
-  // ifu_counter--;
-  // inst_perf_t * inst_perf = update_performance_counters((uint32_t)inst);
-  // if(ifu_counter == 0) {
-  //   if(inst_perf) {
-  //     inst_perf->num++;
-  //     inst_perf->cycles += cycles_num-ifu_cycle+1;
-  //     inst_perf->ifu += cycles_num-ifu_cycle+1;
-  //   }
-  // }else if(ifu_counter == -1) {
-  //   if(inst_perf) {
-  //     inst_perf->num++;
-  //     inst_perf->cycles += 1;
-  //     inst_perf->ifu +=1;
-  //   }
-  // } else{
-  //   printf("ifu handshake mismatch! ifu_counter = %d\n", ifu_counter);
-  //   abort_flag = 1;
-  //   return;
-  // }
 }
 void idu_begin() {
-  // idu_counter++;
-  // idu_cycle = cycles_num;
 }
 void idu_end(int inst){
-  // idu_counter--;
-  // inst_perf_t * inst_perf = update_performance_counters((uint32_t)inst);
-  // if(idu_counter == 0) {
-  //   if(inst_perf) {
-  //     inst_perf->cycles += cycles_num-idu_cycle+1;
-  //     inst_perf->idu += cycles_num-idu_cycle+1;
-  //   }
-  // }else if(idu_counter == -1) {
-  //   if(inst_perf) {
-  //     inst_perf->cycles += 1;
-  //     inst_perf->idu +=1;
-  //   }
-  // } else{
-  //   printf("idu handshake mismatch! idu_counter = %d\n", idu_counter);
-  //   abort_flag = 1;
-  //   return;
-  // }
 }
 void exu_begin(){
 

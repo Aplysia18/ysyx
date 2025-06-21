@@ -1,7 +1,6 @@
 `include "macros.v"
+
 import "DPI-C" function void npc_trap();
-import "DPI-C" function void exu_begin();
-import "DPI-C" function void exu_end(input int inst);
 
 module ysyx_24110015_EXU (
   input clk,
@@ -303,17 +302,5 @@ module ysyx_24110015_EXU (
   assign din_mcause_ecall = 32'h0000000b;
   assign din_mcause = (zicsr_o&(imm[11:0]==12'h342)) ? csr_wdata : ecall ? din_mcause_ecall : dout_mcause;
   assign wen_mcause = (zicsr_o&(imm[11:0]==12'h342)) | ecall;
-
-/*-----performance counter-----*/
-`ifndef __SYNTHESIS__
-  always@(posedge clk) begin
-    if(out_valid & out_ready) begin
-        exu_end(inst_o);
-    end
-    if(in_valid & in_ready) begin
-        exu_begin();
-    end 
-  end
-`endif
 
 endmodule

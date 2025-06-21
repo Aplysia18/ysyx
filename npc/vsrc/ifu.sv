@@ -1,6 +1,4 @@
 import "DPI-C" function void ifu_fetch();
-import "DPI-C" function void ifu_begin();
-import "DPI-C" function void ifu_end(input int inst);
 
 module ysyx_24110015_IFU (
   input clk,
@@ -66,7 +64,7 @@ module ysyx_24110015_IFU (
       control_iMemRead <= 0; //ifu read request end
     end
   end
-  
+
   /*-----control hazard-----*/
   always @(posedge clk or posedge rst) begin
     if(rst) begin
@@ -292,19 +290,5 @@ module ysyx_24110015_IFU (
     .wen(control_iMemRead_end)
   );
   assign inst = control_iMemRead_end?inst_din:inst_reg;
-
-  /*-----performance counter-----*/
-`ifndef __SYNTHESIS__
-  always@(posedge clk or posedge rst) begin
-    if(~rst) begin
-      if(out_valid & out_ready) begin
-          ifu_end(inst);
-      end
-      if(in_valid & in_ready) begin
-          ifu_begin();
-      end 
-    end
-  end
-`endif
 
 endmodule

@@ -56,17 +56,17 @@ module ysyx_24110015_icache #(
     assign mem_req_addr = cpu_req_addr;
     assign mem_req_valid = ((state==IDLE)&(cpu_req_valid&~hit))|state==AXI_FETCH;
 
+    integer i;
+
     always @(posedge clk or posedge rst) begin
         if(rst) begin
-`ifndef __SYNTHESIS__
-            for(int i = 0; i < BLOCK_NUM; i++) begin
+            for(i = 0; i < BLOCK_NUM; i++) begin
                 cache_data[i] <= 0;
                 cache_tag[i] <= 0;
             end
-`endif
         end else begin
             if(flush) begin
-                for(int i = 0; i < BLOCK_NUM; i++) begin
+                for(i = 0; i < BLOCK_NUM; i=i+1) begin: flush_cache
                     cache_tag[i] <= 0;
                 end
             end else if(mem_req_valid & mem_req_ready) begin

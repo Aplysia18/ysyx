@@ -1,6 +1,4 @@
 `include "macros.v"
-import "DPI-C" function void idu_begin();
-import "DPI-C" function void idu_end(input int inst);
 
 module ysyx_24110015_IDU (
   input clk,
@@ -240,17 +238,5 @@ module ysyx_24110015_IDU (
 
   /*-----mret single-----*/
   assign mret = (inst==32'h30200073);
-
-  /*-----performance counter-----*/
-`ifndef __SYNTHESIS__
-  always@(posedge clk) begin
-    if(out_valid & out_ready) begin
-        idu_end(inst_o);
-    end
-    if(in_valid & in_ready) begin
-        idu_begin();
-    end 
-  end
-`endif
 
 endmodule

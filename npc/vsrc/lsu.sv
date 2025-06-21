@@ -2,8 +2,6 @@
 import "DPI-C" function int pmem_read(input int addr);
 import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
 import "DPI-C" function void lsu_fetch();
-import "DPI-C" function void lsu_begin();
-import "DPI-C" function void lsu_end(input int inst);
 `endif
 module ysyx_24110015_LSU (
     input clk,
@@ -396,18 +394,6 @@ module ysyx_24110015_LSU (
   always @(ebreak_o) begin
     if(ebreak_o) begin
       npc_trap();
-    end
-  end
-`endif
-
-  /*-----performance counter-----*/
-`ifndef __SYNTHESIS__
-  always@(posedge clk) begin
-    if(out_valid & out_ready) begin
-        lsu_end(inst_o);
-    end
-    if(in_valid & in_ready) begin
-        lsu_begin();
     end
   end
 `endif

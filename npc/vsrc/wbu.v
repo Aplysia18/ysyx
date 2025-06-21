@@ -1,6 +1,3 @@
-import "DPI-C" function void wbu_begin();
-import "DPI-C" function void wbu_end(input int inst);
-
 module ysyx_24110015_WBU (
     input clk,
     input rst,
@@ -147,18 +144,5 @@ module ysyx_24110015_WBU (
             wb_data = alu_out;
         end
     end
-
-/*-----ebreak-----*/
-
-`ifndef __SYNTHESIS__
-  always@(posedge clk) begin
-    if(out_valid & out_ready) begin
-        wbu_end(inst_o);
-    end
-    if(in_valid & in_ready) begin
-        wbu_begin();
-    end 
-  end
-`endif
 
 endmodule
