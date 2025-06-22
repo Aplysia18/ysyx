@@ -244,6 +244,8 @@ module ysyx_24110015(
   wire branch;
   wire zicsr_idu, zicsr_exu, zicsr_lsu;
   wire [4:0] zimm;
+  wire [31:0] alu_out_exu, alu_out_lsu;
+  wire [31:0] csr_rdata_exu, csr_rdata_lsu;
 
   logic idu_in_valid, idu_in_ready, idu_out_valid, idu_out_ready;
   assign ifu_out_ready = idu_in_ready;
@@ -252,17 +254,46 @@ module ysyx_24110015(
   logic idu_reg1_read, idu_reg2_read;
   logic [4:0] idu_raddr1, idu_raddr2;
   logic idu_processing, exu_processing, lsu_processing, wbu_processing;
-  logic RAW_check;
-  
-  assign RAW_check = idu_processing? 
-    (idu_reg1_read ? 
-    (exu_processing & RegWrite_exu & (wb_addr_exu == idu_raddr1)) | 
-    (lsu_processing & RegWrite_lsu & (wb_addr_lsu == idu_raddr1)) | 
-    (wbu_processing & RegWrite_wbu & (wb_addr_wbu == idu_raddr1)): 0) | 
-    (idu_reg2_read ? 
-    (exu_processing & RegWrite_exu & (wb_addr_exu == idu_raddr2)) | 
-    (lsu_processing & RegWrite_lsu & (wb_addr_lsu == idu_raddr2)) |
-    (wbu_processing & RegWrite_wbu & (wb_addr_wbu == idu_raddr2)) : 0) : 0;
+
+  logic rs1_raw, rs2_raw, rs1_forward, rs2_forward;
+  logic [31:0] rs1_value, rs2_value;
+
+  ysyx_24110015_forward_check forward_check(
+    //from idu
+    .idu_processing(idu_processing),
+    .idu_reg1_read(idu_reg1_read),
+    .idu_reg2_read(idu_reg2_read),
+    .idu_raddr1(idu_raddr1),
+    .idu_raddr2(idu_raddr2),
+    //from exu
+    .exu_processing(exu_processing),
+    .RegWrite_exu(RegWrite_exu),
+    .wb_addr_exu(wb_addr_exu),
+    .MemRead_exu(MemRead_exu),
+    .zicsr_exu(zicsr_exu),
+    .alu_out_exu(alu_out_exu),
+    .csr_rdata_exu(csr_rdata_exu),
+    //from lsu
+    .lsu_processing(lsu_processing),
+    .RegWrite_lsu(RegWrite_lsu),
+    .wb_addr_lsu(wb_addr_lsu),
+    .MemRead_lsu(MemRead_lsu),
+    .zicsr_lsu(zicsr_lsu),
+    .alu_out_lsu(alu_out_lsu),
+    .csr_rdata_lsu(csr_rdata_lsu),
+    //from wbu
+    .wbu_processing(wbu_processing),
+    .RegWrite_wbu(RegWrite_wbu),
+    .wb_addr_wbu(wb_addr_wbu),
+    .wb_data_wbu(wb_data),
+    //output to idu
+    .rs1_raw(rs1_raw),
+    .rs1_forward(rs1_forward),
+    .rs1_value(rs1_value),
+    .rs2_raw(rs2_raw),
+    .rs2_forward(rs2_forward),
+    .rs2_value(rs2_value)
+  );
 
   ysyx_24110015_IDU idu (
     .clk(clock),
@@ -272,13 +303,19 @@ module ysyx_24110015(
     .in_ready(idu_in_ready),
     .out_valid(idu_out_valid),
     .out_ready(idu_out_ready),
-    //to conflict detection
+    //to forward check
     .processing(idu_processing),
     .reg1_read(idu_reg1_read),
     .reg2_read(idu_reg2_read),
     .raddr1(idu_raddr1),
     .raddr2(idu_raddr2),
-    .RAW_check(RAW_check),
+    //from forward check
+    .rs1_raw(rs1_raw),
+    .rs1_forward(rs1_forward),
+    .rs1_value(rs1_value),
+    .rs2_raw(rs2_raw),
+    .rs2_forward(rs2_forward),
+    .rs2_value(rs2_value),
     //for branch hazard
     .control_hazard(control_hazard),
     //from ifu
@@ -329,9 +366,7 @@ module ysyx_24110015(
     .mret(mret)
 );
 
-  wire [31:0] alu_out_exu, alu_out_lsu;
   wire [3:0] mem_wmask;
-  wire [31:0] csr_rdata_exu, csr_rdata_lsu;
   wire [31:0] mem_wdata;
 
   logic exu_in_valid, exu_in_ready, exu_out_valid, exu_out_ready;

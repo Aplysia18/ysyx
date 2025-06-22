@@ -8,13 +8,19 @@ module ysyx_24110015_IDU (
   output in_ready, //idu ready
   output reg out_valid, //to exu
   input out_ready, //from exu
-  //to conflict detection
+  //to forward check
   output reg processing,
   output reg1_read,
   output reg2_read,
   output [4:0] raddr1,
   output [4:0] raddr2,
-  input RAW_check,
+  //from forward check
+  input rs1_raw,
+  input rs1_forward,
+  input [31:0] rs1_value,
+  input rs2_raw,
+  input rs2_forward,
+  input [31:0] rs2_value,
   //for branch hazard
   input control_hazard,
   //from ifu
@@ -66,8 +72,9 @@ module ysyx_24110015_IDU (
 );
 
   /*-----handshake signals-----*/
-  assign in_ready = ~RAW_check & out_ready; // ready when no RAW hazard
-  assign out_valid = processing & ~RAW_check & ~control_hazard;
+  wire raw_stall = (rs1_raw & ~rs1_forward) | (rs2_raw & ~rs2_forward);
+  assign in_ready = ~raw_stall & out_ready; // ready when no RAW hazard
+  assign out_valid = processing & ~raw_stall & ~control_hazard;
   
   always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -137,6 +144,7 @@ module ysyx_24110015_IDU (
   assign wb_addr_o = {1'b0, inst[10:7]};
   assign raddr1 = inst[19:15];
   assign raddr2 = inst[24:20];
+  wire [31:0] rf_rdata1, rf_rdata2;
   ysyx_24110015_RegisterFile #(4, 32) rf (
     .clk(clk), 
     .wdata(wb_data),
@@ -144,9 +152,11 @@ module ysyx_24110015_IDU (
     .wen(RegWrite_i),
     .raddr1(raddr1[3:0]),
     .raddr2(raddr2[3:0]),
-    .rdata1(rdata1),
-    .rdata2(rdata2)
+    .rdata1(rf_rdata1),
+    .rdata2(rf_rdata2)
   );
+  assign rdata1 = rs1_forward ? rs1_value : rf_rdata1;
+  assign rdata2 = rs2_forward ? rs2_value : rf_rdata2;
 
   /*-----ALU data select control signal generation-----*/
   wire ALUAsrc_rs1, ALUAsrc_pc, ALUAsrc_0;

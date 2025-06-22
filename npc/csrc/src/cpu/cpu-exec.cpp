@@ -62,41 +62,6 @@ inst_perf_t * update_performance_counters(uint32_t inst);
 
 void ifu_fetch() {g_ifu_fetch++;}
 void lsu_fetch() {g_lsu_fetch++;}
-int8_t ifu_counter = 0;
-uint64_t ifu_cycle;
-int8_t idu_counter = 0;
-uint64_t idu_cycle;
-int8_t exu_counter = 0;
-uint64_t exu_cycle;
-int8_t lsu_counter = 0;
-uint64_t lsu_cycle;
-int8_t wbu_counter = 0;
-void ifu_begin(){
-}
-void ifu_end(int inst){
-}
-void idu_begin() {
-}
-void idu_end(int inst){
-}
-void exu_begin(){
-
-}
-void exu_end(int inst){
-
-}
-void lsu_begin(){
-
-}
-void lsu_end(int inst){
-
-}
-void wbu_begin(){
-
-}
-void wbu_end(int inst){
-
-}
 void icache_valid();
 void icache_ready();
 uint64_t ifu_state_cnt = 0;
@@ -267,7 +232,8 @@ static void execute_once(Decode *s){
     single_cycle();
     cycles_num++;
     cnt++;
-    if(cnt > 10000){
+    if(cnt > 20000){
+      printf("too many cycles!\n");
       abort_flag = 1;
       break;
     }
