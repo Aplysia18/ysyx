@@ -189,6 +189,8 @@ module ysyx_24110015(
 
   logic [31:0] pc_predict_ifu, pc_predict_idu;
   logic control_hazard;
+  logic [31:0] pc_predict_bp;
+  logic pc_predict_valid_bp;
 
   wire fence_i;
 
@@ -201,7 +203,7 @@ module ysyx_24110015(
       ifu_in_valid <= 1;  //need raw control
     end
   end
-  
+
   /*-----IFU-----*/
   ysyx_24110015_IFU ifu (
     .clk(clock),
@@ -211,6 +213,9 @@ module ysyx_24110015(
     .in_ready(ifu_in_ready),
     .out_valid(ifu_out_valid),
     .out_ready(ifu_out_ready),
+    //from branch predictor
+    .pc_predict_bp(pc_predict_bp),
+    .pc_predict_valid_bp(pc_predict_valid_bp),
     //for branch hazard
     .control_hazard(control_hazard),
     .pc_next(pc_next_exu),
@@ -241,7 +246,7 @@ module ysyx_24110015(
   wire MemWrite_idu, MemWrite_exu, MemWrite_lsu;
   wire MemRead_idu, MemRead_exu, MemRead_lsu, MemRead_wbu;
   wire PCAsrc, PCBsrc;
-  wire branch;
+  wire branch, jal;
   wire zicsr_idu, zicsr_exu, zicsr_lsu;
   wire [4:0] zimm;
   wire [31:0] alu_out_exu, alu_out_lsu;
@@ -294,6 +299,24 @@ module ysyx_24110015(
     .rs2_forward(rs2_forward),
     .rs2_value(rs2_value)
   );
+
+  logic update_valid_bp, branch_bp, jal_bp;
+  logic [31:0] pc_update_bp, target_addr_bp;
+  ysyx_24110015_branch_predictor #(8) branch_predictor (
+    .clk(clock),
+    .rst(reset),
+    //from ifu
+    .pc_in(pc_ifu),
+    //to ifu
+    .pc_predict(pc_predict_bp),
+    .pc_predict_valid(pc_predict_valid_bp),
+    //from exu
+    .update_valid(update_valid_bp),
+    .branch(branch_bp),
+    .jal(jal_bp),
+    .pc_update(pc_update_bp),
+    .target_addr(target_addr_bp)
+);
 
   ysyx_24110015_IDU idu (
     .clk(clock),
@@ -352,6 +375,7 @@ module ysyx_24110015(
     .PCAsrc(PCAsrc),
     .PCBsrc(PCBsrc),
     .branch(branch),
+    .jal(jal),
     .zicsr(zicsr_idu),
     .zimm(zimm),
     .dout_mstatus(dout_mstatus),
@@ -386,6 +410,12 @@ module ysyx_24110015(
     //for branch hazard
     .control_hazard(control_hazard),
     .pc_next(pc_next_exu),
+    //to branch predictor
+    .update_valid_bp(update_valid_bp),
+    .branch_bp(branch_bp),
+    .jal_bp(jal_bp),
+    .pc_update_bp(pc_update_bp),
+    .target_addr_bp(target_addr_bp),
     //from idu
     .pc_i(pc_idu),
     .inst_i(inst_idu),
@@ -404,6 +434,7 @@ module ysyx_24110015(
     .PCAsrc_i(PCAsrc),
     .PCBsrc_i(PCBsrc),
     .branch_i(branch),
+    .jal_i(jal),
     .zicsr_i(zicsr_idu),
     .zimm_i(zimm),
     .dout_mstatus_i(dout_mstatus),

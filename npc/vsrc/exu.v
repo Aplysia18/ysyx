@@ -15,6 +15,12 @@ module ysyx_24110015_EXU (
   //for branch hazard
   output reg control_hazard,
   output [31:0] pc_next,
+  //to branch predictor
+  output update_valid_bp,
+  output branch_bp,
+  output jal_bp,
+  output [31:0] pc_update_bp,
+  output [31:0] target_addr_bp,
   //from idu
   input [31:0] pc_i,
   input [31:0] inst_i,
@@ -33,6 +39,7 @@ module ysyx_24110015_EXU (
   input PCAsrc_i,
   input PCBsrc_i,
   input branch_i,
+  input jal_i,
   input zicsr_i,
   input [4:0] zimm_i,
   input [31:0] dout_mstatus_i,
@@ -110,7 +117,7 @@ module ysyx_24110015_EXU (
   reg [31:0] imm, data1, data2;
   reg [1:0] ALUAsrc, ALUBsrc;
   reg [3:0] ALUop;
-  reg PCAsrc, PCBsrc, branch;
+  reg PCAsrc, PCBsrc, branch, jal;
   reg [4:0] zimm;
   reg [31:0] dout_mstatus, dout_mtvec, dout_mepc, dout_mcause, dout_mvendorid, dout_marchid;
   reg ecall, mret;
@@ -129,6 +136,7 @@ module ysyx_24110015_EXU (
       PCAsrc <= 1'b0;
       PCBsrc <= 1'b0;
       branch <= 1'b0;
+      jal <= 1'b0;
       zimm <= 5'b0;
       dout_mstatus <= 32'b0;
       dout_mtvec <= 32'b0;
@@ -151,6 +159,7 @@ module ysyx_24110015_EXU (
       PCAsrc <= PCAsrc_i;
       PCBsrc <= PCBsrc_i;
       branch <= branch_i;
+      jal <= jal_i;
       zimm <= zimm_i;
       dout_mstatus <= dout_mstatus_i;
       dout_mtvec <= dout_mtvec_i;
@@ -186,6 +195,27 @@ module ysyx_24110015_EXU (
     end
   end
   assign control_hazard = control_hazard_flag & (pc_predict != pc_next);
+
+  /*-----branch predictor signals-----*/
+  always @(posedge clk or posedge rst) begin
+    if(rst) begin
+      update_valid_bp <= 0;
+    end else if(in_valid & in_ready & (jal_i | branch_i)) begin
+      update_valid_bp <= 1;
+    end else begin
+      update_valid_bp <= 0;
+    end
+  end
+  assign branch_bp = branch;
+  assign jal_bp = jal;
+  assign pc_update_bp = pc_o;
+  assign target_addr_bp = pc_next;
+
+  // always @(negedge clk) begin
+  //   if(update_valid_bp) begin
+  //     $display("exu: branch_bp=%b, jal_bp=%b, pc_update_bp=%h, target_addr_bp=%h", branch_bp, jal_bp, pc_update_bp,target_addr_bp);
+  //   end
+  // end
 
   /*-----Next PC Calculate-----*/
   wire [31:0] PCAdata, PCBdata;

@@ -147,8 +147,13 @@ config ITRACE
   default y
 
 config ICACHE_TRACE
-  depends on TRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable instruction cache tracer"
+  default n
+
+config BTRACE
+  depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+  bool "Enable branch tracer"
   default n
 
 config FTRACE

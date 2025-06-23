@@ -8,6 +8,9 @@ module ysyx_24110015_IFU (
   output in_ready, //ifu ready
   output out_valid, //to idu
   input out_ready, //from idu
+  //from branch predictor
+  input [31:0] pc_predict_bp,
+  input pc_predict_valid_bp,
   //for branch hazard
   input control_hazard,
   input [31:0] pc_next,
@@ -94,7 +97,12 @@ module ysyx_24110015_IFU (
 
   /*-----PC-----*/
   logic [31:0] pc;
-  assign pc_predict = pc + 4; //pc increment
+  assign pc_predict = pc_predict_valid_bp ? pc_predict_bp : pc + 4; //pc increment
+  // always @(posedge clk) begin
+  //   if(out_valid & out_ready) begin
+  //     $display("pc=%h, predict_pc=%h, pc_predict_valid_bp=%b",pc,pc_predict,pc_predict_valid_bp);
+  //   end
+  // end
   ysyx_24110015_Pc pc_reg (
     .clk(clk), 
     .rst(rst), 

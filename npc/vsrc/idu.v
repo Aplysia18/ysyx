@@ -57,6 +57,7 @@ module ysyx_24110015_IDU (
   output PCAsrc,
   output PCBsrc,
   output branch,
+  output jal,
   output zicsr,
   output [4:0] zimm,
   output [31:0] dout_mstatus,
@@ -172,7 +173,7 @@ module ysyx_24110015_IDU (
   assign ALUBsrc = ALUBsrc_rs2 ? 2'b00 : ALUBsrc_imm ? 2'b01 : ALUBsrc_4 ? 2'B10 : 2'b11;  //0: rs2, 1:imm, 2:4
 
   /*-----ALU operation control signal generation-----*/
-  reg [3:0]b_type_alu_op;
+  reg [3:0] b_type_alu_op;
   //ALU op select for B type
   ysyx_24110015_MuxKey #(8, 3, 4) BTypeALUOpmux(
     .out(b_type_alu_op),
@@ -230,6 +231,8 @@ module ysyx_24110015_IDU (
 
   /*-----branch signal-----*/
   assign branch = B_type;
+  /*-----jal-----*/
+  assign jal = J_type;
 
   /*-----Mem control single generation-----*/
   assign MemWrite = (opcode == `S_type);
